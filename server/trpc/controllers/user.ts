@@ -7,6 +7,7 @@ import { db } from '../../db/db';
 import { refreshTokens, users } from '../../db/schema/user';
 import { Auth } from '../utils/auth';
 import { TRPCForbidden, useTry } from '../../trpc/utils/shared';
+import { userSerializer } from '../serializers/user';
 import { PGetBasicUser } from '~/server/db/statements';
 
 export class UserController {
@@ -66,9 +67,7 @@ export class UserController {
     const accessToken = await this.auth.produceAccessToken(user.id);
     const refreshToken = await this.auth.produceRefreshToken(user.id);
     return {
-      id: user.id,
-      username: user.username,
-      role: user.role,
+      ...userSerializer(user),
       accessToken,
       refreshToken,
     };
@@ -95,11 +94,15 @@ export class UserController {
   }
 
   async getProfile(id: string) {
-    return await useTry(() => PGetBasicUser.get({ id }));
+    const basicUser = await useTry(() => PGetBasicUser.get({ id }));
+    if (!basicUser)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
+    return userSerializer(basicUser);
   }
 
   async getList() {
-    return await useTry(() => db.select().from(users).all());
+    const userList = await useTry(() => db.select().from(users).all());
+    return userList.map(u => userSerializer(u));
   }
 
   async remove(id: string) {
