@@ -1,7 +1,12 @@
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div>
+    <ClientOnly>
+      <Toaster position="top-center" />
+    </ClientOnly>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
 </template>
 
 <script setup>

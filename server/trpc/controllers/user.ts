@@ -6,9 +6,7 @@ import type { TNewUser, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
 import { refreshTokens, users } from '../../db/schema/user';
 import { Auth } from '../utils/auth';
-import { TRPCForbidden, useTry } from '../../trpc/utils/shared';
-import { userSerializer } from '../serializers/user';
-import { PGetBasicUser } from '~/server/db/statements';
+import { TRPCForbidden } from '../../trpc/utils/shared';
 
 export class UserController {
   private auth: Auth;
@@ -41,12 +39,12 @@ export class UserController {
   }
 
   async modifyPassword(user: TRawUser, id: string, oldPassword: string, newPassword: string) {
-    if (!['admin', 'teacher'].includes(user.role) && user.id !== id)
+    if (user.role !== 'admin' && user.id !== id)
       throw TRPCForbidden;
 
     const targetUser = user.id === id
       ? user
-      : await useTry(() => db.select().from(users).where(eq(users.id, id)).get());
+      : await db.query.users.findFirst({ where: eq(users.id, id) });
     if (!targetUser)
       throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
 
@@ -55,31 +53,37 @@ export class UserController {
     if (!await bcrypt.compare(oldPassword, targetUser.password))
       throw new TRPCError({ code: 'BAD_REQUEST', message: '旧密码不正确' });
 
-    await useTry(async () => db.update(users).set({ password: await bcrypt.hash(newPassword, 8) }).where(eq(users.id, id)));
+    await db.update(users).set({ password: await bcrypt.hash(newPassword, 8) }).where(eq(users.id, id));
     return '修改成功';
   }
 
   async login(username: string, password: string) {
-    const user = await useTry(async () => db.select().from(users).where(eq(users.username, username)).get());
+    const user = await db.query.users.findFirst({
+      where: eq(users.username, username),
+    });
     if (!(user && (await bcrypt.compare(password, user.password))))
       throw new TRPCError({ code: 'UNAUTHORIZED', message: '用户名或密码错误' });
 
     const accessToken = await this.auth.produceAccessToken(user.id);
     const refreshToken = await this.auth.produceRefreshToken(user.id);
+
+    const {
+      password: _password,
+      ...info
+    } = user;
+
     return {
-      ...userSerializer(user),
+      ...info,
       accessToken,
       refreshToken,
     };
   }
 
   async refreshAccessToken(refreshToken: string, id: string) {
-    const token = await useTry(
-      async () => db
-        .delete(refreshTokens)
-        .where(and(eq(refreshTokens.token, refreshToken), eq(refreshTokens.owner, id)))
-        .returning(),
-    );
+    const token = await db
+      .delete(refreshTokens)
+      .where(and(eq(refreshTokens.token, refreshToken), eq(refreshTokens.owner, id)))
+      .returning();
     if (!token[0])
       throw new TRPCError({ code: 'UNAUTHORIZED', message: '请重新登陆' });
 
@@ -89,20 +93,35 @@ export class UserController {
   }
 
   async modify(id: string, newUser: Partial<Omit<TRawUser, 'password' | 'createdAt'>>) {
-    await useTry(() => db.update(users).set(newUser).where(eq(users.id, id)));
+    await db.update(users).set(newUser).where(eq(users.id, id));
     return '修改成功';
   }
 
   async getProfile(id: string) {
-    const basicUser = await useTry(() => PGetBasicUser.get({ id }));
+    const basicUser = await db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
     if (!basicUser)
       throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
-    return userSerializer(basicUser);
+
+    const {
+      password: _password,
+      ...info
+    } = basicUser;
+
+    return info;
   }
 
   async getList() {
-    const userList = await useTry(() => db.select().from(users).all());
-    return userList.map(u => userSerializer(u));
+    const res = await db.query.users.findMany();
+    return res.map((user) => {
+      const {
+        password: _password,
+        ...info
+      } = user;
+
+      return info;
+    });
   }
 
   async remove(id: string) {

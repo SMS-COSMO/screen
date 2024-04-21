@@ -6,24 +6,30 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/color-mode',
     'shadcn-nuxt',
   ],
   shadcn: {
-    /**
-     * Prefix for all the imported component
-     */
     prefix: '',
-    /**
-     * Directory that the component lives in.
-     * @default "./components/ui"
-     */
     componentDir: './components/ui',
+  },
+  colorMode: {
+    classSuffix: '',
   },
   tailwindcss: {
     cssPath: '~/styles/tailwind.css',
   },
+  imports: {
+    dirs: ['types', 'constants'],
+    presets: [
+      {
+        from: '@tanstack/vue-query',
+        imports: ['useMutation', 'useQuery', 'useQueryClient'],
+      },
+    ],
+  },
   build: {
-    transpile: ['trpc-nuxt'],
+    transpile: ['trpc-nuxt', 'vue-sonner'],
   },
   nitro: {
     esbuild: {

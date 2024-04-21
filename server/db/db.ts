@@ -3,6 +3,8 @@ import { createClient } from '@libsql/client';
 import { env } from '../env';
 import type { refreshTokens, users } from './schema/user';
 
+import * as userSchema from './schema/user';
+
 const options = (() => {
   switch (env.DATABASE_CONNECTION_TYPE) {
     case 'local': return { url: env.DATABASE_URL };
@@ -11,7 +13,11 @@ const options = (() => {
 })();
 
 const client = createClient(options);
-export const db = drizzle(client);
+export const db = drizzle(client, {
+  schema: {
+    ...userSchema,
+  },
+});
 
 export type TRawUser = typeof users.$inferSelect;
 export type TNewUser = typeof users.$inferInsert;
