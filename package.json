@@ -52,6 +52,7 @@
     "@nuxtjs/tailwindcss": "^6.11.4",
     "@pinia-plugin-persistedstate/nuxt": "^1.2.0",
     "@pinia/nuxt": "^0.5.1",
+    "@radix-icons/vue": "^1.0.0",
     "@types/bcrypt": "^5.0.2",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.14",
