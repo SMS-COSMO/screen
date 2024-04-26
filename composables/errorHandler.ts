@@ -14,7 +14,7 @@ export async function useErrorHandler(err: unknown): Promise<void> {
     } else {
       toast.error(err.message);
       if (err.message === '用户未登录')
-        onNuxtReady(() => navigateTo('/user/login'));
+        onNuxtReady(() => navigateTo('/login'));
     }
   } else {
     toast.error('未知错误');
