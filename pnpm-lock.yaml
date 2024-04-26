@@ -85,9 +85,6 @@ devDependencies:
   '@iconify-json/lucide':
     specifier: ^1.1.185
     version: 1.1.185
-  '@iconify-json/tabler':
-    specifier: ^1.1.110
-    version: 1.1.110
   '@iconify/tailwind':
     specifier: ^0.1.4
     version: 0.1.4
@@ -1386,12 +1383,6 @@ packages:
 
   /@iconify-json/lucide@1.1.185:
     resolution: {integrity: sha512-WIKjqTcn9f7jX4YhxXYVecHXErcs3zf4UM9rl58s516+O3IDVHw+7jE5YiF8LNhT7W15SZf+FLuNUB5MoWLlEg==}
-    dependencies:
-      '@iconify/types': 2.0.0
-    dev: true
-
-  /@iconify-json/tabler@1.1.110:
-    resolution: {integrity: sha512-+0TbyNeQpFI2r+bjtbazGrpGskI3c9NTii/6HhWTS+/d5+PiLs6+wWJW0M9AU2ykew7zdMKB2WtyczFyjYzZIQ==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
