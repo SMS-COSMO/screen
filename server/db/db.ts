@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { env } from '../env';
-import type { refreshTokens, users } from './schema/user';
 
-import * as userSchema from './schema/user';
+import type { refreshTokens, users } from './schema';
+import * as schema from './schema';
 
 const options = (() => {
   switch (env.DATABASE_CONNECTION_TYPE) {
@@ -13,11 +13,7 @@ const options = (() => {
 })();
 
 const client = createClient(options);
-export const db = drizzle(client, {
-  schema: {
-    ...userSchema,
-  },
-});
+export const db = drizzle(client, { schema });
 
 export type TRawUser = typeof users.$inferSelect;
 export type TNewUser = typeof users.$inferInsert;
