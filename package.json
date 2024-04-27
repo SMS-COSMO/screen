@@ -55,7 +55,7 @@
     "@radix-icons/vue": "^1.0.0",
     "@types/bcrypt": "^5.0.2",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.20.17",
     "eslint": "^8.57.0",
     "eslint-plugin-drizzle": "^0.2.3",
     "happy-dom": "^13.10.1",

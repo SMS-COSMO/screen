@@ -3,7 +3,7 @@ import { protectedProcedure, publicProcedure, requireRoles, router } from '../tr
 import { passwordRegex } from '~/constants/user';
 
 const roleEnumZod = z.enum(['admin', 'club'], { errorMap: () => ({ message: '提交了不存在的用户身份' }) });
-const userIdZod = z.string().min(1, { message: '用户不存在' });
+const userIdZod = z.number().int().min(1, { message: '用户不存在' });
 const usernameZod = z.string().min(2, { message: '用户名长度应至少为2' }).max(15, { message: '用户名超出长度范围' });
 const newPasswordZod = z.string().min(8, { message: '用户密码长度应至少为8' }).regex(passwordRegex, '密码必须包含大小写字母、数字与特殊符号');
 
@@ -14,8 +14,6 @@ export const userRouter = router({
       role: roleEnumZod,
       username: usernameZod,
       password: newPasswordZod,
-      groupId: z.string().optional(),
-      classId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.userController.register(input);
@@ -46,12 +44,6 @@ export const userRouter = router({
 
   tokenValidity: protectedProcedure
     .query(() => { }), // protectedProcedure will check if user is logged in
-
-  refreshAccessToken: publicProcedure
-    .input(z.object({ username: z.string(), refreshToken: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.userController.refreshAccessToken(input.refreshToken, input.username);
-    }),
 
   modify: protectedProcedure
     .input(z.object({

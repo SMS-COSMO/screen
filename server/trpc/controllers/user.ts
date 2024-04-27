@@ -1,10 +1,10 @@
 import { LibsqlError } from '@libsql/client';
 import bcrypt from 'bcrypt';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import type { TNewUser, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
-import { refreshTokens, users } from '../../db/schema/user';
+import { users } from '../../db/schema';
 import { Auth } from '../utils/auth';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 
@@ -38,7 +38,7 @@ export class UserController {
     }
   }
 
-  async modifyPassword(user: TRawUser, id: string, oldPassword: string, newPassword: string) {
+  async modifyPassword(user: TRawUser, id: number, oldPassword: string, newPassword: string) {
     if (user.role !== 'admin' && user.id !== id)
       throw TRPCForbidden;
 
@@ -65,7 +65,6 @@ export class UserController {
       throw new TRPCError({ code: 'UNAUTHORIZED', message: '用户名或密码错误' });
 
     const accessToken = await this.auth.produceAccessToken(user.id);
-    const refreshToken = await this.auth.produceRefreshToken(user.id);
 
     const {
       password: _password,
@@ -75,29 +74,15 @@ export class UserController {
     return {
       ...info,
       accessToken,
-      refreshToken,
     };
   }
 
-  async refreshAccessToken(refreshToken: string, id: string) {
-    const token = await db
-      .delete(refreshTokens)
-      .where(and(eq(refreshTokens.token, refreshToken), eq(refreshTokens.owner, id)))
-      .returning();
-    if (!token[0])
-      throw new TRPCError({ code: 'UNAUTHORIZED', message: '请重新登陆' });
-
-    const newRefreshToken = await this.auth.produceRefreshToken(id);
-    const newAccessToken = await this.auth.produceAccessToken(id);
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-  }
-
-  async modify(id: string, newUser: Partial<Omit<TRawUser, 'password' | 'createdAt'>>) {
+  async modify(id: number, newUser: Partial<Omit<TRawUser, 'password' | 'createdAt'>>) {
     await db.update(users).set(newUser).where(eq(users.id, id));
     return '修改成功';
   }
 
-  async getProfile(id: string) {
+  async getProfile(id: number) {
     const basicUser = await db.query.users.findFirst({
       where: eq(users.id, id),
     });
@@ -124,7 +109,7 @@ export class UserController {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     try {
       await db.delete(users).where(eq(users.id, id));
       return '删除成功';

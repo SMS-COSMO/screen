@@ -25,12 +25,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   contents: many(contents),
 }));
 
-export const refreshTokens = sqliteTable('refresh_tokens', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  token: text('token').notNull(),
-  owner: integer('owner').references(() => users.id, cascade).notNull(),
-});
-
 export const programs = sqliteTable('programs', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
@@ -111,6 +105,17 @@ export const programsToPools = sqliteTable('programs_to_pools', {
   poolId: integer('pool_id').notNull().references(() => pools.id, cascade),
 }, t => ({
   pk: primaryKey({ columns: [t.programId, t.poolId] }),
+}));
+
+export const programsToPoolsRelations = relations(programsToPools, ({ one }) => ({
+  program: one(programs, {
+    fields: [programsToPools.programId],
+    references: [programs.id],
+  }),
+  pool: one(pools, {
+    fields: [programsToPools.poolId],
+    references: [pools.id],
+  }),
 }));
 
 export const poolsRelations = relations(pools, ({ many }) => ({
