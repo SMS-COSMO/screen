@@ -17,14 +17,21 @@
                 <Label for="email">用户名</Label>
                 <Input
                   id="username"
+                  v-model="form.username"
                   required
                 />
               </div>
               <div class="grid gap-2">
                 <Label for="password">密码</Label>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  v-model="form.password"
+                  type="password"
+                  required
+                />
               </div>
-              <Button type="submit" class="w-full">
+              <Button type="submit" class="w-full" @click="loginMutation(form)">
+                <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
                 登录
               </Button>
             </div>
@@ -34,3 +41,26 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { Loader2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
+
+const { $api } = useNuxtApp();
+const userStore = useUserStore();
+
+const form = reactive({
+  username: '',
+  password: '',
+});
+
+const { mutate: loginMutation, isPending } = useMutation({
+  mutationFn: $api.user.login.mutate,
+  onSuccess: (res) => {
+    userStore.login(res);
+    navigateTo('/');
+    toast.success('登录成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+</script>

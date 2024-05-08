@@ -86,12 +86,13 @@
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{{ store.username }}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>设置</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem @click="logout">
+                登出
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </ClientOnly>
@@ -106,6 +107,14 @@
 <script setup lang="ts">
 import { Bell, CircleUser, Menu, Search } from 'lucide-vue-next';
 import { createReusableTemplate } from '@vueuse/core';
+import { toast } from 'vue-sonner';
 
+const store = useUserStore();
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate();
+
+function logout() {
+  store.logout();
+  navigateTo('/');
+  toast.success('登出成功');
+}
 </script>
