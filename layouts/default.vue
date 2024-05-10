@@ -2,8 +2,8 @@
   <DefineTemplate v-slot="{ path, icon, name }">
     <NuxtLink
       :href="path"
-      :class="`${$route.path === path ? 'bg-muted text-primary' : 'text-muted-foreground'} flex items-center gap-3
-              rounded-lg px-3 py-2 my-1 transition-all hover:text-primary`"
+      :class="`${$route.path === path ? 'bg-muted text-foreground' : 'text-muted-foreground'} flex items-center gap-3
+              rounded-lg px-3 py-2 my-1 transition-all hover:text-foreground`"
     >
       <Icon :name="icon" size="16" />
       {{ name }}
