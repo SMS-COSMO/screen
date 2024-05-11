@@ -33,7 +33,7 @@
               <Button v-if="!isPending" type="submit" class="w-full" @click="loginMutation(form)">
                 登录
               </Button>
-              <Button v-if="isPending" type="submit" class="w-full" @click="loginMutation(form)">
+              <Button v-if="isPending" type="submit" class="w-full" disabled @click="loginMutation(form)">
                 <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
                 请稍候……
               </Button>
