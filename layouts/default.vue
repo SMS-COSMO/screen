@@ -86,7 +86,12 @@
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{{ store.username }}</DropdownMenuLabel>
+              <DropdownMenuItem v-if="!store.loggedIn" @click="router.push('/login')">
+                请登录
+              </DropdownMenuItem>
+              <DropdownMenuLabel v-if="store.loggedIn">
+                {{ store.username }}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>设置</DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -110,6 +115,7 @@ import { createReusableTemplate } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 
 const store = useUserStore();
+const router = useRouter();
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate();
 
 function logout() {
