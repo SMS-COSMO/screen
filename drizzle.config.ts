@@ -1,4 +1,4 @@
-import type { Config } from 'drizzle-kit';
+import { defineConfig } from 'drizzle-kit';
 import { env } from './server/env';
 
 const dbCredentials = (() => {
@@ -8,10 +8,10 @@ const dbCredentials = (() => {
   }
 })();
 
-export default {
-  schema: './server/db/schema.ts',
+export default defineConfig({
+  dialect: 'sqlite',
   out: './drizzle',
+  schema: './server/db/schema.ts',
   driver: 'turso',
   dbCredentials,
-  tablesFilter: ['!libsql_wasm_func_table'],
-} satisfies Config;
+});

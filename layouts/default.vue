@@ -64,21 +64,10 @@
             </nav>
           </SheetContent>
         </Sheet>
-        <div class="w-full flex-1">
-          <form>
-            <div class="relative">
-              <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                class="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-              />
-            </div>
-          </form>
-        </div>
+        <div class="w-full flex-1" />
         <DarkToggle />
         <ClientOnly>
-          <DropdownMenu>
+          <DropdownMenu v-if="store.loggedIn">
             <DropdownMenuTrigger as-child>
               <Button variant="secondary" size="icon" class="rounded-full">
                 <CircleUser class="h-5 w-5" />
@@ -86,9 +75,6 @@
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem v-if="!store.loggedIn" @click="router.push('/login')">
-                请登录
-              </DropdownMenuItem>
               <DropdownMenuLabel v-if="store.loggedIn">
                 {{ store.username }}
               </DropdownMenuLabel>
@@ -100,6 +86,9 @@
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button v-else variant="outline" @click="router.push('/login')">
+            请登录
+          </Button>
         </ClientOnly>
       </header>
       <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -110,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bell, CircleUser, Menu, Search } from 'lucide-vue-next';
+import { Bell, CircleUser, Menu } from 'lucide-vue-next';
 import { createReusableTemplate } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 
