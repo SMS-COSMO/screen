@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, requireRoles, router } from '../trpc';
 
 const locationZod = z.string()
   .max(114514, { message: '这么长的设备名真的有必要吗' });
