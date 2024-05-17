@@ -86,7 +86,7 @@
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button v-else variant="outline" @click="router.push('/login')">
+          <Button v-else variant="outline" @click="navigateTo('/login')">
             请登录
           </Button>
         </ClientOnly>
@@ -104,7 +104,6 @@ import { createReusableTemplate } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 
 const store = useUserStore();
-const router = useRouter();
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate();
 
 function logout() {
