@@ -10,6 +10,11 @@ export class DeviceController {
     return '设备创建成功';
   }
 
+  async delete(id: number) {
+    await db.delete(devices).where(eq(devices.id, id));
+    return '设备删除成功';
+  }
+
   async getInfo(id: number) {
     const device = await db.query.devices.findFirst({
       where: eq(devices.id, id),

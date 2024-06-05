@@ -1,7 +1,7 @@
 <template>
   <div>
     <ClientOnly>
-      <Toaster position="top-center" />
+      <Toaster rich-colors position="top-center" />
     </ClientOnly>
     <NuxtLayout>
       <NuxtPage />

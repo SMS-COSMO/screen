@@ -71,6 +71,38 @@
         <div class="grid gap-2">
           <CardTitle>所有设备</CardTitle>
         </div>
+        <Dialog>
+          <DialogTrigger as-child>
+            <Button variant="outline" class="ml-auto">
+              创建设备
+            </Button>
+          </DialogTrigger>
+          <DialogContent class="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>创建设备</DialogTitle>
+              <DialogDescription>
+                请输入设备名称
+              </DialogDescription>
+            </DialogHeader>
+            <div class="grid gap-4 py-4">
+              <div class="grid grid-cols-4 items-center gap-4">
+                <Label for="location" class="text-right">
+                  设备名称
+                </Label>
+                <Input id="location" v-model="location" class="col-span-3" />
+              </div>
+            </div>
+            <DialogClose>
+              <Button v-if="!isPending" type="submit" @click="createMutation({ location })">
+                创建设备
+              </Button>
+              <Button v-if="isPending" type="submit" disabled>
+                <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                请稍候……
+              </Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent>
         <Table>
@@ -91,7 +123,9 @@
               <TableCell class="font-medium">
                 {{ device.id }}
               </TableCell>
-              <TableCell>{{ device.location }}</TableCell>
+              <TableCell>
+                <p>{{ device.location }}</p>
+              </TableCell>
               <TableCell>{{ device.createdAt.toLocaleDateString() }}</TableCell>
               <TableCell class="text-right">
                 {{ device.programId }}
@@ -105,13 +139,34 @@
 </template>
 
 <script setup lang="ts">
-import { Activity, ArrowUpRight, CreditCard, DollarSign, Users } from 'lucide-vue-next';
+import { Activity, CreditCard, DollarSign, Loader2, Pencil, Users } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const { $api } = useNuxtApp();
 
+const queryClient = useQueryClient();
 const { data: list, suspense } = useQuery({
   queryKey: ['device.list'],
   queryFn: () => $api.device.list.query(),
 });
 await suspense();
+
+const location = ref('');
+const { mutate: createMutation, isPending } = useMutation({
+  mutationFn: $api.device.create.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    toast.success('设备创建成功');
+  },
+  onError: err => useErrorHandler(err),
+});
 </script>

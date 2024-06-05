@@ -13,6 +13,13 @@ export const deviceRouter = router({
       return await ctx.deviceController.create(input);
     }),
 
+  delete: protectedProcedure
+    .use(requireRoles(['admin']))
+    .input(z.object({ id: deviceIdZod }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.deviceController.delete(input.id);
+    }),
+
   info: protectedProcedure
     .use(requireRoles(['admin']))
     .input(z.object({ id: deviceIdZod }))

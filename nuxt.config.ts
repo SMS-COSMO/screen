@@ -39,4 +39,11 @@ export default defineNuxtConfig({
       },
     },
   },
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        baseUrl: '.',
+      },
+    },
+  },
 });
