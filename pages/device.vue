@@ -139,7 +139,15 @@
 </template>
 
 <script setup lang="ts">
-import { Activity, CreditCard, DollarSign, Loader2, Pencil, Users } from 'lucide-vue-next';
+import {
+  Activity,
+  CreditCard,
+  DollarSign,
+  Loader2,
+  Pencil,
+  Trash2,
+  Users,
+} from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import {
   Dialog,
