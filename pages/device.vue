@@ -108,26 +108,76 @@
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[100px]">
+              <TableHead>
                 设备id
               </TableHead>
-              <TableHead>设备名称</TableHead>
-              <TableHead>创建时间</TableHead>
-              <TableHead class="text-right">
+              <TableHead class="w-64">
+                设备名称
+              </TableHead>
+              <TableHead>
+                创建时间
+              </TableHead>
+              <TableHead>
                 节目id
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="device in list" :key="device.id">
-              <TableCell class="font-medium">
+              <TableCell>
                 {{ device.id }}
               </TableCell>
               <TableCell>
-                <p>{{ device.location }}</p>
+                <div class="flex">
+                  <p class="w-48">
+                    {{ device.location }}
+                  </p>
+                  <Dialog>
+                    <DialogTrigger as-child>
+                      <Pencil
+                        class="opacity-35 flex-initial w-5 text-right"
+                        :size="12"
+                      />
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>编辑设备名</DialogTitle>
+                        <DialogDescription>
+                          请输入新的设备名
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div class="grid gap-4 py-4">
+                        <div class="grid grid-cols-4 items-center gap-4">
+                          <Label for="location" class="text-right">
+                            设备名称
+                          </Label>
+                          <Input id="location" v-model="edit_new_location" class="col-span-3" />
+                        </div>
+                      </div>
+                      <DialogClose>
+                        <Button
+                          v-if="!isPending"
+                          type="submit"
+                          @click="editMutation({ id: device.id, new_location: edit_new_location })"
+                        >
+                          确认修改
+                        </Button>
+                        <Button v-if="isPending" type="submit" disabled>
+                          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                          请稍候……
+                        </Button>
+                      </DialogClose>
+                    </DialogContent>
+                  </Dialog>
+                  <Trash2
+                    class="opacity-35 flex-initial w-5 text-right"
+                    :size="12"
+                    @click="deleteMutation({ id: device.id })"
+                  />
+                </div>
               </TableCell>
               <TableCell>{{ device.createdAt.toLocaleDateString() }}</TableCell>
-              <TableCell class="text-right">
+              <TableCell>
                 {{ device.programId }}
               </TableCell>
             </TableRow>
@@ -169,11 +219,28 @@ const { data: list, suspense } = useQuery({
 await suspense();
 
 const location = ref('');
+const edit_new_location = ref('');
 const { mutate: createMutation, isPending } = useMutation({
   mutationFn: $api.device.create.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['device.list'] });
     toast.success('设备创建成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+const { mutate: deleteMutation } = useMutation({
+  mutationFn: $api.device.delete.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    toast.success('设备删除成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+const { mutate: editMutation } = useMutation({
+  mutationFn: $api.device.edit.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    toast.success('修改设备名成功');
   },
   onError: err => useErrorHandler(err),
 });

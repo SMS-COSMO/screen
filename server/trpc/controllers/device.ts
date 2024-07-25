@@ -15,6 +15,13 @@ export class DeviceController {
     return '设备删除成功';
   }
 
+  async edit(id: number, new_location: string) {
+    await db.update(devices)
+      .set({ location: new_location })
+      .where(eq(devices.id, id));
+    return '设备名修改成功';
+  }
+
   async getInfo(id: number) {
     const device = await db.query.devices.findFirst({
       where: eq(devices.id, id),
