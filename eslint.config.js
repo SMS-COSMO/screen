@@ -1,4 +1,3 @@
-import drizzle from 'eslint-plugin-drizzle';
 import antfu from '@antfu/eslint-config';
 
 export default antfu({
@@ -23,7 +22,5 @@ export default antfu({
     'vue/block-order': ['error', {
       order: ['template', 'script', 'style'],
     }],
-    'drizzle/enforce-delete-with-where': ['error'],
-    'drizzle/enforce-update-with-where': ['error'],
   },
 });
