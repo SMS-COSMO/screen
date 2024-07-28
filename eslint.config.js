@@ -14,9 +14,6 @@ export default antfu({
     'public/**',
   ],
 }, {
-  plugins: {
-    drizzle,
-  },
   rules: {
     'style/brace-style': ['warn', '1tbs', { allowSingleLine: true }],
     'vue/block-order': ['error', {
