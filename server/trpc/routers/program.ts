@@ -26,7 +26,7 @@ export const programRouter = router({
     .use(requireRoles(['admin']))
     .input(z.object({ id: programIdZod, new_name: nameZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.deviceController.edit(input.id, input.new_name);
+      return await ctx.programController.edit(input.id, input.new_name);
     }),
 
   list: protectedProcedure
