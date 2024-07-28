@@ -69,32 +69,32 @@
     <Card class="xl:col-span-2">
       <CardHeader class="flex flex-row items-center">
         <div class="grid gap-2">
-          <CardTitle>所有设备</CardTitle>
+          <CardTitle>所有节目</CardTitle>
         </div>
         <Dialog>
           <DialogTrigger as-child>
             <Button variant="outline" class="ml-auto">
-              创建设备
+              创建节目
             </Button>
           </DialogTrigger>
           <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>创建设备</DialogTitle>
+              <DialogTitle>创建节目</DialogTitle>
               <DialogDescription>
-                请输入设备名称
+                请输入节目名称
               </DialogDescription>
             </DialogHeader>
             <div class="grid gap-4 py-4">
               <div class="grid grid-cols-4 items-center gap-4">
-                <Label for="location" class="text-right">
-                  设备名称
+                <Label for="name" class="text-right">
+                  节目名称
                 </Label>
-                <Input id="location" v-model="location" class="col-span-3" />
+                <Input id="name" v-model="name" class="col-span-3" />
               </div>
             </div>
             <DialogClose>
-              <Button v-if="!isPending" type="submit" @click="createMutation({ location })">
-                创建设备
+              <Button v-if="!isPending" type="submit" @click="createMutation({ name })">
+                创建节目
               </Button>
               <Button v-if="isPending" type="submit" disabled>
                 <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
@@ -109,28 +109,28 @@
           <TableHeader>
             <TableRow>
               <TableHead>
-                设备id
+                节目id
               </TableHead>
               <TableHead class="w-64">
-                设备名称
+                节目名称
               </TableHead>
               <TableHead>
                 创建时间
               </TableHead>
               <TableHead>
-                节目id
+                节目内容
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="device in list" :key="device.id">
+            <TableRow v-for="program in list" :key="program.id">
               <TableCell>
-                {{ device.id }}
+                {{ program.id }}
               </TableCell>
               <TableCell>
                 <div class="flex">
-                  <p class="w-48 truncate">
-                    {{ device.location }}
+                  <p class="w-48">
+                    {{ program.name }}
                   </p>
                   <Dialog>
                     <DialogTrigger as-child>
@@ -141,24 +141,24 @@
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle>编辑设备名</DialogTitle>
+                        <DialogTitle>编辑节目名</DialogTitle>
                         <DialogDescription>
-                          请输入新的设备名
+                          请输入新的节目名
                         </DialogDescription>
                       </DialogHeader>
                       <div class="grid gap-4 py-4">
                         <div class="grid grid-cols-4 items-center gap-4">
-                          <Label for="location" class="text-right">
-                            设备名称
+                          <Label for="name" class="text-right">
+                            节目名称
                           </Label>
-                          <Input id="location" v-model="edit_new_location" class="col-span-3" />
+                          <Input id="name" v-model="edit_new_name" class="col-span-3" />
                         </div>
                       </div>
                       <DialogClose>
                         <Button
                           v-if="!isPending"
                           type="submit"
-                          @click="editMutation({ id: device.id, new_location: edit_new_location })"
+                          @click="editMutation({ id: program.id, new_name: edit_new_name })"
                         >
                           确认修改
                         </Button>
@@ -172,13 +172,13 @@
                   <Trash2
                     class="opacity-35 flex-initial w-5 text-right"
                     :size="12"
-                    @click="deleteMutation({ id: device.id })"
+                    @click="deleteMutation({ id: program.id })"
                   />
                 </div>
               </TableCell>
-              <TableCell>{{ device.createdAt.toLocaleDateString() }}</TableCell>
+              <TableCell>{{ program.createdAt.toLocaleDateString() }}</TableCell>
               <TableCell>
-                {{ device.programId }}
+                施工中
               </TableCell>
             </TableRow>
           </TableBody>
@@ -213,34 +213,34 @@ const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
 const { data: list, suspense } = useQuery({
-  queryKey: ['device.list'],
-  queryFn: () => $api.device.list.query(),
+  queryKey: ['program.list'],
+  queryFn: () => $api.program.list.query(),
 });
 await suspense();
 
-const location = ref('');
-const edit_new_location = ref('');
+const name = ref('');
+const edit_new_name = ref('');
 const { mutate: createMutation, isPending } = useMutation({
-  mutationFn: $api.device.create.mutate,
+  mutationFn: $api.program.create.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
-    toast.success('设备创建成功');
+    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    toast.success('节目创建成功');
   },
   onError: err => useErrorHandler(err),
 });
 const { mutate: deleteMutation } = useMutation({
-  mutationFn: $api.device.delete.mutate,
+  mutationFn: $api.program.delete.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
-    toast.success('设备删除成功');
+    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    toast.success('节目删除成功');
   },
   onError: err => useErrorHandler(err),
 });
 const { mutate: editMutation } = useMutation({
-  mutationFn: $api.device.edit.mutate,
+  mutationFn: $api.program.edit.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
-    toast.success('修改设备名成功');
+    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    toast.success('修改节目名成功');
   },
   onError: err => useErrorHandler(err),
 });

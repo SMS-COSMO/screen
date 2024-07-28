@@ -4,18 +4,22 @@ import type { inferAsyncReturnType } from '@trpc/server';
 import { type TRawUser, db } from '../db/db';
 import { UserController } from './controllers/user';
 import { DeviceController } from './controllers/device';
+import { ProgramController } from './controllers/program';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
   deviceController: DeviceController | undefined;
+  programController: ProgramController | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
 const deviceController = newGlobal.deviceController ?? new DeviceController();
+const programController = newGlobal.programController ?? new ProgramController();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
   newGlobal.deviceController = deviceController;
+  newGlobal.programController = programController;
 }
 
 interface CreateContextOptions {
@@ -33,12 +37,14 @@ export function createInnerContext(opts: CreateContextOptions) {
     user: opts.user,
     userController,
     deviceController,
+    programController,
   };
 }
 
 export const ctl = {
   uc: userController,
   dc: deviceController,
+  pc: programController,
 };
 
 /**
