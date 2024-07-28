@@ -1,4 +1,5 @@
 <template>
+  <Title>节目管理</Title>
   <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
     <Card>
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -158,7 +159,6 @@
                         <Button
                           v-if="!isPending"
                           type="submit"
-                          @click="editMutation({ id: program.id, new_name: edit_new_name })"
                         >
                           确认修改
                         </Button>
@@ -178,7 +178,39 @@
               </TableCell>
               <TableCell>{{ program.createdAt.toLocaleDateString() }}</TableCell>
               <TableCell>
-                施工中
+                <Dialog>
+                  <DialogTrigger as-child>
+                    <Button variant="outline" class="h-8">
+                      编辑
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent class="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>节目内容</DialogTitle>
+                    </DialogHeader>
+                    <div class="grid gap-4 py-4">
+                      <div class="grid grid-cols-4 items-center gap-4">
+                        <Label for="name" class="text-right">
+                          节目名称
+                        </Label>
+                        <Input id="name" v-model="edit_new_name" class="col-span-3" />
+                      </div>
+                    </div>
+                    <DialogClose>
+                      <Button
+                        v-if="!isPending"
+                        type="submit"
+                        @click="editMutation({ id: program.id, new_name: edit_new_name })"
+                      >
+                        确认修改
+                      </Button>
+                      <Button v-if="isPending" type="submit" disabled>
+                        <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                        请稍候……
+                      </Button>
+                    </DialogClose>
+                  </DialogContent>
+                </Dialog>
               </TableCell>
             </TableRow>
           </TableBody>

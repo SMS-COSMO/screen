@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
 import type { TNewProgram } from '../../db/db';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
@@ -24,5 +25,14 @@ export class ProgramController {
   async getList() {
     const res = await db.query.programs.findMany();
     return res;
+  }
+
+  async getSequence(id: number) {
+    const res = await db.query.programs.findFirst({
+      where: eq(programs.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '节目不存在' });
+    return res.sequence;
   }
 }

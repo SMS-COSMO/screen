@@ -1,4 +1,5 @@
 <template>
+  <Title>设备管理</Title>
   <div class="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
     <Card>
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -79,10 +80,7 @@
           </DialogTrigger>
           <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>创建设备</DialogTitle>
-              <DialogDescription>
-                请输入设备名称
-              </DialogDescription>
+              <DialogTitle>请输入设备名称</DialogTitle>
             </DialogHeader>
             <div class="grid gap-4 py-4">
               <div class="grid grid-cols-4 items-center gap-4">
@@ -141,10 +139,7 @@
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle>编辑设备名</DialogTitle>
-                        <DialogDescription>
-                          请输入新的设备名
-                        </DialogDescription>
+                        <DialogTitle>请输入新的设备名</DialogTitle>
                       </DialogHeader>
                       <div class="grid gap-4 py-4">
                         <div class="grid grid-cols-4 items-center gap-4">
@@ -156,14 +151,14 @@
                       </div>
                       <DialogClose>
                         <Button
-                          v-if="!isPending"
+                          v-if="!isPending2"
                           type="submit"
                           @click="editMutation({ id: device.id, new_location: edit_new_location })"
                         >
                           确认修改
                         </Button>
-                        <Button v-if="isPending" type="submit" disabled>
-                          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                        <Button v-if="isPending2" type="submit" disabled>
+                          <Loader2 v-if="isPending2" class="w-4 h-4 mr-2 animate-spin" />
                           请稍候……
                         </Button>
                       </DialogClose>
@@ -203,7 +198,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -236,7 +230,7 @@ const { mutate: deleteMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editMutation } = useMutation({
+const { mutate: editMutation, isPending: isPending2 } = useMutation({
   mutationFn: $api.device.edit.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['device.list'] });

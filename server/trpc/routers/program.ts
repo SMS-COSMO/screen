@@ -34,4 +34,11 @@ export const programRouter = router({
     .query(async ({ ctx }) => {
       return await ctx.programController.getList();
     }),
+
+  getSequence: protectedProcedure
+    .use(requireRoles(['admin']))
+    .input(z.object({ id: programIdZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.programController.getSequence(input.id);
+    }),
 });
