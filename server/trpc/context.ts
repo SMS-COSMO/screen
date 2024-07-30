@@ -5,21 +5,25 @@ import { type TRawUser, db } from '../db/db';
 import { UserController } from './controllers/user';
 import { DeviceController } from './controllers/device';
 import { ProgramController } from './controllers/program';
+import { ContentController } from './controllers/content';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
   deviceController: DeviceController | undefined;
   programController: ProgramController | undefined;
+  contentController: ContentController | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
 const deviceController = newGlobal.deviceController ?? new DeviceController();
 const programController = newGlobal.programController ?? new ProgramController();
+const contentController = newGlobal.contentController ?? new ContentController();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
   newGlobal.deviceController = deviceController;
   newGlobal.programController = programController;
+  newGlobal.contentController = contentController;
 }
 
 interface CreateContextOptions {
@@ -38,6 +42,7 @@ export function createInnerContext(opts: CreateContextOptions) {
     userController,
     deviceController,
     programController,
+    contentController,
   };
 }
 
@@ -45,6 +50,7 @@ export const ctl = {
   uc: userController,
   dc: deviceController,
   pc: programController,
+  cc: contentController,
 };
 
 /**

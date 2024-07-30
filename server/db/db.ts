@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import { env } from '../env';
 
-import type { devices, programs, users } from './schema';
+import type { contents, devices, programs, users } from './schema';
 import * as schema from './schema';
 
 const options = (() => {
@@ -19,3 +19,4 @@ export type TRawUser = typeof users.$inferSelect;
 export type TNewUser = typeof users.$inferInsert;
 export type TNewDevice = typeof devices.$inferInsert;
 export type TNewProgram = typeof programs.$inferInsert;
+export type TNewContent = typeof contents.$inferInsert;
