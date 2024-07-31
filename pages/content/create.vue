@@ -24,12 +24,48 @@
               </div>
               <div class="grid gap-2">
                 <Label for="category">类型</Label>
-                <Input
-                  id="category"
-                  v-model="category"
-                  type="radio"
-                  required
-                />
+                <Popover v-model:open="open">
+                  <PopoverTrigger as-child>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      :aria-expanded="open"
+                      class="w-24"
+                    >
+                      选择类型
+                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent class="w-[200px] p-2">
+                    <Command>
+                      <CommandInput class="h-9" placeholder="Search framework..." />
+                      <CommandEmpty>请选择类型</CommandEmpty>
+                      <CommandList>
+                        <CommandGroup>
+                          <CommandItem
+                            v-for="framework in frameworks"
+                            :key="framework.value"
+                            :value="framework.value"
+                            @select="(ev) => {
+                              if (typeof ev.detail.value === 'string') {
+                                value = ev.detail.value
+                              }
+                              open = false
+                            }"
+                          >
+                            {{ framework.label }}
+                            <Check
+                              :class="cn(
+                                'ml-auto h-4 w-4',
+                                value === framework.value ? 'opacity-100' : 'opacity-0',
+                              )"
+                            />
+                          </CommandItem>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div class="grid gap-2">
                 <Label for="duration">显示时长（秒）</Label>
@@ -55,15 +91,17 @@
               </div>
               <div class="grid gap-2">
                 <Label for="filepath">文件</Label>
-                <Input
-                  id="filepath"
-                  type="file"
-                  max="180"
-                  min="0"
-                  required
-                />
+                <div class="flex p-2">
+                  <Button variant="outline" @click="open">
+                    选择文件
+                  </Button>
+                  <div class="p-2 w-48 truncate">
+                    <Label v-if="files">{{ files[0].name }}</Label>
+                    <Label v-else>未选择文件</Label>
+                  </div>
+                </div>
               </div>
-              <Button v-if="!isPending" type="submit" class="w-full" @click="loginMutation(form)">
+              <Button v-if="!isPending" type="submit" class="w-full" @click="createContent">
                 登录
               </Button>
               <Button v-if="isPending" type="submit" class="w-full" disabled>
@@ -79,11 +117,11 @@
 </template>
 
 <script setup lang="ts">
-import { Loader2 } from 'lucide-vue-next';
+import { ChevronsUpDown, Loader2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 
 const { $api } = useNuxtApp();
 
-const filePath = ref('');
 const category = ref('');
 const form = reactive({
   name: '',
@@ -101,7 +139,16 @@ const { mutate: createMutation, isPending } = useMutation({
   onSuccess: () => toast.success('内容创建成功'),
   onError: err => useErrorHandler(err),
 });
+const { files, open } = useFileDialog({
+  accept: 'image/*',
+  multiple: false,
+  directory: false,
+});
 function createContent() {
-
+  if (!files.value) {
+    toast.error('未选择文件');
+    return;
+  }
+  form.lifespan = form.lifespan * 86400;
 };
 </script>

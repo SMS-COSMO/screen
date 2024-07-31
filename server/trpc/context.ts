@@ -6,24 +6,28 @@ import { UserController } from './controllers/user';
 import { DeviceController } from './controllers/device';
 import { ProgramController } from './controllers/program';
 import { ContentController } from './controllers/content';
+import { PoolController } from './controllers/pool';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
   deviceController: DeviceController | undefined;
   programController: ProgramController | undefined;
   contentController: ContentController | undefined;
+  poolController: PoolController | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
 const deviceController = newGlobal.deviceController ?? new DeviceController();
 const programController = newGlobal.programController ?? new ProgramController();
 const contentController = newGlobal.contentController ?? new ContentController();
+const poolController = newGlobal.poolController ?? new PoolController();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
   newGlobal.deviceController = deviceController;
   newGlobal.programController = programController;
   newGlobal.contentController = contentController;
+  newGlobal.poolController = poolController;
 }
 
 interface CreateContextOptions {
@@ -43,6 +47,7 @@ export function createInnerContext(opts: CreateContextOptions) {
     deviceController,
     programController,
     contentController,
+    poolController,
   };
 }
 
@@ -51,6 +56,7 @@ export const ctl = {
   dc: deviceController,
   pc: programController,
   cc: contentController,
+  oc: poolController,
 };
 
 /**
