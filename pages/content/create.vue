@@ -43,22 +43,19 @@
                       <CommandList>
                         <CommandGroup>
                           <CommandItem
-                            v-for="framework in frameworks"
-                            :key="framework.value"
-                            :value="framework.value"
-                            @select="(ev) => {
-                              if (typeof ev.detail.value === 'string') {
-                                value = ev.detail.value
-                              }
-                              open = false
+                            v-for="pool in categoryList"
+                            :key="pool.id"
+                            :value="pool.id"
+                            @select="(ev: any) => {
+                              if (typeof ev.detail.value === 'number')
+                                form.categoryId = ev.detail.value
+                              open = false;
                             }"
                           >
-                            {{ framework.label }}
+                            {{ pool.category }}
                             <Check
-                              :class="cn(
-                                'ml-auto h-4 w-4',
-                                value === framework.value ? 'opacity-100' : 'opacity-0',
-                              )"
+                              v-if="form.categoryId === pool.id"
+                              class="ml-auto h-4 w-4"
                             />
                           </CommandItem>
                         </CommandGroup>
@@ -92,7 +89,7 @@
               <div class="grid gap-2">
                 <Label for="filepath">文件</Label>
                 <div class="flex p-2">
-                  <Button variant="outline" @click="open">
+                  <Button variant="outline" @click="openFileDialog">
                     选择文件
                   </Button>
                   <div class="p-2 w-48 truncate">
@@ -117,12 +114,25 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronsUpDown, Loader2 } from 'lucide-vue-next';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import axios from 'axios';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const { $api } = useNuxtApp();
 
-const category = ref('');
 const form = reactive({
   name: '',
   ownerId: 0,
@@ -131,19 +141,49 @@ const form = reactive({
   S3FileId: '',
   lifespan: 0,
   state: 'created',
-  categoryId: '',
+  categoryId: 0,
 });
 
+const img_types = new Set([
+  'jfif',
+  'pjpeg',
+  'jpeg',
+  'pjp',
+  'jpg',
+  'png',
+]);
+const video_types = new Set([
+  'm4v',
+  'mp4',
+]);
+const { data: categoryList } = useQuery({
+  queryKey: ['pool.list'],
+  queryFn: () => $api.pool.list.query(),
+});
 const { mutate: createMutation, isPending } = useMutation({
   mutationFn: $api.content.create.mutate,
   onSuccess: () => toast.success('内容创建成功'),
   onError: err => useErrorHandler(err),
 });
-const { files, open } = useFileDialog({
-  accept: 'image/*',
+const { files, open: openFileDialog, reset, onChange } = useFileDialog({
+  accept: 'image/*,video/*',
   multiple: false,
   directory: false,
 });
+onChange((filelist: FileList | null) => {
+  if (filelist) {
+    const extname = filelist[0].name.split('.')[-1];
+    if (img_types.has(extname)) {
+      form.fileType = 'image';
+    } else if (video_types.has(extname)) {
+      form.fileType = 'video';
+    } else {
+      reset();
+      toast.error('只能上传图片或视频');
+    }
+  }
+});
+
 function createContent() {
   if (!files.value) {
     toast.error('未选择文件');

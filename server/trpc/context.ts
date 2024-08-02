@@ -7,6 +7,7 @@ import { DeviceController } from './controllers/device';
 import { ProgramController } from './controllers/program';
 import { ContentController } from './controllers/content';
 import { PoolController } from './controllers/pool';
+import { S3Controller } from './controllers/s3';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
@@ -14,6 +15,7 @@ const newGlobal = globalThis as unknown as {
   programController: ProgramController | undefined;
   contentController: ContentController | undefined;
   poolController: PoolController | undefined;
+  s3Controller: S3Controller | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
@@ -21,6 +23,7 @@ const deviceController = newGlobal.deviceController ?? new DeviceController();
 const programController = newGlobal.programController ?? new ProgramController();
 const contentController = newGlobal.contentController ?? new ContentController();
 const poolController = newGlobal.poolController ?? new PoolController();
+const s3Controller = newGlobal.s3Controller ?? new S3Controller();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
@@ -28,6 +31,7 @@ if (process.env.NODE_ENV !== 'production') {
   newGlobal.programController = programController;
   newGlobal.contentController = contentController;
   newGlobal.poolController = poolController;
+  newGlobal.s3Controller = s3Controller;
 }
 
 interface CreateContextOptions {
@@ -48,6 +52,7 @@ export function createInnerContext(opts: CreateContextOptions) {
     programController,
     contentController,
     poolController,
+    s3Controller,
   };
 }
 
@@ -57,6 +62,7 @@ export const ctl = {
   pc: programController,
   cc: contentController,
   oc: poolController,
+  s3c: s3Controller,
 };
 
 /**

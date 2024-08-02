@@ -17,6 +17,10 @@ const envSchema = z.object({
   SIGN_KID: z.string(),
   ENC_KID: z.string(),
   SERVER_URL: z.string(),
+  S3_SERVER_URL: z.string(),
+  S3_ACCESS_KEY_ID: z.string(),
+  S3_SECRET_ACCESS_KEY: z.string(),
+  BUCKET_NAME: z.string(),
 });
 
 const envParse = envSchema.safeParse(process.env);
