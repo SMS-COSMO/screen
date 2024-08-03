@@ -30,7 +30,7 @@ export const poolRouter = router({
     }),
 
   list: protectedProcedure
-    .use(requireRoles(['admin']))
+    .use(requireRoles(['admin', 'club']))
     .query(async ({ ctx }) => {
       return await ctx.poolController.getList();
     }),

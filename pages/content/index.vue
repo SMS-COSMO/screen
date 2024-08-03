@@ -26,6 +26,9 @@
                   内容名称
                 </TableHead>
                 <TableHead>
+                  创建者
+                </TableHead>
+                <TableHead>
                   创建时间
                 </TableHead>
                 <TableHead>

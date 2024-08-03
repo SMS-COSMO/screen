@@ -6,18 +6,11 @@ const nameZod = z.string()
 const idZod = z.number();
 const durationZod = z.number()
   .max(90, { message: '内容展示时长不能超过90秒' });
-const fileTypeZod = z.enum(['image', 'video']);
+const fileTypeZod = z.string();
 const S3FileIdZod = z.string();
 const lifespanZod = z.number()
   .max(15_552_000, { message: '内容有效期不能超过180天' });
-const stateZod = z.enum([
-  'created',
-  'approved',
-  'rejected',
-  'inuse',
-  'outdated',
-]);
-const categoryIdZod = z.string();
+const categoryIdZod = z.number();
 
 export const contentRouter = router({
   create: protectedProcedure
@@ -29,7 +22,6 @@ export const contentRouter = router({
       fileType: fileTypeZod,
       S3FileId: S3FileIdZod,
       lifespan: lifespanZod,
-      state: stateZod,
       categoryId: categoryIdZod,
     }))
     .mutation(async ({ ctx, input }) => {

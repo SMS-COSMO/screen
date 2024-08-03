@@ -61,7 +61,7 @@ export const contents = sqliteTable('contents', {
   S3FileId: text('s3_file_id').notNull(),
   lifespan: integer('lifespan').notNull(), // in seconds
   state: text('state', { enum: ['created', 'approved', 'rejected', 'inuse', 'outdated'] }).notNull().default('created'),
-  categoryId: text('category_id').references(() => pools.id, setNull),
+  categoryId: integer('category_id').references(() => pools.id, setNull),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
