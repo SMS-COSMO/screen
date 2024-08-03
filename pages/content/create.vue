@@ -198,7 +198,7 @@ async function createContent() {
   form.lifespan = lifespan.value * 86400;
   if (userStore.userId) {
     form.ownerId = userStore.userId;
-    form.S3FileId = `${makeId(20)}/user-${userStore.userId}/file-${files.value[0].name}`;
+    form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
   } else {
     navigateTo('/login');
     return;

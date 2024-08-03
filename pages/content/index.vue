@@ -225,7 +225,6 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner';
 import { Loader2, Pencil, Trash2 } from 'lucide-vue-next';
-import { ButtonIcon } from '@radix-icons/vue';
 import { Button } from '@/components/ui/button';
 import {
   Card,

@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
 import type { TNewPool } from '../../db/db';
 import { db } from '../../db/db';
 import { pools } from '../../db/schema';
