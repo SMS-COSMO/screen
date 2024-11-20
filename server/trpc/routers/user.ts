@@ -8,8 +8,7 @@ const usernameZod = z.string().min(2, { message: '用户名长度应至少为2' 
 const newPasswordZod = z.string().min(8, { message: '用户密码长度应至少为8' }).regex(passwordRegex, '密码必须包含大小写字母、数字与特殊符号');
 
 export const userRouter = router({
-  register: protectedProcedure
-    .use(requireRoles(['admin']))
+  register: publicProcedure
     .input(z.object({
       role: roleEnumZod,
       username: usernameZod,

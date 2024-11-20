@@ -163,7 +163,7 @@ const form: Form = reactive({
 
 const allowed_types = new Set(['video', 'image']);
 const { data: categoryList } = useQuery({
-  queryKey: ['pool.list'],
+  queryKey: ['pool', 'list'],
   queryFn: () => $api.pool.list.query(),
 });
 const { mutate: createMutation } = useMutation({
@@ -219,7 +219,7 @@ async function createContent() {
       });
     }
   } catch (err: any) {
-    toast.error(`文件上传失败 ${err}`);
+    useErrorHandler(err);
     isUploading.value = false;
     return;
   }

@@ -207,7 +207,7 @@ const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
 const { data: list, suspense } = useQuery({
-  queryKey: ['device.list'],
+  queryKey: ['device', 'list'],
   queryFn: () => $api.device.list.query(),
 });
 await suspense();
@@ -217,7 +217,7 @@ const edit_new_location = ref('');
 const { mutate: createMutation, isPending } = useMutation({
   mutationFn: $api.device.create.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    queryClient.invalidateQueries({ queryKey: ['device', 'list'] });
     toast.success('设备创建成功');
   },
   onError: err => useErrorHandler(err),
@@ -225,7 +225,7 @@ const { mutate: createMutation, isPending } = useMutation({
 const { mutate: deleteMutation } = useMutation({
   mutationFn: $api.device.delete.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    queryClient.invalidateQueries({ queryKey: ['device', 'list'] });
     toast.success('设备删除成功');
   },
   onError: err => useErrorHandler(err),
@@ -233,7 +233,7 @@ const { mutate: deleteMutation } = useMutation({
 const { mutate: editMutation, isPending: isPending2 } = useMutation({
   mutationFn: $api.device.edit.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['device.list'] });
+    queryClient.invalidateQueries({ queryKey: ['device', 'list'] });
     toast.success('修改设备名成功');
   },
   onError: err => useErrorHandler(err),

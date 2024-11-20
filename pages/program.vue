@@ -299,12 +299,12 @@ const { $api } = useNuxtApp();
 const queryClient = useQueryClient();
 const idInEdit = ref(-1);
 const { data: list, suspense } = useQuery({
-  queryKey: ['program.list'],
+  queryKey: ['program', 'list'],
   queryFn: () => $api.program.list.query(),
 });
 await suspense();
 const { data: sequence } = useQuery({
-  queryKey: ['program.getSequence', idInEdit],
+  queryKey: ['program', 'getSequence', idInEdit],
   queryFn: () => {
     if (idInEdit.value === -1)
       return [];
@@ -317,7 +317,7 @@ const edit_new_name = ref('');
 const { mutate: createMutation, isPending } = useMutation({
   mutationFn: $api.program.create.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    queryClient.invalidateQueries({ queryKey: ['program'] });
     toast.success('节目创建成功');
   },
   onError: err => useErrorHandler(err),
@@ -325,7 +325,7 @@ const { mutate: createMutation, isPending } = useMutation({
 const { mutate: deleteMutation } = useMutation({
   mutationFn: $api.program.delete.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    queryClient.invalidateQueries({ queryKey: ['program'] });
     toast.success('节目删除成功');
   },
   onError: err => useErrorHandler(err),
@@ -333,7 +333,7 @@ const { mutate: deleteMutation } = useMutation({
 const { mutate: editMutation } = useMutation({
   mutationFn: $api.program.edit.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['program.list'] });
+    queryClient.invalidateQueries({ queryKey: ['program'] });
     toast.success('修改节目名成功');
   },
   onError: err => useErrorHandler(err),

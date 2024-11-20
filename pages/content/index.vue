@@ -37,14 +37,14 @@
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="pool in list" :key="pool.id">
+              <TableRow v-for="content in contentList" :key="content.id">
                 <TableCell>
-                  {{ pool.id }}
+                  {{ content.id }}
                 </TableCell>
                 <TableCell>
                   <div class="flex">
                     <p class="w-48 truncate">
-                      {{ pool.category }}
+                      {{ content.name }}
                     </p>
                     <Dialog>
                       <DialogTrigger as-child>
@@ -55,26 +55,26 @@
                       </DialogTrigger>
                       <DialogContent class="sm:max-w-[425px]">
                         <DialogHeader>
-                          <DialogTitle>请输入新的内容类型名</DialogTitle>
+                          <DialogTitle>请输入新的内容名</DialogTitle>
                         </DialogHeader>
                         <div class="grid gap-4 py-4">
                           <div class="grid grid-cols-4 items-center gap-4">
-                            <Label for="name" class="text-right">
-                              内容类型名称
+                            <Label for="c-name" class="text-right">
+                              内容名称
                             </Label>
-                            <Input id="name" v-model="edit_new_name" class="col-span-3" />
+                            <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
                           </div>
                         </div>
                         <DialogClose>
                           <Button
                             v-if="!isPending2"
                             type="submit"
-                            @click="editMutation({ id: pool.id, new_category: edit_new_name })"
+                            @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
                           >
                             确认修改
                           </Button>
-                          <Button v-if="isPending2" type="submit" disabled>
-                            <Loader2 v-if="isPending2" class="w-4 h-4 mr-2 animate-spin" />
+                          <Button v-if="isPending3" type="submit" disabled>
+                            <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
                             请稍候……
                           </Button>
                         </DialogClose>
@@ -83,9 +83,44 @@
                     <Trash2
                       class="opacity-35 flex-initial w-5 text-right"
                       :size="12"
-                      @click="deleteMutation({ id: pool.id })"
+                      @click="deleteContentMutation({ id: content.id })"
                     />
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger as-child>
+                      <Button variant="outline">
+                        查看
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>请输入新的内容名</DialogTitle>
+                      </DialogHeader>
+                      <div class="grid gap-4 py-4">
+                        <div class="grid grid-cols-4 items-center gap-4">
+                          <Label for="c-name" class="text-right">
+                            内容名称
+                          </Label>
+                          <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
+                        </div>
+                      </div>
+                      <DialogClose>
+                        <Button
+                          v-if="!isPending2"
+                          type="submit"
+                          @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
+                        >
+                          确认修改
+                        </Button>
+                        <Button v-if="isPending3" type="submit" disabled>
+                          <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                          请稍候……
+                        </Button>
+                      </DialogClose>
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -141,7 +176,7 @@
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-for="pool in list" :key="pool.id">
+                <TableRow v-for="pool in categoryList" :key="pool.id">
                   <TableCell>
                     {{ pool.id }}
                   </TableCell>
@@ -166,14 +201,14 @@
                               <Label for="name" class="col-span-2">
                                 内容类型名称
                               </Label>
-                              <Input id="name" v-model="edit_new_name" class="col-span-5" />
+                              <Input id="name" v-model="edit_new_category_name" class="col-span-5" />
                             </div>
                           </div>
                           <DialogClose>
                             <Button
                               v-if="!isPending2"
                               type="submit"
-                              @click="editMutation({ id: pool.id, new_category: edit_new_name })"
+                              @click="editPoolMutation({ id: pool.id, new_category: edit_new_category_name })"
                             >
                               确认修改
                             </Button>
@@ -199,7 +234,7 @@
                             <div class="flex gap-7 justify-center">
                               <Button
                                 type="submit"
-                                @click="deleteMutation({ id: pool.id })"
+                                @click="deletePoolMutation({ id: pool.id })"
                               >
                                 确认
                               </Button>
@@ -244,35 +279,57 @@ import {
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
-const { data: list, suspense } = useQuery({
-  queryKey: ['pool.list'],
+const { data: contentList, suspense } = useQuery({
+  queryKey: ['content', 'list'],
+  queryFn: () => $api.content.list.query(),
+});
+const { data: categoryList } = useQuery({
+  queryKey: ['pool', 'list'],
   queryFn: () => $api.pool.list.query(),
 });
 await suspense();
 
 const name = ref('');
-const edit_new_name = ref('');
+const edit_new_category_name = ref('');
 const { mutate: createPoolMutation, isPending } = useMutation({
   mutationFn: $api.pool.create.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['pool.list'] });
+    queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
     toast.success('内容类型创建成功');
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: deleteMutation } = useMutation({
+const { mutate: deletePoolMutation } = useMutation({
   mutationFn: $api.pool.delete.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['pool.list'] });
+    queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
     toast.success('内容类型删除成功');
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editMutation, isPending: isPending2 } = useMutation({
+const { mutate: editPoolMutation, isPending: isPending2 } = useMutation({
   mutationFn: $api.pool.edit.mutate,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['pool.list'] });
+    queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
     toast.success('修改内容类型名成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+
+const edit_new_content_name = ref('');
+const { mutate: deleteContentMutation } = useMutation({
+  mutationFn: $api.content.delete.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
+    toast.success('内容删除成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+const { mutate: editContentNameMutation, isPending: isPending3 } = useMutation({
+  mutationFn: $api.content.edit.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
+    toast.success('修改内容名成功');
   },
   onError: err => useErrorHandler(err),
 });
