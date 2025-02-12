@@ -120,7 +120,7 @@
 <script setup lang="ts">
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
-import axios from 'axios';
+import axios, { type AxiosProgressEvent } from 'axios';
 import {
   Command,
   CommandEmpty,
@@ -213,7 +213,7 @@ async function createContent() {
         headers: {
           'Content-Type': file.type,
         },
-        onUploadProgress: (p) => {
+        onUploadProgress: (p: AxiosProgressEvent) => {
           progress.value = Math.floor((p.progress ?? 0) * 100);
         },
       });
