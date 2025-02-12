@@ -1,5 +1,5 @@
-import { eq } from 'drizzle-orm';
 import type { TNewPool } from '../../db/db';
+import { eq } from 'drizzle-orm';
 import { db } from '../../db/db';
 import { pools } from '../../db/schema';
 

@@ -1,12 +1,12 @@
+import type { TNewUser, TRawUser } from '../../db/db';
 import { LibsqlError } from '@libsql/client';
+import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
-import type { TNewUser, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
 import { users } from '../../db/schema';
-import { Auth } from '../utils/auth';
 import { TRPCForbidden } from '../../trpc/utils/shared';
+import { Auth } from '../utils/auth';
 
 export class UserController {
   private auth: Auth;
@@ -113,7 +113,7 @@ export class UserController {
     try {
       await db.delete(users).where(eq(users.id, id));
       return '删除成功';
-    } catch (err) {
+    } catch {
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '删除失败' });
     }
   }

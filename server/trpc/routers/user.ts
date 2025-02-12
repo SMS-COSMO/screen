@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
 import { passwordRegex } from '~/constants/user';
+import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
 
 const roleEnumZod = z.enum(['admin', 'club'], { errorMap: () => ({ message: '提交了不存在的用户身份' }) });
 const userIdZod = z.number().int().min(1, { message: '用户不存在' });

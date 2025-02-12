@@ -1,5 +1,5 @@
-import * as jose from 'jose';
 import { eq } from 'drizzle-orm';
+import * as jose from 'jose';
 import { db } from '../../db/db';
 import { users } from '../../db/schema';
 import { env } from '../../env';
@@ -8,7 +8,9 @@ import { makeId } from '../../trpc/utils/shared';
 const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
 const decode = TextDecoder.prototype.decode.bind(new TextDecoder());
 
+// eslint-disable-next-line antfu/no-top-level-await
 const encPublicKey = await jose.importSPKI(env.ENC_PUBLIC_KEY, 'RSA-OAEP-256');
+// eslint-disable-next-line antfu/no-top-level-await
 const signPrivateKey = await jose.importPKCS8(env.SIGN_PRIVATE_KEY, 'RS512');
 
 export class Auth {

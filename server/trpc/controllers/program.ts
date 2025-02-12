@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
 import type { TNewProgram } from '../../db/db';
+import { TRPCError } from '@trpc/server';
+import { eq } from 'drizzle-orm';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
 

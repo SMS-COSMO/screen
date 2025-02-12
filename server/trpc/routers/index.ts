@@ -1,10 +1,10 @@
 import { router } from '../trpc';
-import { userRouter } from './user';
-import { deviceRouter } from './device';
-import { programRouter } from './program';
 import { contentRouter } from './content';
+import { deviceRouter } from './device';
 import { poolRouter } from './pool';
+import { programRouter } from './program';
 import { s3Router } from './s3';
+import { userRouter } from './user';
 
 export const appRouter = router({
   user: userRouter,

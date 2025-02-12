@@ -1,7 +1,3 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-import { env } from '../env';
-
 import type {
   contents,
   devices,
@@ -9,6 +5,10 @@ import type {
   programs,
   users,
 } from './schema';
+import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql';
+
+import { env } from '../env';
 import * as schema from './schema';
 
 const options = (() => {

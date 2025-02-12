@@ -118,9 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
-import axios, { type AxiosProgressEvent } from 'axios';
+import type { AxiosProgressEvent } from 'axios';
 import {
   Command,
   CommandEmpty,
@@ -134,6 +132,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
+import axios from 'axios';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { makeId } from '~/server/trpc/utils/shared';
 
 const { $api } = useNuxtApp();

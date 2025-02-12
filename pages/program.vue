@@ -347,6 +347,16 @@
 </template>
 
 <script setup lang="ts">
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Activity,
   AppWindow,
@@ -359,16 +369,6 @@ import {
   Users,
 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 
 const { $api } = useNuxtApp();
 

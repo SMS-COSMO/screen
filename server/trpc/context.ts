@@ -1,13 +1,14 @@
-import process from 'node:process';
-import type { H3Event } from 'h3';
 import type { inferAsyncReturnType } from '@trpc/server';
-import { type TRawUser, db } from '../db/db';
-import { UserController } from './controllers/user';
-import { DeviceController } from './controllers/device';
-import { ProgramController } from './controllers/program';
+import type { H3Event } from 'h3';
+import type { TRawUser } from '../db/db';
+import process from 'node:process';
+import { db } from '../db/db';
 import { ContentController } from './controllers/content';
+import { DeviceController } from './controllers/device';
 import { PoolController } from './controllers/pool';
+import { ProgramController } from './controllers/program';
 import { S3Controller } from './controllers/s3';
+import { UserController } from './controllers/user';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
