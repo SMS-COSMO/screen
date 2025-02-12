@@ -17,6 +17,7 @@ export async function useErrorHandler(err: unknown): Promise<void> {
         onNuxtReady(() => navigateTo('/login'));
     }
   } else {
+    // console.log(err);
     toast.error('未知错误');
   }
 }

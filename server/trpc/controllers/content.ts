@@ -32,4 +32,11 @@ export class ContentController {
     });
     return res;
   }
+
+  async getListByCategory(categoryId: number) {
+    const res = await db.query.contents.findMany({
+      where: eq(contents.categoryId, categoryId),
+    });
+    return res;
+  }
 }

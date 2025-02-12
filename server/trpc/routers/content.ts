@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
 
 const nameZod = z.string()
   .max(30, { message: '内容名不能超过30个字符' });
@@ -46,5 +46,11 @@ export const contentRouter = router({
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
       return await ctx.contentController.getList();
+    }),
+
+  listByCategory: publicProcedure
+    .input(z.object({ id: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getListByCategory(input.id);
     }),
 });

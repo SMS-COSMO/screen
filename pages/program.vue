@@ -4,17 +4,14 @@
     <Card>
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle class="text-sm font-medium">
-          Total Revenue
+          节目总数
         </CardTitle>
-        <DollarSign class="h-4 w-4 text-muted-foreground" />
+        <AppWindow class="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div class="text-2xl font-bold">
-          $45,231.89
+          {{ programList ? programList.length : 0 }}
         </div>
-        <p class="text-xs text-muted-foreground">
-          +20.1% from last month
-        </p>
       </CardContent>
     </Card>
     <Card>
@@ -124,7 +121,7 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="program in list" :key="program.id">
+            <TableRow v-for="program in programList" :key="program.id">
               <TableCell>
                 {{ program.id }}
               </TableCell>
@@ -187,7 +184,9 @@
                   </SheetTrigger>
                   <SheetContent>
                     <SheetHeader>
-                      <SheetTitle>编辑节目内容</SheetTitle>
+                      <SheetTitle class="p-5">
+                        编辑节目内容
+                      </SheetTitle>
                     </SheetHeader>
                     <Card class="col-span-2">
                       <CardHeader class="flex flex-row items-center">
@@ -202,22 +201,96 @@
                           </DialogTrigger>
                           <DialogContent class="sm:max-w-[425px]">
                             <DialogHeader>
-                              <DialogTitle>创建节目</DialogTitle>
-                              <DialogDescription>
-                                请输入节目名称
-                              </DialogDescription>
+                              <DialogTitle>
+                                选择内容
+                              </DialogTitle>
                             </DialogHeader>
                             <div class="grid gap-4 py-4">
-                              <div class="grid grid-cols-4 items-center gap-4">
-                                <Label for="name" class="text-right">
-                                  节目名称
+                              <div class="flex gap-1.5">
+                                <Checkbox v-model:checked="chooseRandomContent" />
+                                <Label class="text-left">
+                                  使用随机内容
                                 </Label>
-                                <Input id="name" v-model="name" class="col-span-3" />
+                              </div>
+                              <div class="grid gap-2">
+                                <Label for="category">内容所属类别</Label>
+                                <Popover v-model:open="unfoldCheckbox">
+                                  <PopoverTrigger as-child>
+                                    <Button
+                                      variant="outline"
+                                      role="combobox"
+                                      :aria-expanded="unfoldCheckbox"
+                                      class="flex w-full justify-between"
+                                    >
+                                      <p>
+                                        {{
+                                          checkedCategory.id !== -1
+                                            ? checkedCategory.category
+                                            : '选择类别'
+                                        }}
+                                      </p>
+                                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent class="w-[200px] p-2">
+                                    <Command>
+                                      <CommandEmpty>请选择类别</CommandEmpty>
+                                      <CommandList>
+                                        <CommandGroup>
+                                          <CommandItem
+                                            v-for="pool in categoryList"
+                                            :key="pool.id"
+                                            :value="pool.id"
+                                            @select="(ev: any) => {
+                                              if (typeof ev.detail.value === 'number') {
+                                                checkedCategory.id = ev.detail.value;
+                                                checkedCategory.category = pool.category;
+                                                queryClient.invalidateQueries({ queryKey: ['content'] });
+                                              }
+                                              unfoldCheckbox = false;
+                                            }"
+                                          >
+                                            {{ pool.category }}
+                                            <Check
+                                              v-if="checkedCategory.id === pool.id"
+                                              class="ml-auto h-4 w-4"
+                                            />
+                                          </CommandItem>
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                              <div
+                                v-if="checkedCategory.id !== -1 && !chooseRandomContent"
+                                class="grid gap-2"
+                              >
+                                <Command class="rounded-lg border shadow-md max-w-[450px]">
+                                  <CommandInput placeholder="搜索内容……" />
+                                  <CommandEmpty>没有找到相关内容。</CommandEmpty>
+                                  <CommandList>
+                                    <CommandGroup>
+                                      <CommandItem
+                                        v-for="content in selectedContentList"
+                                        :key="content.id"
+                                        :value="content.name"
+                                        @click="selectedContentId = content.id"
+                                      >
+                                        <span>{{ content.name }}</span>
+                                        <Check
+                                          v-if="selectedContentId === content.id"
+                                          class="ml-auto h-4 w-4"
+                                        />
+                                      </CommandItem>
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
                               </div>
                             </div>
                             <DialogClose>
                               <Button v-if="!isPending" type="submit" @click="createMutation({ name })">
-                                创建节目
+                                添加内容
                               </Button>
                               <Button v-if="isPending" type="submit" disabled>
                                 <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
@@ -276,8 +349,10 @@
 <script setup lang="ts">
 import {
   Activity,
+  AppWindow,
+  Check,
+  ChevronsUpDown,
   CreditCard,
-  DollarSign,
   Loader2,
   Pencil,
   Trash2,
@@ -293,12 +368,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
 const idInEdit = ref(-1);
-const { data: list, suspense } = useQuery({
+const { data: programList, suspense } = useQuery({
   queryKey: ['program', 'list'],
   queryFn: () => $api.program.list.query(),
 });
@@ -308,7 +384,26 @@ const { data: sequence } = useQuery({
   queryFn: () => {
     if (idInEdit.value === -1)
       return [];
-    else $api.program.getSequence.query({ id: idInEdit.value });
+    else return $api.program.getSequence.query({ id: idInEdit.value });
+  },
+});
+
+const chooseRandomContent = ref(false);
+const unfoldCheckbox = ref(false);
+const checkedCategory = reactive({ id: -1, category: '' });
+const { data: categoryList } = useQuery({
+  queryKey: ['pool', 'list'],
+  queryFn: () => $api.pool.list.query(),
+});
+
+const selectedContentId = ref(-1);
+const { data: selectedContentList } = useQuery({
+  queryKey: ['content', 'listByCategory'],
+  queryFn: () => {
+    if (checkedCategory.id !== -1)
+      return $api.content.listByCategory.query({ id: checkedCategory.id });
+    else
+      return [];
   },
 });
 
