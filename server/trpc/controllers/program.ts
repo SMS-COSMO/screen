@@ -35,4 +35,10 @@ export class ProgramController {
       throw new TRPCError({ code: 'NOT_FOUND', message: '节目不存在' });
     return res.sequence;
   }
+
+  async setSequence(id: number, sequence: { type: 'pool' | 'content'; id: number }[]) {
+    await db.update(programs)
+      .set({ sequence })
+      .where(eq(programs.id, id));
+  }
 }

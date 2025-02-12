@@ -28,7 +28,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const programs = sqliteTable('programs', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
-  sequence: text('sequence', { mode: 'json' }).notNull().$type<({ type: string; id: number })[]>(),
+  sequence: text('sequence', { mode: 'json' }).notNull().$type<({ type: 'pool' | 'content'; id: number })[]>(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
