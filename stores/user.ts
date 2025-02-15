@@ -43,7 +43,8 @@ export const useUserStore = defineStore('user', () => {
   };
 }, {
   persist: {
-    storage: persistedState.cookiesWithOptions({
+    storage: piniaPluginPersistedstate.cookies({
+      // One month
       maxAge: 30 * 24 * 60 * 60,
     }),
   },
