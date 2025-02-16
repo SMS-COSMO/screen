@@ -1,11 +1,11 @@
-import process from 'node:process';
 import * as readline from 'node:readline/promises';
+import process from 'node:process';
 
 import { eq } from 'drizzle-orm';
+import { ctl } from '~/server/trpc/context';
+import { env } from '~/server/env';
 import { db } from '~/server/db/db';
 import { users } from '~/server/db/schema';
-import { env } from '~/server/env';
-import { ctl } from '~/server/trpc/context';
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 

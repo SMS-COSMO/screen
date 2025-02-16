@@ -185,14 +185,6 @@
 
 <script setup lang="ts">
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   Activity,
   CreditCard,
   DollarSign,
@@ -202,6 +194,14 @@ import {
   Users,
 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const { $api } = useNuxtApp();
 

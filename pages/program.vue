@@ -178,7 +178,13 @@
               <TableCell>
                 <Sheet>
                   <SheetTrigger as-child>
-                    <Button variant="outline" @click="idInEdit = program.id">
+                    <Button
+                      variant="outline"
+                      @click="() => {
+                        idInEdit = program.id;
+                        queryClient.invalidateQueries({ queryKey: ['program'] });
+                      }"
+                    >
                       编辑
                     </Button>
                   </SheetTrigger>
@@ -289,11 +295,11 @@
                               </div>
                             </div>
                             <DialogClose>
-                              <Button v-if="!isPending" type="submit" @click="createMutation({ name })">
+                              <Button v-if="!seqEditPending" type="submit" @click="appendContent">
                                 添加内容
                               </Button>
-                              <Button v-if="isPending" type="submit" disabled>
-                                <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                              <Button v-if="seqEditPending" type="submit" disabled>
+                                <Loader2 class="w-4 h-4 mr-2 animate-spin" />
                                 请稍候……
                               </Button>
                             </DialogClose>
@@ -305,23 +311,29 @@
                           <TableHeader>
                             <TableRow>
                               <TableHead>
-                                内容id
+                                类型
                               </TableHead>
                               <TableHead class="w-64">
-                                内容名称
+                                名称
                               </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             <TableRow v-for="content in sequence" :key="content.id">
-                              <TableCell>{{ content.id }}</TableCell>
                               <TableCell>
                                 <div v-if="content.type === 'pool'" class="flex">
                                   <p class="w-48 truncate">
                                     随机选取内容
                                   </p>
                                 </div>
-                                <div v-if="content.type === 'content'" />
+                                <div v-if="content.type === 'content'" class="flex">
+                                  <p class="w-48 truncate">
+                                    内容
+                                  </p>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <!-- TODO: fill in the name of category/content -->
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -347,16 +359,6 @@
 </template>
 
 <script setup lang="ts">
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
   Activity,
   AppWindow,
@@ -369,6 +371,17 @@ import {
   Users,
 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import TableCell from '~/components/ui/table/TableCell.vue';
 
 const { $api } = useNuxtApp();
 
@@ -406,6 +419,33 @@ const { data: selectedContentList } = useQuery({
       return [];
   },
 });
+
+const { mutate: sequenceMutation, isPending: seqEditPending } = useMutation({
+  mutationFn: $api.program.setSequence.mutate,
+  onError: err => useErrorHandler(err),
+});
+function appendContent() {
+  if (sequence.value === undefined)
+    return;
+  if (chooseRandomContent.value) {
+    sequenceMutation({
+      id: idInEdit.value,
+      sequence: sequence.value.concat([{
+        type: 'pool',
+        id: checkedCategory.id,
+      }]),
+    });
+  } else {
+    sequenceMutation({
+      id: idInEdit.value,
+      sequence: sequence.value.concat([{
+        type: 'content',
+        id: selectedContentId.value,
+      }]),
+    });
+  }
+  queryClient.invalidateQueries({ queryKey: ['program'] });
+}
 
 const name = ref('');
 const edit_new_name = ref('');

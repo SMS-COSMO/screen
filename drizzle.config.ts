@@ -9,8 +9,9 @@ const dbCredentials = (() => {
 })();
 
 export default defineConfig({
-  dialect: 'turso',
+  dialect: 'sqlite',
   out: './drizzle',
   schema: './server/db/schema.ts',
+  driver: 'turso',
   dbCredentials,
 });

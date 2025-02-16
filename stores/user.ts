@@ -1,5 +1,5 @@
-import type { TRole, TUserLogin } from '~/types';
 import { defineStore } from 'pinia';
+import type { TRole, TUserLogin } from '~/types';
 
 export const useUserStore = defineStore('user', () => {
   const loggedIn = ref(false);
@@ -43,8 +43,7 @@ export const useUserStore = defineStore('user', () => {
   };
 }, {
   persist: {
-    storage: piniaPluginPersistedstate.cookies({
-      // One month
+    storage: persistedState.cookiesWithOptions({
       maxAge: 30 * 24 * 60 * 60,
     }),
   },

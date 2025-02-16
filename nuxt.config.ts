@@ -1,30 +1,25 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
   modules: [
     '@pinia/nuxt',
-    'pinia-plugin-persistedstate/nuxt',
+    '@pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
     'shadcn-nuxt',
     'nuxt-icon',
   ],
-
   shadcn: {
     prefix: '',
     componentDir: './components/ui',
   },
-
   colorMode: {
     classSuffix: '',
   },
-
   tailwindcss: {
     cssPath: '~/styles/tailwind.css',
   },
-
   imports: {
     dirs: ['types', 'constants'],
     presets: [
@@ -34,11 +29,9 @@ export default defineNuxtConfig({
       },
     ],
   },
-
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],
   },
-
   nitro: {
     esbuild: {
       options: {
@@ -46,7 +39,6 @@ export default defineNuxtConfig({
       },
     },
   },
-
   typescript: {
     tsConfig: {
       compilerOptions: {
@@ -54,6 +46,4 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  compatibilityDate: '2025-02-12',
 });

@@ -258,6 +258,8 @@
 </template>
 
 <script setup lang="ts">
+import { Loader2, Pencil, Trash2 } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -273,8 +275,6 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { Loader2, Pencil, Trash2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
 
 const { $api } = useNuxtApp();
 

@@ -1,9 +1,15 @@
 import { z } from 'zod';
-import { protectedProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
 
 const nameZod = z.string()
   .max(30, { message: '节目名不能超过30个字符' });
-const programIdZod = z.number();
+const idZod = z.number();
+const sequenceZod = z.array(
+  z.object({
+    type: z.union([z.literal('pool'), z.literal('content')]),
+    id: idZod,
+  }),
+);
 
 export const programRouter = router({
   create: protectedProcedure
@@ -17,28 +23,33 @@ export const programRouter = router({
 
   delete: protectedProcedure
     .use(requireRoles(['admin']))
-    .input(z.object({ id: programIdZod }))
+    .input(z.object({ id: idZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.programController.delete(input.id);
     }),
 
   edit: protectedProcedure
     .use(requireRoles(['admin']))
-    .input(z.object({ id: programIdZod, new_name: nameZod }))
+    .input(z.object({ id: idZod, new_name: nameZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.programController.edit(input.id, input.new_name);
     }),
 
-  list: protectedProcedure
-    .use(requireRoles(['admin']))
+  list: publicProcedure
     .query(async ({ ctx }) => {
       return await ctx.programController.getList();
     }),
 
-  getSequence: protectedProcedure
-    .use(requireRoles(['admin']))
-    .input(z.object({ id: programIdZod }))
+  getSequence: publicProcedure
+    .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
       return await ctx.programController.getSequence(input.id);
+    }),
+
+  setSequence: protectedProcedure
+    .use(requireRoles(['admin']))
+    .input(z.object({ id: idZod, sequence: sequenceZod }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.programController.setSequence(input.id, input.sequence);
     }),
 });

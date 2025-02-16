@@ -1,6 +1,6 @@
-import type { TNewDevice } from '../../db/db';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+import type { TNewDevice } from '../../db/db';
 import { db } from '../../db/db';
 import { devices } from '../../db/schema';
 

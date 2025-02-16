@@ -1,6 +1,6 @@
-import type { TNewProgram } from '../../db/db';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+import type { TNewProgram } from '../../db/db';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
 
@@ -40,5 +40,6 @@ export class ProgramController {
     await db.update(programs)
       .set({ sequence })
       .where(eq(programs.id, id));
+    return '成功修改内容';
   }
 }

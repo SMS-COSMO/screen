@@ -1,7 +1,7 @@
+import process from 'node:process';
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { H3Event } from 'h3';
 import type { TRawUser } from '../db/db';
-import process from 'node:process';
 import { db } from '../db/db';
 import { ContentController } from './controllers/content';
 import { DeviceController } from './controllers/device';

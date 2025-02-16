@@ -1,8 +1,8 @@
-import type { TNewUser, TRawUser } from '../../db/db';
 import { LibsqlError } from '@libsql/client';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
+import type { TNewUser, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
 import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
