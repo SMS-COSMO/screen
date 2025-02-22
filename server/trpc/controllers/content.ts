@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
 import type { TNewContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
@@ -19,6 +20,15 @@ export class ContentController {
       .set({ name: new_name })
       .where(eq(contents.id, id));
     return '内容名修改成功';
+  }
+
+  async getInfo(id: number) {
+    const res = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    return res;
   }
 
   async getList() {

@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
 import type { TNewPool } from '../../db/db';
 import { db } from '../../db/db';
 import { pools } from '../../db/schema';
@@ -19,6 +20,15 @@ export class PoolController {
       .set({ category: new_name })
       .where(eq(pools.id, id));
     return '内容类型名修改成功';
+  }
+
+  async getInfo(id: number) {
+    const res = await db.query.pools.findFirst({
+      where: eq(pools.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容类型不存在' });
+    return res;
   }
 
   async getList() {

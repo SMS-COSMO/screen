@@ -53,4 +53,10 @@ export const contentRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getListByCategory(input.id);
     }),
+
+  getInfo: publicProcedure
+    .input(z.object({ id: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getInfo(input.id);
+    }),
 });

@@ -311,10 +311,10 @@
                           <TableHeader>
                             <TableRow>
                               <TableHead>
-                                类型
+                                随机选取内容/单个内容
                               </TableHead>
                               <TableHead class="w-64">
-                                名称
+                                内容类型/内容名称
                               </TableHead>
                             </TableRow>
                           </TableHeader>
@@ -328,12 +328,16 @@
                                 </div>
                                 <div v-if="content.type === 'content'" class="flex">
                                   <p class="w-48 truncate">
-                                    内容
+                                    单个内容
                                   </p>
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <!-- TODO: fill in the name of category/content -->
+                                <div class="flex">
+                                  <p class="w-48 truncate">
+                                    {{ content.name }}
+                                  </p>
+                                </div>
                               </TableCell>
                             </TableRow>
                           </TableBody>

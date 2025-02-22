@@ -3,8 +3,17 @@ import { eq } from 'drizzle-orm';
 import type { TNewProgram } from '../../db/db';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
+import { ContentController } from './content';
+import { PoolController } from './pool';
 
 export class ProgramController {
+  private contentController: ContentController;
+  private poolController: PoolController;
+  constructor() {
+    this.contentController = new ContentController();
+    this.poolController = new PoolController();
+  }
+
   async create(newProgram: TNewProgram) {
     await db.insert(programs).values(newProgram);
     return '节目创建成功';
@@ -23,17 +32,27 @@ export class ProgramController {
   }
 
   async getList() {
-    const res = await db.query.programs.findMany();
-    return res;
+    return await db.query.programs.findMany();
   }
 
+  // gets pool/content name by the way
   async getSequence(id: number) {
     const res = await db.query.programs.findFirst({
       where: eq(programs.id, id),
     });
     if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '节目不存在' });
-    return res.sequence;
+    const seq: { type: 'pool' | 'content'; id: number; name?: string }[] = [];
+    res.sequence.forEach(async (cnt) => {
+      seq.push({
+        type: cnt.type,
+        id: cnt.id,
+        name: cnt.type === 'pool'
+          ? (await this.poolController.getInfo(cnt.id)).category
+          : (await this.contentController.getInfo(cnt.id)).name,
+      });
+    });
+    return seq;
   }
 
   async setSequence(id: number, sequence: { type: 'pool' | 'content'; id: number }[]) {
