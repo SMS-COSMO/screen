@@ -196,7 +196,16 @@ async function createContent() {
     toast.error('未选择文件');
     return;
   }
+  if (form.duration > 90) {
+    toast.error('内容展示时长不能超过90秒');
+    return;
+  }
+  if (form.duration <= 0) {
+    toast.error('内容展示时长必须是正值');
+    return;
+  }
   form.lifespan = lifespan.value * 86400;
+
   if (userStore.userId) {
     form.ownerId = userStore.userId;
     form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
