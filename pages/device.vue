@@ -116,7 +116,7 @@
                 创建时间
               </TableHead>
               <TableHead>
-                节目id
+                节目名称
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -173,7 +173,7 @@
               </TableCell>
               <TableCell>{{ device.createdAt.toLocaleDateString() }}</TableCell>
               <TableCell>
-                {{ device.programId }}
+                待实现
               </TableCell>
             </TableRow>
           </TableBody>
