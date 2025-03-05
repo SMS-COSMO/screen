@@ -34,6 +34,9 @@
                 <TableHead>
                   源文件
                 </TableHead>
+                <TableHead>
+                  审核状态
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -88,6 +91,12 @@
                   </div>
                 </TableCell>
                 <TableCell>
+                  待实现
+                </TableCell>
+                <TableCell>
+                  待实现
+                </TableCell>
+                <TableCell>
                   <Dialog>
                     <DialogTrigger as-child>
                       <Button variant="outline">
@@ -96,31 +105,21 @@
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle>请输入新的内容名</DialogTitle>
+                        <DialogTitle>源文件预览</DialogTitle>
                       </DialogHeader>
-                      <div class="grid gap-4 py-4">
-                        <div class="grid grid-cols-4 items-center gap-4">
-                          <Label for="c-name" class="text-right">
-                            内容名称
-                          </Label>
-                          <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
-                        </div>
+                      <div>
+                        待实现
                       </div>
                       <DialogClose>
-                        <Button
-                          v-if="!isPending2"
-                          type="submit"
-                          @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
-                        >
-                          确认修改
-                        </Button>
-                        <Button v-if="isPending3" type="submit" disabled>
-                          <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
-                          请稍候……
+                        <Button type="submit">
+                          返回
                         </Button>
                       </DialogClose>
                     </DialogContent>
                   </Dialog>
+                </TableCell>
+                <TableCell>
+                  待实现
                 </TableCell>
               </TableRow>
             </TableBody>
