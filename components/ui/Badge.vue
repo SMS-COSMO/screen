@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { cva } from 'class-variance-authority';
 import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 defineProps<Props>();
@@ -28,7 +28,7 @@ const badgeVariants = cva(
         c_approved: 'border-transparent bg-[#10B981] text-primary-foreground hover:bg-[#10B981]/80',
         c_rejected: 'border-transparent bg-[#EF4444] text-primary-foreground hover:bg-[#EF4444]/80',
         c_inuse: 'border-transparent bg-[#3B82F6] text-primary-foreground hover:bg-[#3B82F6]/80',
-        c_outdated: 'border-transparent bg-[#F59E0B] text-primary-foreground hover:bg-[#F59E0B]/80'
+        c_outdated: 'border-transparent bg-[#F59E0B] text-primary-foreground hover:bg-[#F59E0B]/80',
       },
     },
     defaultVariants: {

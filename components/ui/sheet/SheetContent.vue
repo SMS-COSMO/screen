@@ -1,40 +1,3 @@
-<script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
-import {
-  DialogClose,
-  DialogContent,
-  type DialogContentEmits,
-  type DialogContentProps,
-  DialogOverlay,
-  DialogPortal,
-  useForwardPropsEmits,
-} from 'radix-vue'
-import { Cross2Icon } from '@radix-icons/vue'
-import { type SheetVariants, sheetVariants } from '.'
-import { cn } from '@/lib/utils'
-
-interface SheetContentProps extends DialogContentProps {
-  class?: HTMLAttributes['class']
-  side?: SheetVariants['side']
-}
-
-defineOptions({
-  inheritAttrs: false,
-})
-
-const props = defineProps<SheetContentProps>()
-
-const emits = defineEmits<DialogContentEmits>()
-
-const delegatedProps = computed(() => {
-  const { class: _, side, ...delegated } = props
-
-  return delegated
-})
-
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
-</script>
-
 <template>
   <DialogPortal>
     <DialogOverlay
@@ -54,3 +17,42 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     </DialogContent>
   </DialogPortal>
 </template>
+
+<script setup lang="ts">
+import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import { Cross2Icon } from '@radix-icons/vue';
+import {
+  DialogClose,
+  DialogContent,
+
+  DialogOverlay,
+  DialogPortal,
+  useForwardPropsEmits,
+} from 'reka-ui';
+import { computed } from 'vue';
+import type { SheetVariants } from '.';
+import { sheetVariants } from '.';
+import { cn } from '@/lib/utils';
+
+interface SheetContentProps extends DialogContentProps {
+  class?: HTMLAttributes['class'];
+  side?: SheetVariants['side'];
+}
+
+defineOptions({
+  inheritAttrs: false,
+});
+
+const props = defineProps<SheetContentProps>();
+
+const emits = defineEmits<DialogContentEmits>();
+
+const delegatedProps = computed(() => {
+  const { class: _, side, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwarded = useForwardPropsEmits(delegatedProps, emits);
+</script>

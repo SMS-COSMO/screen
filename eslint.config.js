@@ -9,7 +9,7 @@ export default antfu({
   typescript: true,
   vue: true,
   ignores: [
-    'components/ui/**',
+    // 'components/ui/**',
     '.github/**/*',
     'public/**',
   ],

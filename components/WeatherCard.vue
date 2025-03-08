@@ -14,10 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { Loader2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
-
 const { $api } = useNuxtApp();
 // const userStore = useUserStore();
 // const queryClient = useQueryClient();

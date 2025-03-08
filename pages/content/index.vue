@@ -111,9 +111,7 @@
                         <DialogTitle>源文件预览</DialogTitle>
                       </DialogHeader>
                       <div>
-                        <!-- 奇怪的警告, 还是去了吧 -->
-                        <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-                        <HandleDisplay :srcKey="content.S3FileId" />
+                        <HandleDisplay :src-key="content.S3FileId" />
                       </div>
                       <DialogClose>
                         <Button type="submit">
@@ -144,7 +142,7 @@
                         <div class="grid grid-cols-4 items-center gap-2 grid-rows-6">
                           <Checkbox
                             class="col-span-1 row-span-1 ml-[2vw]"
-                            @update:checked="(newVal) => isPassExa = newVal"
+                            @update:checked="(newVal: any) => isPassExa = newVal"
                           />
                           <Label for="c-name" class="text-center col-span-2 row-span-1">
                             是否过审
@@ -313,14 +311,9 @@
 </template>
 
 <script setup lang="ts">
-import { useImage } from '@vueuse/core';
-import { ref } from 'vue';
 import { BookmarkCheck, Loader2, Pencil, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import { toast } from 'vue-sonner';
-import { Checkbox } from '@/components/ui/checkbox';
-import Badge from '~/components/ui/Badge/Badge.vue';
-import Textarea from '~/components/ui/Textarea/Textarea.vue';
-import HandleDisplay from '~/components/ui/DisplayBox/HandleDisplay.vue';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -328,6 +321,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -336,6 +330,9 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import Badge from '~/components/ui/Badge.vue';
+import HandleDisplay from '~/components/ui/DisplayBox/HandleDisplay.vue';
+import Textarea from '~/components/ui/textarea/Textarea.vue';
 
 // 以下为前朝遗物
 const { $api } = useNuxtApp();

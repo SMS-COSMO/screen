@@ -3,6 +3,7 @@ import type {
   DehydratedState,
   VueQueryPluginOptions,
 } from '@tanstack/vue-query';
+// Nuxt 3 app aliases
 import {
   QueryCache,
   QueryClient,
@@ -10,8 +11,6 @@ import {
   dehydrate,
   hydrate,
 } from '@tanstack/vue-query';
-
-// Nuxt 3 app aliases
 import { defineNuxtPlugin, useState } from '#imports';
 
 export default defineNuxtPlugin((nuxt) => {
