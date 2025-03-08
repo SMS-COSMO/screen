@@ -106,12 +106,14 @@
                         查看
                       </Button>
                     </DialogTrigger>
-                    <DialogContent class="sm:max-w-[425px]">
+                    <DialogContent class="sm:max-w-[94vw] sm:max-h-[90vh]">
                       <DialogHeader>
                         <DialogTitle>源文件预览</DialogTitle>
                       </DialogHeader>
                       <div>
-                        待实现
+                        <!-- 奇怪的警告, 还是去了吧 -->
+                        <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                        <HandleDisplay :srcKey="content.S3FileId" />
                       </div>
                       <DialogClose>
                         <Button type="submit">
@@ -311,12 +313,14 @@
 </template>
 
 <script setup lang="ts">
+import { useImage } from '@vueuse/core';
 import { ref } from 'vue';
 import { BookmarkCheck, Loader2, Pencil, Trash2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import Badge from '~/components/ui/Badge/Badge.vue';
 import Textarea from '~/components/ui/Textarea/Textarea.vue';
+import HandleDisplay from '~/components/ui/DisplayBox/HandleDisplay.vue';
 import { Button } from '@/components/ui/button';
 import {
   Card,
