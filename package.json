@@ -39,6 +39,7 @@
     "lucide-vue-next": "^0.367.0",
     "nanoid": "^5.0.7",
     "radix-vue": "^1.7.4",
+    "reka-ui": "^2.0.2",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

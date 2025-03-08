@@ -122,7 +122,6 @@
                   </Dialog>
                 </TableCell>
                 <TableCell class="flex item-center justify-center mt-2">
-                  <!-- 待完成 -->
                   <Badge :variant="TransState(content.state).color">
                     {{ TransState(content.state).text }}
                     <!-- { `bg-[${TransState(content.state).color}]` }}{ -->
@@ -140,29 +139,37 @@
                         <DialogTitle>审核意见</DialogTitle>
                       </DialogHeader>
                       <div class="grid gap-4 py-4">
-                        <div class="grid grid-cols-4 items-center gap-1 grid-rows-3">
-                          <Checkbox />
-                          <Label for="c-name" class="text-center">
+                        <div class="grid grid-cols-4 items-center gap-2 grid-rows-6">
+                          <Checkbox
+                            class="col-span-1 row-span-1 ml-[2vw]"
+                            @update:checked="(newVal) => isPassExa = newVal"
+                          />
+                          <Label for="c-name" class="text-center col-span-2 row-span-1">
                             是否过审
                           </Label>
-                          <br>
-                          <Label for="c-name" class="text-center">
+                          <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
                             修改意见
                           </Label>
-                          <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
+                          <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4" />
                         </div>
                       </div>
                       <DialogClose>
                         <Button
                           v-if="!isPending2"
                           type="submit"
-                          @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
+                          @click="editExaState()"
                         >
                           确认
                         </Button>
                         <Button v-if="isPending3" type="submit" disabled>
                           <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
                           请稍候……
+                        </Button>
+                        <Button
+                          type="submit"
+                          class="ml-6 bg-slate-50"
+                        >
+                          取消
                         </Button>
                       </DialogClose>
                     </DialogContent>
@@ -304,9 +311,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { BookmarkCheck, Loader2, Pencil, Trash2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
-import Badge from '~/components/ui/Badge.vue';
+import { Checkbox } from '@/components/ui/checkbox';
+import Badge from '~/components/ui/Badge/Badge.vue';
+import Textarea from '~/components/ui/Textarea/Textarea.vue';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -408,4 +418,10 @@ function TransState(state: string): { text: string; color:
 // 以下为审核意见功能块
 const exa_idea: Ref<string> = ref('');
 const isPassExa: Ref<boolean> = ref(false);
+
+function editExaState() {
+  // 后台接口未实现-----------------待实现
+  toast.success('审核提交成功');
+}
+// 测试函数
 </script>
