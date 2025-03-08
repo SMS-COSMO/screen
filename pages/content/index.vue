@@ -51,8 +51,10 @@
                     </p>
                     <Dialog>
                       <DialogTrigger as-child>
+                        <!-- 徽章样式剪切板 -->
                         <Pencil
-                          class="opacity-35 flex-initial w-5 text-right"
+                          class="opacity-35 flex-initial w-5 text-right
+                          "
                           :size="12"
                         />
                       </DialogTrigger>
@@ -91,10 +93,11 @@
                   </div>
                 </TableCell>
                 <TableCell>
-                  待实现
+                  <!-- 由于部分问题,待修复 -->
+                  {{ content.ownerId }}
                 </TableCell>
                 <TableCell>
-                  待实现
+                  {{ content.createdAt.toLocaleDateString() }}
                 </TableCell>
                 <TableCell>
                   <Dialog>
@@ -118,8 +121,52 @@
                     </DialogContent>
                   </Dialog>
                 </TableCell>
-                <TableCell>
-                  待实现
+                <TableCell class="flex item-center justify-center mt-2">
+                  <!-- 待完成 -->
+                  <Badge :variant="TransState(content.state).color">
+                    {{ TransState(content.state).text }}
+                    <!-- { `bg-[${TransState(content.state).color}]` }}{ -->
+                  </Badge>
+                  <Dialog class="w-[40vw]">
+                    <DialogTrigger as-child>
+                      <!-- 现在是审核按钮 -->
+                      <BookmarkCheck
+                        class="opacity-35 flex-initial w-5 text-right mt-1"
+                        :size="16"
+                      />
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>审核意见</DialogTitle>
+                      </DialogHeader>
+                      <div class="grid gap-4 py-4">
+                        <div class="grid grid-cols-4 items-center gap-1 grid-rows-3">
+                          <Checkbox />
+                          <Label for="c-name" class="text-center">
+                            是否过审
+                          </Label>
+                          <br>
+                          <Label for="c-name" class="text-center">
+                            修改意见
+                          </Label>
+                          <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
+                        </div>
+                      </div>
+                      <DialogClose>
+                        <Button
+                          v-if="!isPending2"
+                          type="submit"
+                          @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
+                        >
+                          确认
+                        </Button>
+                        <Button v-if="isPending3" type="submit" disabled>
+                          <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                          请稍候……
+                        </Button>
+                      </DialogClose>
+                    </DialogContent>
+                  </Dialog>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -257,8 +304,9 @@
 </template>
 
 <script setup lang="ts">
-import { Loader2, Pencil, Trash2 } from 'lucide-vue-next';
+import { BookmarkCheck, Loader2, Pencil, Trash2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import Badge from '~/components/ui/Badge.vue';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -275,6 +323,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 
+// 以下为前朝遗物
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
@@ -332,4 +381,31 @@ const { mutate: editContentNameMutation, isPending: isPending3 } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
+// 以上是类型管理
+// 以下是审核状态替换
+// enum: ['created', 'approved', 'rejected', 'inuse', 'outdated']
+function TransState(state: string): { text: string; color:
+  'default' | 'secondary' | 'destructive' |
+  'outline' | 'c_created' | 'c_approved' |
+  'c_rejected' | 'c_inuse' | 'c_outdated' | null | undefined; } {
+  // 事实上 ,null | undefined不会出现
+  switch (state) {
+    case 'created':
+      return { text: '初创建', color: 'c_created' }; // 中性灰
+    case 'approved':
+      return { text: '已通过', color: 'c_approved' }; // 成功绿
+    case 'rejected':
+      return { text: '已拒绝', color: 'c_rejected' }; // 错误红
+    case 'inuse':
+      return { text: '展示中', color: 'c_inuse' }; // 信息蓝
+    case 'outdated':
+      return { text: '已过期', color: 'c_outdated' }; // 警告黄
+    default:
+      return { text: '未知状态', color: 'destructive' }; // 组件原生红色
+  }
+}
+
+// 以下为审核意见功能块
+const exa_idea: Ref<string> = ref('');
+const isPassExa: Ref<boolean> = ref(false);
 </script>
