@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import type { TNewContent } from '../../db/db';
+import type { TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
 import { UserController } from './user';
@@ -13,15 +13,15 @@ export class ContentController {
     this.userController = new UserController();
   }
 
-  private async fetchOwner(res: TNewContent[]) {
-    const seq: (TNewContent & { owner: string })[] = [];
+  private async fetchOwner(res: TRawContent[]) {
+    const named_res: (TRawContent & { owner: string })[] = [];
     res.forEach(async (cnt) => {
-      seq.push({
+      named_res.push({
         ...cnt,
         owner: (await this.userController.getProfile(cnt.ownerId)).username,
       });
     });
-    return seq;
+    return named_res;
   }
 
   async create(newContent: TNewContent) {
@@ -52,24 +52,24 @@ export class ContentController {
 
   async getList() {
     const res = await db.query.contents.findMany();
-    return res;
+    return await this.fetchOwner(res);
   }
 
   async getListByOwner(ownerId: number) {
     const res = await db.query.contents.findMany({
       where: eq(contents.ownerId, ownerId),
     });
-    return res;
+    return await this.fetchOwner(res);
   }
 
   async getListByCategory(categoryId: number) {
     const res = await db.query.contents.findMany({
       where: eq(contents.categoryId, categoryId),
     });
-    return res;
+    return await this.fetchOwner(res);
   }
 
-  async updateAuditStatus(id: number, state: ContentState, reviewNotes?: string) {
+  async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string) {
     await db.update(contents)
       .set({ state, reviewNotes: reviewNotes ?? null })
       .where(eq(contents.id, id));

@@ -62,10 +62,10 @@ export const contentRouter = router({
       return await ctx.contentController.getInfo(input.id);
     }),
 
-  reviewNotes: protectedProcedure
+  updateReviewStatus: protectedProcedure
     .use(requireRoles(['admin']))
     .input(z.object({ id: idZod, state: stateEnumZod, reviewNotes: reviewNotesZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.contentController.updateAuditStatus(input.id, input.state, input.reviewNotes);
+      return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes);
     }),
 });
