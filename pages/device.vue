@@ -175,41 +175,72 @@
               <TableCell>
                 <div class="flex items-center">
                   <Label>{{ getProgramName(device.id) || '未绑定节目' }}</Label>
-                  <Popover v-model:open="unfoldCheckbox[device.id]">
-                    <PopoverTrigger as-child>
+                  <Dialog>
+                    <DialogTrigger as-child>
                       <Pencil
                         class="opacity-35 flex-initial w-5 text-right"
                         :size="12"
                       />
-                    </PopoverTrigger>
-                    <PopoverContent class="w-[200px] p-2">
-                      <Command>
-                        <CommandEmpty>请选择节目</CommandEmpty>
-                        <CommandList>
-                          <CommandGroup>
-                            <CommandItem
-                              v-for="program in list2"
-                              :key="program.id"
-                              :value="program.id"
-                              @select="(ev: any) => {
-                                if (typeof ev.detail.value === 'number') {
-                                  const selectedProgramId = ev.detail.value;
-                                  bindProgramMutation({ id: device.id, programId: selectedProgramId });
-                                  unfoldCheckbox[device.id] = false;
-                                }
-                              }"
-                            >
-                              {{ program.name }}
-                              <Check
-                                v-if="program.id === getBoundProgramId(device.id)"
-                                class="ml-auto h-4 w-4"
-                              />
-                            </CommandItem>
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>
+                          绑定节目
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div class="grid gap-4 py-4">
+                        <div class="grid gap-2">
+                          <Label for="category">节目名称</Label>
+                          <Popover v-model:open="unfoldCheckbox[device.id]">
+                            <PopoverTrigger as-child>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                class="flex w-full justify-between"
+                              >
+                                <p>
+                                  {{ getProgramNameById(deviceSelectedProgramId[device.id]) || '未绑定节目' }}
+                                </p>
+                                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent class="w-[200px] p-2">
+                              <Command class="w-full">
+                                <CommandEmpty>请选择节目</CommandEmpty>
+                                <CommandList>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      v-for="program in list2"
+                                      :key="program.id"
+                                      :value="program.id"
+                                      @select="(ev: any) => {
+                                        const value = ev.detail.value;
+                                        if (typeof value === 'number') {
+                                          deviceSelectedProgramId[device.id] = value;
+                                        }
+                                        unfoldCheckbox[device.id] = false;
+                                      }"
+                                    >
+                                      {{ program.name }}
+                                      <Check
+                                        v-if="program.id === deviceSelectedProgramId[device.id]"
+                                        class="ml-auto h-4 w-4"
+                                      />
+                                    </CommandItem>
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+                      <DialogClose>
+                        <Button type="submit" @click="confirmBindProgram(device.id)">
+                          确认绑定
+                        </Button>
+                      </DialogClose>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </TableCell>
             </TableRow>
@@ -224,6 +255,7 @@
 import {
   Activity,
   Check,
+  ChevronsUpDown,
   CreditCard,
   DollarSign,
   Loader2,
@@ -261,11 +293,15 @@ await programSuspense();
 const location = ref('');
 const edit_new_location = ref('');
 
+// 用于保存每个设备的 selectedProgramId
+const deviceSelectedProgramId = reactive<{ [key: number]: number }>({});
+
 // 用于保存每个设备的 unfoldCheckbox 状态
 const unfoldCheckbox = reactive<{ [key: number]: boolean }>({});
 
-// 初始化每个设备的 unfoldCheckbox 状态
+// 初始化每个设备的 selectedProgramId 和 unfoldCheckbox 状态
 list.value?.forEach((device) => {
+  deviceSelectedProgramId[device.id] = -1; // -1 表示未选择任何节目
   unfoldCheckbox[device.id] = false;
 });
 
@@ -306,7 +342,7 @@ const { mutate: bindProgramMutation } = useMutation({
   onError: err => useErrorHandler(err),
 });
 
-// 动态获取设备绑定的节目名称
+// 根据设备ID获取节目名称
 function getProgramName(deviceId: number): string | undefined {
   const device = list.value?.find(d => d.id === deviceId);
   if (!device || !device.programId)
@@ -314,9 +350,14 @@ function getProgramName(deviceId: number): string | undefined {
   return list2.value?.find(program => program.id === device.programId)?.name;
 }
 
-// 动态获取设备绑定的节目ID
-function getBoundProgramId(deviceId: number): number | undefined {
-  const device = list.value?.find(d => d.id === deviceId);
-  return device?.programId ?? undefined;
+// 确认绑定节目
+function confirmBindProgram(deviceId: number) {
+  const programId = deviceSelectedProgramId[deviceId];
+  bindProgramMutation({ id: deviceId, programId });
+}
+
+// 根据节目ID获取节目名称
+function getProgramNameById(programId: number): string | undefined {
+  return list2.value?.find(program => program.id === programId)?.name;
 }
 </script>
