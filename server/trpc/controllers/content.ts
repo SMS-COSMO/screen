@@ -69,7 +69,7 @@ export class ContentController {
     return await this.fetchOwner(res);
   }
 
-  async updateAuditStatus(id: number, state: ContentState, reviewNotes?: string) {
+  async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string) {
     await db.update(contents)
       .set({ state, reviewNotes: reviewNotes ?? null })
       .where(eq(contents.id, id));
