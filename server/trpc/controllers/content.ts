@@ -4,6 +4,8 @@ import type { TNewContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
 
+type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
+
 export class ContentController {
   async create(newContent: TNewContent) {
     await db.insert(contents).values(newContent);
@@ -48,5 +50,12 @@ export class ContentController {
       where: eq(contents.categoryId, categoryId),
     });
     return res;
+  }
+
+  async updateAuditStatus(id: number, state: ContentState, reviewNotes?: string) {
+    await db.update(contents)
+      .set({ state, reviewNotes: reviewNotes ?? null })
+      .where(eq(contents.id, id));
+    return '内容审核状态修改成功';
   }
 }
