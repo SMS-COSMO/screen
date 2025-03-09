@@ -25,5 +25,7 @@ export type TRawUser = typeof users.$inferSelect;
 export type TNewUser = typeof users.$inferInsert;
 export type TNewDevice = typeof devices.$inferInsert;
 export type TNewProgram = typeof programs.$inferInsert;
+export type TRawContent = typeof contents.$inferSelect;
 export type TNewContent = typeof contents.$inferInsert;
 export type TNewPool = typeof pools.$inferInsert;
+export type TSequenceUnit = NonNullable<ReturnType<typeof programs.sequence._.data.at>>;

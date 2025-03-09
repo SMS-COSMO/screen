@@ -3,8 +3,25 @@ import { eq } from 'drizzle-orm';
 import type { TNewContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
+import { UserController } from './user';
 
 export class ContentController {
+  private userController: UserController;
+  constructor() {
+    this.userController = new UserController();
+  }
+
+  private async fetchOwner(res: TNewContent[]) {
+    const seq: (TNewContent & { owner: string })[] = [];
+    res.forEach(async (cnt) => {
+      seq.push({
+        ...cnt,
+        owner: (await this.userController.getProfile(cnt.ownerId)).username,
+      });
+    });
+    return seq;
+  }
+
   async create(newContent: TNewContent) {
     await db.insert(contents).values(newContent);
     return '内容创建成功';
