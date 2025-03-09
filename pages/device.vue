@@ -173,7 +173,44 @@
               </TableCell>
               <TableCell>{{ device.createdAt.toLocaleDateString() }}</TableCell>
               <TableCell>
-                待实现
+                <div class="flex items-center">
+                  <Label>{{ getProgramName(device.id) || '未绑定节目' }}</Label>
+                  <Popover v-model:open="unfoldCheckbox[device.id]">
+                    <PopoverTrigger as-child>
+                      <Pencil
+                        class="opacity-35 flex-initial w-5 text-right"
+                        :size="12"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent class="w-[200px] p-2">
+                      <Command>
+                        <CommandEmpty>请选择节目</CommandEmpty>
+                        <CommandList>
+                          <CommandGroup>
+                            <CommandItem
+                              v-for="program in list2"
+                              :key="program.id"
+                              :value="program.id"
+                              @select="(ev: any) => {
+                                if (typeof ev.detail.value === 'number') {
+                                  const selectedProgramId = ev.detail.value;
+                                  bindProgramMutation({ id: device.id, programId: selectedProgramId });
+                                  unfoldCheckbox[device.id] = false;
+                                }
+                              }"
+                            >
+                              {{ program.name }}
+                              <Check
+                                v-if="program.id === getBoundProgramId(device.id)"
+                                class="ml-auto h-4 w-4"
+                              />
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -186,6 +223,7 @@
 <script setup lang="ts">
 import {
   Activity,
+  Check,
   CreditCard,
   DollarSign,
   Loader2,
@@ -194,6 +232,7 @@ import {
   Users,
 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { computed, reactive, ref, unref } from 'vue';
 import {
   Dialog,
   DialogClose,
@@ -206,14 +245,30 @@ import {
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
-const { data: list, suspense } = useQuery({
+const { data: list, suspense: deviceSuspense } = useQuery({
   queryKey: ['device', 'list'],
   queryFn: () => $api.device.list.query(),
 });
-await suspense();
+await deviceSuspense();
+
+// 获取节目列表
+const { data: list2, suspense: programSuspense } = useQuery({
+  queryKey: ['program', 'list'],
+  queryFn: () => $api.program.list.query(),
+});
+await programSuspense();
 
 const location = ref('');
 const edit_new_location = ref('');
+
+// 用于保存每个设备的 unfoldCheckbox 状态
+const unfoldCheckbox = reactive<{ [key: number]: boolean }>({});
+
+// 初始化每个设备的 unfoldCheckbox 状态
+list.value?.forEach((device) => {
+  unfoldCheckbox[device.id] = false;
+});
+
 const { mutate: createMutation, isPending } = useMutation({
   mutationFn: $api.device.create.mutate,
   onSuccess: () => {
@@ -222,6 +277,7 @@ const { mutate: createMutation, isPending } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
+
 const { mutate: deleteMutation } = useMutation({
   mutationFn: $api.device.delete.mutate,
   onSuccess: () => {
@@ -230,6 +286,7 @@ const { mutate: deleteMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
+
 const { mutate: editMutation, isPending: isPending2 } = useMutation({
   mutationFn: $api.device.edit.mutate,
   onSuccess: () => {
@@ -238,4 +295,28 @@ const { mutate: editMutation, isPending: isPending2 } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
+
+// 绑定节目到设备的 mutation
+const { mutate: bindProgramMutation } = useMutation({
+  mutationFn: $api.device.bindProgram.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['device', 'list'] });
+    toast.success('节目绑定成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+
+// 动态获取设备绑定的节目名称
+function getProgramName(deviceId: number): string | undefined {
+  const device = list.value?.find(d => d.id === deviceId);
+  if (!device || !device.programId)
+    return undefined;
+  return list2.value?.find(program => program.id === device.programId)?.name;
+}
+
+// 动态获取设备绑定的节目ID
+function getBoundProgramId(deviceId: number): number | undefined {
+  const device = list.value?.find(d => d.id === deviceId);
+  return device?.programId ?? undefined;
+}
 </script>

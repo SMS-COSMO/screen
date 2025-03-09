@@ -21,6 +21,12 @@ export class DeviceController {
       .where(eq(devices.id, id));
     return '设备名修改成功';
   }
+  async bindProgram(id: number, programId: number) {
+    await db.update(devices)
+      .set({ programId })
+      .where(eq(devices.id, id));
+    return '节目绑定成功';
+  }
 
   async getInfo(id: number) {
     const device = await db.query.devices.findFirst({
