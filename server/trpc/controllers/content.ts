@@ -5,6 +5,8 @@ import { db } from '../../db/db';
 import { contents } from '../../db/schema';
 import { UserController } from './user';
 
+type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
+
 export class ContentController {
   private userController: UserController;
   constructor() {
@@ -65,5 +67,12 @@ export class ContentController {
       where: eq(contents.categoryId, categoryId),
     });
     return res;
+  }
+
+  async updateAuditStatus(id: number, state: ContentState, reviewNotes?: string) {
+    await db.update(contents)
+      .set({ state, reviewNotes: reviewNotes ?? null })
+      .where(eq(contents.id, id));
+    return '内容审核状态修改成功';
   }
 }
