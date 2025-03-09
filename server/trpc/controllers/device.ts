@@ -21,6 +21,7 @@ export class DeviceController {
       .where(eq(devices.id, id));
     return '设备名修改成功';
   }
+
   async bindProgram(id: number, programId: number) {
     await db.update(devices)
       .set({ programId })

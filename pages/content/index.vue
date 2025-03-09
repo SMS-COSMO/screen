@@ -121,12 +121,12 @@
                     </DialogContent>
                   </Dialog>
                 </TableCell>
-                <TableCell class="flex item-center justify-center mt-2">
+                <TableCell class="flex justify-left mt-2">
                   <Badge :variant="TransState(content.state).color">
                     {{ TransState(content.state).text }}
                     <!-- { `bg-[${TransState(content.state).color}]` }}{ -->
                   </Badge>
-                  <Dialog class="w-[40vw]">
+                  <Dialog>
                     <DialogTrigger as-child>
                       <!-- 现在是审核按钮 -->
                       <BookmarkCheck

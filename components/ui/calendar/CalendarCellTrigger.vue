@@ -1,20 +1,3 @@
-<script lang="ts" setup>
-import { cn } from '@/lib/utils'
-import { buttonVariants } from '@/components/ui/button'
-import { CalendarCellTrigger, type CalendarCellTriggerProps, useForwardProps } from 'reka-ui'
-import { computed, type HTMLAttributes } from 'vue'
-
-const props = defineProps<CalendarCellTriggerProps & { class?: HTMLAttributes['class'] }>()
-
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
-})
-
-const forwardedProps = useForwardProps(delegatedProps)
-</script>
-
 <template>
   <CalendarCellTrigger
     :class="cn(
@@ -36,3 +19,20 @@ const forwardedProps = useForwardProps(delegatedProps)
     <slot />
   </CalendarCellTrigger>
 </template>
+
+<script lang="ts" setup>
+import { CalendarCellTrigger, type CalendarCellTriggerProps, useForwardProps } from 'reka-ui';
+import { type HTMLAttributes, computed } from 'vue';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
+
+const props = defineProps<CalendarCellTriggerProps & { class?: HTMLAttributes['class'] }>();
+
+const delegatedProps = computed(() => {
+  const { class: _, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwardedProps = useForwardProps(delegatedProps);
+</script>
