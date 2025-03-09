@@ -3,8 +3,27 @@ import { eq } from 'drizzle-orm';
 import type { TNewContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
+import { UserController } from './user';
+
+type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
 export class ContentController {
+  private userController: UserController;
+  constructor() {
+    this.userController = new UserController();
+  }
+
+  private async fetchOwner(res: TNewContent[]) {
+    const seq: (TNewContent & { owner: string })[] = [];
+    res.forEach(async (cnt) => {
+      seq.push({
+        ...cnt,
+        owner: (await this.userController.getProfile(cnt.ownerId)).username,
+      });
+    });
+    return seq;
+  }
+
   async create(newContent: TNewContent) {
     await db.insert(contents).values(newContent);
     return '内容创建成功';
@@ -48,5 +67,12 @@ export class ContentController {
       where: eq(contents.categoryId, categoryId),
     });
     return res;
+  }
+
+  async updateAuditStatus(id: number, state: ContentState, reviewNotes?: string) {
+    await db.update(contents)
+      .set({ state, reviewNotes: reviewNotes ?? null })
+      .where(eq(contents.id, id));
+    return '内容审核状态修改成功';
   }
 }

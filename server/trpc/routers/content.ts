@@ -11,6 +11,8 @@ const S3FileIdZod = z.string();
 const lifespanZod = z.number()
   .max(15_552_000, { message: '内容有效期不能超过180天' });
 const categoryIdZod = z.number();
+const stateEnumZod = z.enum(['created', 'approved', 'rejected', 'inuse', 'outdated'], { errorMap: () => ({ message: '审核状态错误' }) });
+const reviewNotesZod = z.string().optional();
 
 export const contentRouter = router({
   create: protectedProcedure
@@ -58,5 +60,12 @@ export const contentRouter = router({
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getInfo(input.id);
+    }),
+
+  reviewNotes: protectedProcedure
+    .use(requireRoles(['admin']))
+    .input(z.object({ id: idZod, state: stateEnumZod, reviewNotes: reviewNotesZod }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.contentController.updateAuditStatus(input.id, input.state, input.reviewNotes);
     }),
 });
