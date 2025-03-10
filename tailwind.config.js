@@ -1,5 +1,5 @@
-const animate = require('tailwindcss-animate');
 const { addDynamicIconSelectors } = require('@iconify/tailwind');
+const animate = require('tailwindcss-animate');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

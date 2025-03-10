@@ -1,24 +1,3 @@
-<script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
-import {
-  DropdownMenuSubTrigger,
-  type DropdownMenuSubTriggerProps,
-  useForwardProps,
-} from 'radix-vue'
-import { ChevronRightIcon } from '@radix-icons/vue'
-import { cn } from '@/lib/utils'
-
-const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>()
-
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
-})
-
-const forwardedProps = useForwardProps(delegatedProps)
-</script>
-
 <template>
   <DropdownMenuSubTrigger
     v-bind="forwardedProps"
@@ -31,3 +10,26 @@ const forwardedProps = useForwardProps(delegatedProps)
     <ChevronRightIcon class="ml-auto h-4 w-4" />
   </DropdownMenuSubTrigger>
 </template>
+
+<script setup lang="ts">
+import type { DropdownMenuSubTriggerProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import { ChevronRightIcon } from '@radix-icons/vue';
+import {
+  DropdownMenuSubTrigger,
+
+  useForwardProps,
+} from 'reka-ui';
+import { computed } from 'vue';
+import { cn } from '@/lib/utils';
+
+const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>();
+
+const delegatedProps = computed(() => {
+  const { class: _, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwardedProps = useForwardProps(delegatedProps);
+</script>

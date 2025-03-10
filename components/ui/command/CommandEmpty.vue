@@ -1,20 +1,26 @@
-<script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
-import type { ComboboxEmptyProps } from 'radix-vue'
-import { ComboboxEmpty } from 'radix-vue'
-import { cn } from '@/lib/utils'
+<template>
+  <Primitive v-if="isRender" v-bind="delegatedProps" :class="cn('py-6 text-center text-sm', props.class)">
+    <slot />
+  </Primitive>
+</template>
 
-const props = defineProps<ComboboxEmptyProps & { class?: HTMLAttributes['class'] }>()
+<script setup lang="ts">
+import type { PrimitiveProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import { Primitive } from 'reka-ui';
+import { computed } from 'vue';
+import { useCommand } from '.';
+import { cn } from '@/lib/utils';
+
+const props = defineProps<PrimitiveProps & { class?: HTMLAttributes['class'] }>();
 
 const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const { class: _, ...delegated } = props;
 
-  return delegated
-})
+  return delegated;
+});
+
+const { filterState } = useCommand();
+const isRender = computed(() => !!filterState.search && filterState.filtered.count === 0,
+);
 </script>
-
-<template>
-  <ComboboxEmpty v-bind="delegatedProps" :class="cn('py-6 text-center text-sm', props.class)">
-    <slot />
-  </ComboboxEmpty>
-</template>

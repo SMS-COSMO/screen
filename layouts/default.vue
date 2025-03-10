@@ -99,8 +99,8 @@
 </template>
 
 <script setup lang="ts">
-import { Bell, CircleUser, Menu } from 'lucide-vue-next';
 import { createReusableTemplate } from '@vueuse/core';
+import { Bell, CircleUser, Menu } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 
 const store = useUserStore();
