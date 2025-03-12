@@ -72,14 +72,14 @@
                         </div>
                         <DialogClose>
                           <Button
-                            v-if="!isPending2"
+                            v-if="!isPendingContentEdit"
                             type="submit"
                             @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
                           >
                             确认修改
                           </Button>
-                          <Button v-if="isPending3" type="submit" disabled>
-                            <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                          <Button v-if="isPendingContentEdit" type="submit" disabled>
+                            <Loader2 v-if="isPendingContentEdit" class="w-4 h-4 mr-2 animate-spin" />
                             请稍候……
                           </Button>
                         </DialogClose>
@@ -142,27 +142,27 @@
                         <div class="grid grid-cols-4 items-center gap-2 grid-rows-6">
                           <Checkbox
                             class="col-span-1 row-span-1 ml-[2vw]"
-                            @update:checked="(newVal: any) => isPassExa = newVal"
+                            @update:checked="(newVal: any) => isReviewPassed = newVal"
                           />
                           <Label for="c-name" class="text-center col-span-2 row-span-1">
                             是否过审
                           </Label>
-                          <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
+                          <Label v-show="!isReviewPassed" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
                             修改意见
                           </Label>
-                          <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4" />
+                          <Textarea v-show="!isReviewPassed" v-model="reviewNotes" class="row-span-4 col-span-4" />
                         </div>
                       </div>
                       <DialogClose>
                         <Button
-                          v-if="!isPending2"
+                          v-if="!isPendingPoolEdit"
                           type="submit"
-                          @click="editExaState()"
+                          @click="editReviewState()"
                         >
                           确认
                         </Button>
-                        <Button v-if="isPending3" type="submit" disabled>
-                          <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                        <Button v-if="isPendingContentEdit" type="submit" disabled>
+                          <Loader2 v-if="isPendingContentEdit" class="w-4 h-4 mr-2 animate-spin" />
                           请稍候……
                         </Button>
                         <Button
@@ -205,11 +205,11 @@
                   </div>
                 </div>
                 <DialogClose>
-                  <Button v-if="!isPending" type="submit" @click="createPoolMutation({ category: name })">
+                  <Button v-if="!isPendingPoolCreate" type="submit" @click="createPoolMutation({ category: name })">
                     创建内容类型
                   </Button>
-                  <Button v-if="isPending" type="submit" disabled>
-                    <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                  <Button v-if="isPendingPoolCreate" type="submit" disabled>
+                    <Loader2 v-if="isPendingPoolCreate" class="w-4 h-4 mr-2 animate-spin" />
                     请稍候……
                   </Button>
                 </DialogClose>
@@ -259,14 +259,14 @@
                           </div>
                           <DialogClose>
                             <Button
-                              v-if="!isPending2"
+                              v-if="!isPendingPoolEdit"
                               type="submit"
                               @click="editPoolMutation({ id: pool.id, new_category: edit_new_category_name })"
                             >
                               确认修改
                             </Button>
-                            <Button v-if="isPending2" type="submit" disabled>
-                              <Loader2 v-if="isPending2" class="w-4 h-4 mr-2 animate-spin" />
+                            <Button v-if="isPendingPoolEdit" type="submit" disabled>
+                              <Loader2 v-if="isPendingPoolEdit" class="w-4 h-4 mr-2 animate-spin" />
                               请稍候……
                             </Button>
                           </DialogClose>
@@ -350,7 +350,7 @@ await suspense();
 
 const name = ref('');
 const edit_new_category_name = ref('');
-const { mutate: createPoolMutation, isPending } = useMutation({
+const { mutate: createPoolMutation, isPending: isPendingPoolCreate } = useMutation({
   mutationFn: $api.pool.create.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
@@ -366,7 +366,7 @@ const { mutate: deletePoolMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editPoolMutation, isPending: isPending2 } = useMutation({
+const { mutate: editPoolMutation, isPending: isPendingPoolEdit } = useMutation({
   mutationFn: $api.pool.edit.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
@@ -384,7 +384,7 @@ const { mutate: deleteContentMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editContentNameMutation, isPending: isPending3 } = useMutation({
+const { mutate: editContentNameMutation, isPending: isPendingContentEdit } = useMutation({
   mutationFn: $api.content.edit.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
@@ -417,10 +417,10 @@ function TransState(state: string): { text: string; color:
 }
 
 // 以下为审核意见功能块
-const exa_idea: Ref<string> = ref('');
-const isPassExa: Ref<boolean> = ref(false);
+const reviewNotes: Ref<string> = ref('');
+const isReviewPassed: Ref<boolean> = ref(false);
 
-function editExaState() {
+function editReviewState() {
   // 后台接口未实现-----------------待实现
   toast.success('审核提交成功');
 }
