@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import { onKeyPressed } from '@vueuse/core';
 
 const { $api } = useNuxtApp();
 const userStore = useUserStore();
@@ -67,4 +68,6 @@ const { mutate: loginMutation, isPending } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
+
+onKeyPressed('Enter', () => loginMutation(form));
 </script>
