@@ -141,15 +141,17 @@
                         <!-- 布局父盒子 -->
                         <div class="flex flex-col gap-2">
                           <div class="w-[100%] flex gap-2">
+                            <!-- 更新事件的方法失效, 改用ref -->
                             <Checkbox
+                              ref="CheckBox"
                               class="col-span-1 row-span-1 ml-[2vw]"
-                              @update:checked="(newVal: any) => isPassExa = newVal"
+                              @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
                             />
                             <Label for="c-name" class="text-center col-span-2 row-span-1">
                               是否过审
                             </Label>
                           </div>
-                          <div class="flex flex-col gap-4">
+                          <div v-show="!isPassExa" class="flex flex-col gap-4">
                             <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
                               修改意见
                             </Label>
@@ -428,6 +430,7 @@ function TransState(state: string): { text: string; color:
 }
 
 // 以下为审核意见功能块
+const CheckBox: any = ref('');
 const exa_idea: Ref<string> = ref('');
 const isPassExa: Ref<boolean> = ref(false);
 
