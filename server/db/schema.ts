@@ -18,6 +18,7 @@ export const users = sqliteTable('users', {
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
   role: text('role', { enum: ['admin', 'club'] }).notNull().default('club'),
+  description: text('description').default('SMS Student Club'), //default值为调试用
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
