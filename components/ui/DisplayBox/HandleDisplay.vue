@@ -1,8 +1,8 @@
 <!-- 用于处理文件类型,并选择适合的播放器 -->
 <template>
   <div class="max-h-100% justify-center items-center">
-    <ImageBox v-if="checkMediaType(props.srcKey) === 'image'" :image-key="props.srcKey" />
-    <VideoBox v-else-if="checkMediaType(props.srcKey) === 'video'" :video-key="props.srcKey" />
+    <ImageBox v-if="checkMediaType(props.filetype) === 'image'" :image-key="props.srcKey" />
+    <VideoBox v-else-if="checkMediaType(props.filetype) === 'video'" :video-key="props.srcKey" />
     <span v-else>未知文件类型, 无法预览</span>
   </div>
 </template>
@@ -11,25 +11,19 @@
 import ImageBox from './ImageBox.vue';
 import VideoBox from './VideoBox.vue';
 // 定义 props, 传输展示地址
+// srcKey实际为一个
 const props = defineProps<{
   srcKey: string;
+  filetype: string;
 }>();
 
 // 处理函数
-function checkMediaType(url: string) {
-  // 清理 URL（移除查询参数和哈希）
-  const cleanUrl = url.split(/[?#]/)[0];
-  // 提取扩展名（转为小写）
-  const extension = (cleanUrl.split('.').pop() || '').toLowerCase();
-
-  // 图片类型列表
-  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
-  // 视频类型列表
-  const videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv'];
-
-  if (imageExtensions.includes(extension))
+function checkMediaType(fileType: string) {
+  // fileType由斜杠分隔，斜杠前面的部分为图片或视频类型
+  const mainType = fileType.split('/')[0];
+  if (mainType === 'image')
     return 'image';
-  else if (videoExtensions.includes(extension))
+  else if (mainType === 'video')
     return 'video';
   else
     return 'unknown';

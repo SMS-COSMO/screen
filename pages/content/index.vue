@@ -93,8 +93,7 @@
                   </div>
                 </TableCell>
                 <TableCell>
-                  <!-- 由于部分问题,待修复 -->
-                  {{ content.ownerId }}
+                  {{ content.owner }}
                 </TableCell>
                 <TableCell>
                   {{ content.createdAt.toLocaleDateString() }}
@@ -111,7 +110,7 @@
                         <DialogTitle>源文件预览</DialogTitle>
                       </DialogHeader>
                       <div>
-                        <HandleDisplay :src-key="content.S3FileId" />
+                        <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType" />
                       </div>
                       <DialogClose>
                         <Button type="submit">
@@ -139,30 +138,42 @@
                         <DialogTitle>审核意见</DialogTitle>
                       </DialogHeader>
                       <div class="grid gap-4 py-4">
-                        <div class="grid grid-cols-4 items-center gap-2 grid-rows-6">
-                          <Checkbox
-                            class="col-span-1 row-span-1 ml-[2vw]"
-                            @update:checked="(newVal: any) => isPassExa = newVal"
-                          />
-                          <Label for="c-name" class="text-center col-span-2 row-span-1">
-                            是否过审
-                          </Label>
-                          <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
-                            修改意见
-                          </Label>
-                          <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4" />
+                        <!-- 布局父盒子 -->
+                        <div class="flex flex-col gap-2">
+                          <div class="w-[100%] flex gap-2">
+                            <Checkbox
+                              class="col-span-1 row-span-1 ml-[2vw]"
+                              @update:checked="(newVal: any) => isPassExa = newVal"
+                            />
+                            <Label for="c-name" class="text-center col-span-2 row-span-1">
+                              是否过审
+                            </Label>
+                          </div>
+                          <div class="flex flex-col gap-4">
+                            <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
+                              修改意见
+                            </Label>
+                            <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4 ml-2" />
+                          </div>
                         </div>
                       </div>
                       <DialogClose>
                         <Button
-                          v-if="!isPending2"
+                          v-if="!isPending_Exa"
                           type="submit"
-                          @click="editExaState()"
+                          @click="() => {
+                            content.fileType
+                            editExaStateMutation({
+                              id: content.id,
+                              state: isPassExa ? 'approved' : 'rejected',
+                              reviewNotes: exa_idea,
+                            })
+                          }"
                         >
                           确认
                         </Button>
-                        <Button v-if="isPending3" type="submit" disabled>
-                          <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                        <Button v-if="isPending_Exa" type="submit" disabled>
+                          <Loader2 v-if="isPending_Exa" class="w-4 h-4 mr-2 animate-spin" />
                           请稍候……
                         </Button>
                         <Button
@@ -420,9 +431,15 @@ function TransState(state: string): { text: string; color:
 const exa_idea: Ref<string> = ref('');
 const isPassExa: Ref<boolean> = ref(false);
 
-function editExaState() {
-  // 后台接口未实现-----------------待实现
-  toast.success('审核提交成功');
-}
+const { mutate: editExaStateMutation, isPending: isPending_Exa } = useMutation({
+  mutationFn: $api.content.updateReviewStatus.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
+    toast.success('审核提交成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+
 // 测试函数
+// $api.content.updateReviewStatus.mutate
 </script>
