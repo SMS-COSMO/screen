@@ -28,6 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^7.9.0",
     "@videojs-player/vue": "^1.0.0",
+    "@videojs/xhr": "^2.7.0",
     "@vueuse/components": "^10.9.0",
     "@vueuse/core": "^10.9.0",
     "@vueuse/integrations": "^10.9.0",
