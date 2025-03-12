@@ -330,9 +330,9 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import Badge from '~/components/ui/Badge.vue';
-import HandleDisplay from '~/components/ui/DisplayBox/HandleDisplay.vue';
-import Textarea from '~/components/ui/textarea/Textarea.vue';
+import { Badge } from '@/components/ui/Badge';
+import { HandleDisplay } from '@/components/ui/DisplayBox';
+import { Textarea } from '@/components/ui/textarea';
 
 // 以下为前朝遗物
 const { $api } = useNuxtApp();
