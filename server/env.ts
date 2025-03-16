@@ -21,8 +21,8 @@ const envSchema = z.object({
   S3_ACCESS_KEY_ID: z.string(),
   S3_SECRET_ACCESS_KEY: z.string(),
   BUCKET_NAME: z.string(),
-  // WEATHER_API_KEY: z.string(),
-  // WEATHER_CITY_CODE: z.string(),
+  WEATHER_API_KEY: z.string(),
+  WEATHER_CITY_CODE: z.string(),
 });
 
 const envParse = envSchema.safeParse(process.env);
