@@ -79,15 +79,28 @@
                 />
               </div>
               <div class="grid gap-2">
-                <Label for="lifespan">有效期（天）</Label>
-                <Input
-                  id="lifespan"
-                  v-model="lifespan"
-                  type="number"
-                  max="180"
-                  min="0"
-                  required
-                />
+                <Label for="expireDate">选择截止日期</Label>
+                <Popover>
+                  <PopoverTrigger as-child>
+                    <Button
+                      variant="outline"
+                      :class="cn(
+                        'w-[280px] justify-start text-left font-normal',
+                        !value && 'text-muted-foreground',
+                      )"
+                    >
+                      <CalendarIcon class="mr-2 h-4 w-4" />
+                      {{ value ? df.format(value.toDate(getLocalTimeZone())) : "选择日期" }}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent class="w-auto p-0">
+                    <Calendar
+                      v-model="value"
+                      initial-focus
+                      :min-value="today(getLocalTimeZone())"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div class="grid gap-2">
                 <Label for="filepath">文件</Label>
@@ -120,8 +133,16 @@
 <script setup lang="ts">
 import type { AxiosProgressEvent } from 'axios';
 import axios from 'axios';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
+import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
+import {
+  DateFormatter,
+  type DateValue,
+  getLocalTimeZone,
+  today,
+} from '@internationalized/date';
+import { ref } from 'vue';
+
 import {
   Command,
   CommandEmpty,
@@ -136,20 +157,32 @@ import {
 } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
 import { makeId } from '~/server/trpc/utils/shared';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 const { $api } = useNuxtApp();
 const userStore = useUserStore();
 
 const unfoldCheckbox = ref(false);
 const checkedCategory = ref('');
-const lifespan = ref(0);
+const value = ref<DateValue>();
+
+// 定义df为日期格式化工具，将 Date 对象转换为特定格式的字符串
+// 参数含义：full  2024年1月1日星期一
+//          long  2024年1月1日
+//          medium 2024年1月1日
+//          short  2024/1/1
+const df = new DateFormatter('zh-CN', {
+  dateStyle: 'long',
+});
+
 interface Form {
   name: string;
   ownerId: number;
   duration: number;
   fileType: string;
   S3FileId: string;
-  lifespan: number;
+  expireDate: Date;
   categoryId: number;
 };
 const form: Form = reactive({
@@ -158,7 +191,7 @@ const form: Form = reactive({
   duration: 0,
   fileType: '',
   S3FileId: '',
-  lifespan: 0,
+  expireDate: new Date(),
   categoryId: 0,
 });
 
@@ -204,8 +237,11 @@ async function createContent() {
     toast.error('内容展示时长必须是正值');
     return;
   }
-  form.lifespan = lifespan.value * 86400;
-
+  if (!value.value) {
+    toast.error('请选择截止日期');
+    return;
+  }
+  form.expireDate = value.value.toDate(getLocalTimeZone());
   if (userStore.userId) {
     form.ownerId = userStore.userId;
     form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
@@ -233,7 +269,6 @@ async function createContent() {
     isUploading.value = false;
     return;
   }
-
   createMutation(form);
   isUploading.value = false;
 };
