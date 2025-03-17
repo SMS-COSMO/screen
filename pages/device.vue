@@ -176,7 +176,7 @@
                 <div class="flex items-center">
                   <Label>{{ getProgramName(device.id) || '未绑定节目' }}</Label>
                   <Dialog>
-                    <DialogTrigger as-child>
+                    <DialogTrigger as-child @click="handlePopoverOpen(device.id)">
                       <Pencil
                         class="opacity-35 flex-initial w-5 text-right"
                         :size="12"
@@ -301,7 +301,7 @@ const unfoldCheckbox = reactive<{ [key: number]: boolean }>({});
 
 // 初始化每个设备的 selectedProgramId 和 unfoldCheckbox 状态
 list.value?.forEach((device) => {
-  deviceSelectedProgramId[device.id] = -1; // -1 表示未选择任何节目
+  deviceSelectedProgramId[device.id] = device.programId ?? -1; // -1 表示未选择任何节目
   unfoldCheckbox[device.id] = false;
 });
 
@@ -359,5 +359,12 @@ function confirmBindProgram(deviceId: number) {
 // 根据节目ID获取节目名称
 function getProgramNameById(programId: number): string | undefined {
   return list2.value?.find(program => program.id === programId)?.name;
+}
+
+// Poverty打开后优先将显示的选定节目更新为当前设备的节目ID
+function handlePopoverOpen(deviceId: number) {
+  const device = list.value?.find(d => d.id === deviceId);
+  if (device && device.programId !== undefined)
+    deviceSelectedProgramId[deviceId] = device.programId ?? -1;
 }
 </script>

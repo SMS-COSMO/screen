@@ -72,14 +72,14 @@
                         </div>
                         <DialogClose>
                           <Button
-                            v-if="!isPending2"
+                            v-if="!isPendingContentEdit"
                             type="submit"
                             @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
                           >
                             确认修改
                           </Button>
-                          <Button v-if="isPending3" type="submit" disabled>
-                            <Loader2 v-if="isPending3" class="w-4 h-4 mr-2 animate-spin" />
+                          <Button v-if="isPendingContentEdit" type="submit" disabled>
+                            <Loader2 v-if="isPendingContentEdit" class="w-4 h-4 mr-2 animate-spin" />
                             请稍候……
                           </Button>
                         </DialogClose>
@@ -218,11 +218,11 @@
                   </div>
                 </div>
                 <DialogClose>
-                  <Button v-if="!isPending" type="submit" @click="createPoolMutation({ category: name })">
+                  <Button v-if="!isPendingPoolCreate" type="submit" @click="createPoolMutation({ category: name })">
                     创建内容类型
                   </Button>
-                  <Button v-if="isPending" type="submit" disabled>
-                    <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                  <Button v-if="isPendingPoolCreate" type="submit" disabled>
+                    <Loader2 v-if="isPendingPoolCreate" class="w-4 h-4 mr-2 animate-spin" />
                     请稍候……
                   </Button>
                 </DialogClose>
@@ -272,14 +272,14 @@
                           </div>
                           <DialogClose>
                             <Button
-                              v-if="!isPending2"
+                              v-if="!isPendingPoolEdit"
                               type="submit"
                               @click="editPoolMutation({ id: pool.id, new_category: edit_new_category_name })"
                             >
                               确认修改
                             </Button>
-                            <Button v-if="isPending2" type="submit" disabled>
-                              <Loader2 v-if="isPending2" class="w-4 h-4 mr-2 animate-spin" />
+                            <Button v-if="isPendingPoolEdit" type="submit" disabled>
+                              <Loader2 v-if="isPendingPoolEdit" class="w-4 h-4 mr-2 animate-spin" />
                               请稍候……
                             </Button>
                           </DialogClose>
@@ -363,7 +363,7 @@ await suspense();
 
 const name = ref('');
 const edit_new_category_name = ref('');
-const { mutate: createPoolMutation, isPending } = useMutation({
+const { mutate: createPoolMutation, isPending: isPendingPoolCreate } = useMutation({
   mutationFn: $api.pool.create.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
@@ -379,7 +379,7 @@ const { mutate: deletePoolMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editPoolMutation, isPending: isPending2 } = useMutation({
+const { mutate: editPoolMutation, isPending: isPendingPoolEdit } = useMutation({
   mutationFn: $api.pool.edit.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
@@ -397,7 +397,7 @@ const { mutate: deleteContentMutation } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-const { mutate: editContentNameMutation, isPending: isPending3 } = useMutation({
+const { mutate: editContentNameMutation, isPending: isPendingContentEdit } = useMutation({
   mutationFn: $api.content.edit.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
