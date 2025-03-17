@@ -131,6 +131,7 @@
                       <BookmarkCheck
                         class="opacity-35 flex-initial w-5 text-right mt-1"
                         :size="16"
+                        @click="() => { isPassExa = content.state === 'approved' ? true : false }"
                       />
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
@@ -145,6 +146,7 @@
                             <Checkbox
                               ref="CheckBox"
                               class="col-span-1 row-span-1 ml-[2vw]"
+                              :model-value="isPassExa"
                               @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
                             />
                             <Label for="c-name" class="text-center col-span-2 row-span-1">
