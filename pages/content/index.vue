@@ -131,7 +131,10 @@
                       <BookmarkCheck
                         class="opacity-35 flex-initial w-5 text-right mt-1"
                         :size="16"
-                        @click="() => { isPassExa = content.state === 'approved' ? true : false }"
+                        @click="() => {
+                          isPassExa = content.state === 'approved' ? true : false
+                          exa_idea = content.reviewNotes === null ? '' : content.reviewNotes
+                        }"
                       />
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
@@ -170,7 +173,8 @@
                             editExaStateMutation({
                               id: content.id,
                               state: isPassExa ? 'approved' : 'rejected',
-                              reviewNotes: exa_idea,
+                              // 很奇怪, 这里判断应该为null而不应为undefined, 是否为后端问题?
+                              reviewNotes: isPassExa ? undefined : exa_idea,
                             })
                           }"
                         >
