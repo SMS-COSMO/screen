@@ -4,6 +4,7 @@ import { protectedProcedure, requireRoles, router } from '../trpc';
 const locationZod = z.string()
   .max(20, { message: '设备名不能超过20个字符' });
 const deviceIdZod = z.number();
+const programIdZod = z.number();
 
 export const deviceRouter = router({
   create: protectedProcedure
@@ -25,6 +26,13 @@ export const deviceRouter = router({
     .input(z.object({ id: deviceIdZod, new_location: locationZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.deviceController.edit(input.id, input.new_location);
+    }),
+
+  bindProgram: protectedProcedure
+    .use(requireRoles(['admin']))
+    .input(z.object({ id: deviceIdZod, programId: programIdZod }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.deviceController.bindProgram(input.id, input.programId);
     }),
 
   info: protectedProcedure

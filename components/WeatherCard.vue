@@ -1,26 +1,60 @@
 <template>
-  <div class="justify-center grid">
-    <div class="items-center w-36 h-10 grid shadow rounded-xl border">
-      <p v-if="info !== undefined && info.status" class="text-center table-cell" style="font:message-box">
-        <!-- message-box 字体在 Tailwind 里找不到对应 -->
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle>
+        天气
+      </CardTitle>
+      <Icon v-if="info === undefined || !info.status" name="lucide:circle-x" class="h-10 w-10 text-muted-foreground" />
+      <div v-if="info !== undefined && info.status">
+        <Icon :name="getIconName(info.weather)" class="h-10 w-10 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div v-if="info !== undefined && info.status" class="text-2xl text-center table-cell">
         {{ info.weather }} / {{ info.temperature }}°C / {{ info.humidity }}%
-      </p>
-      <p v-if="info === undefined || !info.status" class="text-center table-cell text-red-500" style="font:message-box">
-        <!-- html 的 color:red 是 0xFF0000, Tailwind 里最接近的是 text-red-500 (0xEF4444) -->
+      </div>
+      <div v-if="info === undefined || !info.status" class="text-2xl text-center table-cell text-red-500">
         网络错误
-      </p>
-    </div>
-  </div>
+      </div>
+    </CardContent>
+  </Card>
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { Loader2 } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
-
 const { $api } = useNuxtApp();
 // const userStore = useUserStore();
 // const queryClient = useQueryClient();
+
+function getIconName(key: string | undefined) {
+  const now = (new Date()).getHours();
+  if (key === '晴') {
+    if (now >= 6 && now <= 19)
+      return 'lucide:sun';
+    else
+      return 'lucide:moon-star';
+  }
+  if (key === '晴间多云') {
+    if (now >= 6 && now <= 19)
+      return 'lucide:cloud-sun';
+    else
+      return 'lucide:cloud-moon';
+  }
+  if (key === '少云')
+    return 'lucide:cloud';
+  if (key === '多云' || key === '阴')
+    return 'lucide:cloudy';
+  if (key === '阵雨' || key === '细雨' || key === '小雨' || key === '中雨' || key === '大雨' || key === '暴雨' || key === '大暴雨')
+    return 'lucide:cloud-drizzle';
+  if (key === '雷阵雨')
+    return 'lucide:cloud-lightning';
+  if (key === '有风' || key === '微风' || key === '和风' || key === '清风')
+    return 'lucide:wind';
+  if (key === '雾' || key === '浓雾' || key === '强浓雾')
+    return 'lucide:haze';
+  if (key === '雪' || key === '阵雪' || key === '小雪' || key === '中雪')
+    return 'lucide:snowflake';
+  return 'lucide:circle-x';
+}
 
 const { data: info, suspense } = useQuery({
   queryKey: ['weather', 'info'],

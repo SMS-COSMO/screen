@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import type { TNewProgram } from '../../db/db';
+import type { TNewProgram, TSequenceUnit } from '../../db/db';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
 import { ContentController } from './content';
@@ -42,11 +42,10 @@ export class ProgramController {
     });
     if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '节目不存在' });
-    const seq: { type: 'pool' | 'content'; id: number; name?: string }[] = [];
+    const seq: (TSequenceUnit & { name?: string })[] = [];
     res.sequence.forEach(async (cnt) => {
       seq.push({
-        type: cnt.type,
-        id: cnt.id,
+        ...cnt,
         name: cnt.type === 'pool'
           ? (await this.poolController.getInfo(cnt.id)).category
           : (await this.contentController.getInfo(cnt.id)).name,
@@ -55,7 +54,7 @@ export class ProgramController {
     return seq;
   }
 
-  async setSequence(id: number, sequence: { type: 'pool' | 'content'; id: number }[]) {
+  async setSequence(id: number, sequence: TSequenceUnit[]) {
     await db.update(programs)
       .set({ sequence })
       .where(eq(programs.id, id));

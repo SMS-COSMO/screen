@@ -1,36 +1,3 @@
-<script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
-import {
-  PopoverContent,
-  type PopoverContentEmits,
-  type PopoverContentProps,
-  PopoverPortal,
-  useForwardPropsEmits,
-} from 'radix-vue'
-import { cn } from '@/lib/utils'
-
-defineOptions({
-  inheritAttrs: false,
-})
-
-const props = withDefaults(
-  defineProps<PopoverContentProps & { class?: HTMLAttributes['class'] }>(),
-  {
-    align: 'center',
-    sideOffset: 4,
-  },
-)
-const emits = defineEmits<PopoverContentEmits>()
-
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
-})
-
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
-</script>
-
 <template>
   <PopoverPortal>
     <PopoverContent
@@ -46,3 +13,37 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     </PopoverContent>
   </PopoverPortal>
 </template>
+
+<script setup lang="ts">
+import type { PopoverContentEmits, PopoverContentProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import {
+  PopoverContent,
+
+  PopoverPortal,
+  useForwardPropsEmits,
+} from 'reka-ui';
+import { computed } from 'vue';
+import { cn } from '@/lib/utils';
+
+defineOptions({
+  inheritAttrs: false,
+});
+
+const props = withDefaults(
+  defineProps<PopoverContentProps & { class?: HTMLAttributes['class'] }>(),
+  {
+    align: 'center',
+    sideOffset: 4,
+  },
+);
+const emits = defineEmits<PopoverContentEmits>();
+
+const delegatedProps = computed(() => {
+  const { class: _, ...delegated } = props;
+
+  return delegated;
+});
+
+const forwarded = useForwardPropsEmits(delegatedProps, emits);
+</script>

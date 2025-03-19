@@ -1,26 +1,3 @@
-<script setup lang="ts">
-import { type HTMLAttributes, computed } from 'vue'
-import {
-  ProgressIndicator,
-  ProgressRoot,
-  type ProgressRootProps,
-} from 'radix-vue'
-import { cn } from '@/lib/utils'
-
-const props = withDefaults(
-  defineProps<ProgressRootProps & { class?: HTMLAttributes['class'] }>(),
-  {
-    modelValue: 0,
-  },
-)
-
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
-})
-</script>
-
 <template>
   <ProgressRoot
     v-bind="delegatedProps"
@@ -37,3 +14,28 @@ const delegatedProps = computed(() => {
     />
   </ProgressRoot>
 </template>
+
+<script setup lang="ts">
+import type { ProgressRootProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import {
+  ProgressIndicator,
+  ProgressRoot,
+
+} from 'reka-ui';
+import { computed } from 'vue';
+import { cn } from '@/lib/utils';
+
+const props = withDefaults(
+  defineProps<ProgressRootProps & { class?: HTMLAttributes['class'] }>(),
+  {
+    modelValue: 0,
+  },
+);
+
+const delegatedProps = computed(() => {
+  const { class: _, ...delegated } = props;
+
+  return delegated;
+});
+</script>

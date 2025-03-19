@@ -60,10 +60,11 @@ export const contents = sqliteTable('contents', {
   duration: integer('duration').notNull(), // in seconds
   fileType: text('file_type').notNull(),
   S3FileId: text('s3_file_id').notNull(),
-  lifespan: integer('lifespan').notNull(), // in seconds
+  expireDate: integer('expireDate', { mode: 'timestamp' }).notNull(),
   state: text('state', { enum: ['created', 'approved', 'rejected', 'inuse', 'outdated'] }).notNull().default('created'),
   categoryId: integer('category_id').references(() => pools.id, setNull),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  reviewNotes: text('reviewNotes'),
 });
 
 export const contentsRelations = relations(contents, ({ one, many }) => ({
