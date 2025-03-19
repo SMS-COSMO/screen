@@ -161,6 +161,7 @@
     }
   }
 
+  //清除输入框中的内容
   function clearPasswordCache(){
       Password.oldPassword = "";
       Password.newPassword = "";
