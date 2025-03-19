@@ -4,16 +4,16 @@
       <CardTitle>
         天气
       </CardTitle>
-      <Icon v-if="info === undefined || !info.status" name="lucide:circle-x" class="h-8 w-8 text-muted-foreground" />
+      <Icon v-if="info === undefined || !info.status" name="lucide:circle-x" class="h-10 w-10 text-muted-foreground" />
       <div v-if="info !== undefined && info.status">
-        <Icon :name="getIconName(info.weather)" class="h-8 w-8 text-muted-foreground" />
+        <Icon :name="getIconName(info.weather)" class="h-10 w-10 text-muted-foreground" />
       </div>
     </CardHeader>
     <CardContent>
-      <div v-if="info !== undefined && info.status" class="text-8xl text-center table-cell" style="font:message-box">
+      <div v-if="info !== undefined && info.status" class="text-2xl text-center table-cell">
         {{ info.weather }} / {{ info.temperature }}°C / {{ info.humidity }}%
       </div>
-      <div v-if="info === undefined || !info.status" class="text-8xl text-center table-cell text-red-500" style="font:message-box">
+      <div v-if="info === undefined || !info.status" class="text-2xl text-center table-cell text-red-500">
         网络错误
       </div>
     </CardContent>

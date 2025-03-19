@@ -6,4 +6,9 @@ export type RouterInput = inferRouterInputs<AppRouter>;
 
 export type TUserLogin = RouterOutput['user']['login'];
 
+//modify方法对应的类型
+export type TUserModify = {
+  username: string;
+  description: string;
+}; 
 export type TRole = 'admin' | 'club';

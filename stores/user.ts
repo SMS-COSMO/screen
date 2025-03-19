@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { TRole, TUserLogin } from '~/types';
+import type { TRole, TUserLogin, TUserModify } from '~/types';
 
 export const useUserStore = defineStore('user', () => {
   const loggedIn = ref(false);
@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', () => {
   const refreshToken = ref('');
   const userId = ref<number>();
   const username = ref('');
+  const userDescription = ref('');
   const role = ref<TRole>('club');
 
   const login = (data: TUserLogin) => {
@@ -16,8 +17,17 @@ export const useUserStore = defineStore('user', () => {
 
     userId.value = data.id;
     username.value = data.username;
+    userDescription.value = (data.description != null) ? data.description : "还没有介绍哦~";
+    //null暂未明确处理方式
+
     role.value = data.role;
   };
+
+  //modify方法用于在刷新用户资料同时不重新登录
+  const modify = (data: TUserModify) => {
+    username.value = data.username;
+    userDescription.value = (data.description != null) ? data.description : "还没有介绍哦~";
+  }
 
   const logout = () => {
     loggedIn.value = false;
@@ -27,6 +37,7 @@ export const useUserStore = defineStore('user', () => {
 
     userId.value = undefined;
     username.value = '';
+    userDescription.value = '';
 
     role.value = 'club';
   };
@@ -37,8 +48,10 @@ export const useUserStore = defineStore('user', () => {
     refreshToken,
     userId,
     username,
+    userDescription,
     role,
     login,
+    modify,
     logout,
   };
 }, {

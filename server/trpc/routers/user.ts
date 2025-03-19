@@ -25,6 +25,16 @@ export const userRouter = router({
       return await ctx.userController.remove(input.id);
     }),
 
+  modifyUserInfo: protectedProcedure
+    .input(z.object({
+      id: userIdZod,
+      username: usernameZod,
+      description: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.userController.modifyUserInfo(ctx.user, input.id, usernameZod.parse(input.username), input.description);
+    }),
+
   modifyPassword: protectedProcedure
     .input(z.object({
       id: userIdZod,

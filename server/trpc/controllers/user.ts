@@ -38,6 +38,23 @@ export class UserController {
     }
   }
 
+  async modifyUserInfo(user: TRawUser, id: number, username:string, description:string){
+    const newInfo = { username, description };
+
+    const targetUser = user.id === id
+      ? user
+      : await db.query.users.findFirst({ where: eq(users.id, id) });
+    if (!targetUser)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
+
+    try {
+      await db.update(users).set({ username: newInfo.username, description: newInfo.description }).where(eq(users.id, id));
+    } catch (err) {
+      throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '用户名已经存在' });
+    }
+
+  }
+
   async modifyPassword(user: TRawUser, id: number, oldPassword: string, newPassword: string) {
     if (user.role !== 'admin' && user.id !== id)
       throw TRPCForbidden;
