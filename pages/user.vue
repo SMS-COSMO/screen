@@ -74,7 +74,6 @@
                   required
                 />
               </div>
-              <p style = "color:red">{{note}}</p>
               <button @click="modifyBoardExpanded = !modifyBoardExpanded, clearPasswordCache()" class="w-full h-8 bg-transparent rounded border">
                 取消修改
               </button>
@@ -111,7 +110,6 @@
   const store = useUserStore();
   const queryClient = useQueryClient();
 
-  const note = ref('');
   const modifyChoice = ref('');
 
   const Info = reactive({
@@ -150,7 +148,6 @@
   })
 
   function toggle_confirm(){
-    note.value = "";
     try{
       if(modifyChoice.value === 'info'){
         modifyInfoMutation(Info);
