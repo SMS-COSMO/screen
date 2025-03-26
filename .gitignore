@@ -32,3 +32,6 @@ drizzle/
 
 # Editor
 .vscode/
+
+# Personal(对自己的提示)
+.Personal/
