@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { VideoPlayer } from '@videojs-player/vue';
 import 'video.js/dist/video-js.css';
+import axios from 'axios';
 
 // 定义 props, 传输视频地址
 const props = defineProps<{
@@ -22,9 +23,12 @@ const props = defineProps<{
 }>();
 const { $api } = useNuxtApp();
 
-// 进行图片查询操作
+// 进行视频查询操作
+// console.log('props.videoKey=', props.videoKey);
 const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
-
+// console.log('url=', url);
+// const data = fetch(url).then(res => res.json()).then(data => console.log('data=', data));
+// axios.get(url).then(res => console.log('res=', res));
 // 定义视频播放器的配置项
 const playerOptions = {
   autoplay: true,
