@@ -21,6 +21,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.621.0",
     "@aws-sdk/s3-request-presigner": "^3.621.0",
+    "@internationalized/date": "^3.7.0",
     "@libsql/client": "^0.5.6",
     "@tanstack/vue-query": "^5.36.0",
     "@trpc/client": "^10.45.2",
@@ -48,6 +49,7 @@
     "trpc-nuxt": "^0.10.21",
     "tsx": "^4.19.3",
     "video.js": "^8.21.0",
+    "videojs-vtt.js": "^0.15.5",
     "vue-sonner": "^1.1.2",
     "vue-video-player": "^6.0.0",
     "zod": "^3.23.8"
