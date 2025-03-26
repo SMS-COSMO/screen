@@ -77,7 +77,7 @@
                 {{ store.username }}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>设置</DropdownMenuItem>
+              <DropdownMenuItem @click="navigateTo('/user')">设置</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem @click="logout">
                 登出
