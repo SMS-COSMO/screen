@@ -1,6 +1,6 @@
 <template>
   <Title>用户信息</Title>
-  <div class="grid gap-4 md:grid-cols-2 md:gap-4 lg:grid-cols-1">
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
     <Card>
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle class="text-2xl font-bold">
@@ -8,14 +8,14 @@
         </CardTitle>
       </CardHeader>
       <CardContent class="grid gap-4">
-        <p class="text-xs text-gray-400 text-left">
+        <p class="text-xs text-gray-400">
           {{ store.userDescription }}
         </p>
         <Card v-if = "modifyBoardExpanded && modifyChoice === 'info'">
           <CardHeader>
-            <CardDescription class="text-xl">
+            <CardTitle>
               用户资料设置
-            </CardDescription>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
@@ -50,9 +50,9 @@
         </Card>
         <Card v-if = "modifyBoardExpanded && modifyChoice === 'password'">
           <CardHeader>
-            <CardDescription class="text-xl">
+            <CardTitle>
               密码设置
-            </CardDescription>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
@@ -113,9 +113,9 @@
   const modifyChoice = ref('');
 
   const Info = reactive({
-    id: store.userId !== undefined ? store.userId : 0,
-    username: store.username !== undefined ? store.username : "",
-    description: store.userDescription !== undefined ? store.userDescription : "",
+    id: store.userId ?? 0,
+    username: store.username ?? "",
+    description: store.userDescription ?? ""
   });
 
   const Password = reactive({
