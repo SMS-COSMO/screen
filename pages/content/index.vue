@@ -143,24 +143,24 @@
                       </DialogHeader>
                       <div class="grid gap-4 py-4">
                         <!-- 布局父盒子 -->
-                        <div class="flex flex-col gap-2">
-                          <div class="w-[100%] flex gap-2">
+                        <div class="flex flex-col gap-2 p-2">
+                          <div class="w-[100%] flex gap-2 p-2">
                             <!-- 更新事件的方法失效, 改用ref -->
                             <Checkbox
                               ref="CheckBox"
-                              class="col-span-1 row-span-1 ml-[2vw]"
+                              class="col-span-1 row-span-1 ml-[2vw] p-1 mt-2"
                               :model-value="isPassExa"
                               @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
                             />
-                            <Label for="c-name" class="text-center col-span-2 row-span-1">
+                            <Label for="c-name" class="text-center col-span-2 row-span-1 p-2">
                               是否过审
                             </Label>
                           </div>
                           <div v-show="!isPassExa" class="flex flex-col gap-4">
-                            <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4">
+                            <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 p-2">
                               修改意见
                             </Label>
-                            <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4 ml-2" />
+                            <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4 ml-2 p-2" />
                           </div>
                         </div>
                       </div>
