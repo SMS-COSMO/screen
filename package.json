@@ -48,10 +48,11 @@
     "tailwindcss-animate": "^1.0.7",
     "trpc-nuxt": "^0.10.21",
     "tsx": "^4.19.3",
-    "video.js": "^8.21.0",
+    "video.js": "^7.21.7",
     "videojs-vtt.js": "^0.15.5",
     "vue-sonner": "^1.1.2",
     "vue-video-player": "^6.0.0",
+    "xmldom": "link:@xmldom\\xmldom",
     "zod": "^3.23.8"
   },
   "devDependencies": {
