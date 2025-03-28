@@ -4,14 +4,18 @@ import { protectedProcedure, publicProcedure, requireRoles, router } from '../tr
 const categoryZod = z.string()
   .max(30, { message: '内容类型名不能超过30个字符' });
 const poolIdZod = z.number();
+const roleRequirementZod = z.enum(['admin', 'club']);
 
 export const poolRouter = router({
   create: protectedProcedure
     .use(requireRoles(['admin']))
-    .input(z.object({ category: categoryZod }))
+    .input(z.object({ category: categoryZod, roleRequirement: roleRequirementZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.poolController.create(
-        { category: input.category },
+        {
+          category: input.category,
+          roleRequirement: input.roleRequirement,
+        },
       );
     }),
 
@@ -24,9 +28,9 @@ export const poolRouter = router({
 
   edit: protectedProcedure
     .use(requireRoles(['admin']))
-    .input(z.object({ id: poolIdZod, new_category: categoryZod }))
+    .input(z.object({ id: poolIdZod, new_category: categoryZod, new_roleRequire: roleRequirementZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.poolController.edit(input.id, input.new_category);
+      return await ctx.poolController.edit(input.id, input.new_category, input.new_roleRequire);
     }),
 
   list: protectedProcedure

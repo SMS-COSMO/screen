@@ -213,18 +213,39 @@
               </DialogTrigger>
               <DialogContent class="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>请输入内容类型名称</DialogTitle>
+                  <DialogTitle>内容类型设置</DialogTitle>
                 </DialogHeader>
                 <div class="grid gap-4 py-4">
-                  <div class="grid grid-cols-7 items-center gap-4">
-                    <Label for="location" class="col-span-2">
+                  <div class="grid grid-cols-5 items-center gap-4">
+                    <Label for="location" class="col-span-3">
                       内容类型名称
                     </Label>
-                    <Input id="location" v-model="name" class="col-span-5" />
+                    <Input id="location" v-model="name" class="col-span-8" />
+                  </div>
+                  <div class="grid grid-cols-3 items-center gap-4">
+                    <Label class="col-span-3">
+                      此类型的内容创建时所需权限（管理员>学生组织/社团）
+                    </Label>
+                    <Select v-model="roleRequire">
+                      <SelectTrigger class="w-[375px]">
+                        <SelectValue placeholder="所需权限" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>最低权限</SelectLabel>
+                          <SelectItem value="admin">
+                            管理员
+                          </SelectItem>
+                          <SelectItem value="club">
+                            学生组织/社团
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <DialogClose>
-                  <Button v-if="!isPendingPoolCreate" type="submit" @click="createPoolMutation({ category: name })">
+                  <Button v-if="!isPendingPoolCreate" type="submit" @click="createPoolMutation({ category: name, roleRequirement: roleRequire })">
                     创建内容类型
                   </Button>
                   <Button v-if="isPendingPoolCreate" type="submit" disabled>
@@ -242,8 +263,11 @@
                   <TableHead class="w-20">
                     内容类型id
                   </TableHead>
-                  <TableHead class="w-64">
+                  <TableHead class="w-32">
                     内容类型名称
+                  </TableHead>
+                  <TableHead class="w-40">
+                    内容类型所需权限
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -253,9 +277,14 @@
                     {{ pool.id }}
                   </TableCell>
                   <TableCell>
+                    <p class="w-40 truncate">
+                      {{ pool.category }}
+                    </p>
+                  </TableCell>
+                  <TableCell>
                     <div class="flex">
-                      <p class="w-48 truncate">
-                        {{ pool.category }}
+                      <p class="w-30">
+                        {{ pool.roleRequirement }}
                       </p>
                       <Dialog>
                         <DialogTrigger as-child>
@@ -266,7 +295,7 @@
                         </DialogTrigger>
                         <DialogContent class="sm:max-w-[425px]">
                           <DialogHeader>
-                            <DialogTitle>请输入新的内容类型名</DialogTitle>
+                            <DialogTitle>请设置新的内容类型</DialogTitle>
                           </DialogHeader>
                           <div class="grid gap-4 py-4">
                             <div class="grid grid-cols-7 items-center gap-4">
@@ -275,12 +304,33 @@
                               </Label>
                               <Input id="name" v-model="edit_new_category_name" class="col-span-5" />
                             </div>
+                            <div class="grid grid-cols-3 items-center gap-4">
+                              <Label class="col-span-3">
+                                新的创建所需权限（管理员>学生组织/社团）
+                              </Label>
+                              <Select v-model="edit_new_roleRequire">
+                                <SelectTrigger class="w-[375px]">
+                                  <SelectValue placeholder="所需权限" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>最低权限</SelectLabel>
+                                    <SelectItem value="admin">
+                                      管理员
+                                    </SelectItem>
+                                    <SelectItem value="club">
+                                      学生组织/社团
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                           <DialogClose>
                             <Button
                               v-if="!isPendingPoolEdit"
                               type="submit"
-                              @click="editPoolMutation({ id: pool.id, new_category: edit_new_category_name })"
+                              @click="editPoolMutation({ id: pool.id, new_category: edit_new_category_name, new_roleRequire: edit_new_roleRequire })"
                             >
                               确认修改
                             </Button>
@@ -349,6 +399,15 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/Badge';
 import { HandleDisplay } from '@/components/ui/DisplayBox';
 import { Textarea } from '@/components/ui/textarea';
@@ -368,7 +427,7 @@ const { data: categoryList } = useQuery({
 await suspense();
 
 const name = ref('');
-const edit_new_category_name = ref('');
+const edit_new_category_name = name; // 这里改为默认为name，因为用户可能只是想改所需权限，如果还要输入一遍类型名太糖了
 const { mutate: createPoolMutation, isPending: isPendingPoolCreate } = useMutation({
   mutationFn: $api.pool.create.mutate,
   onSuccess: () => {
@@ -412,6 +471,10 @@ const { mutate: editContentNameMutation, isPending: isPendingContentEdit } = use
   onError: err => useErrorHandler(err),
 });
 // 以上是类型管理
+// 内容类型权限限制
+const roleRequire = ref<'admin' | 'club'>('club');
+const edit_new_roleRequire = ref<'admin' | 'club'>('club');
+
 // 以下是审核状态替换
 // enum: ['created', 'approved', 'rejected', 'inuse', 'outdated']
 function TransState(state: string): { text: string; color:
