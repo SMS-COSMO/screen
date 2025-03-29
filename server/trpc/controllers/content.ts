@@ -4,13 +4,16 @@ import type { TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
 import { UserController } from './user';
+import { PoolController } from './pool';
 
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
 export class ContentController {
   private userController: UserController;
+  private poolController: PoolController;
   constructor() {
     this.userController = new UserController();
+    this.poolController = new PoolController();
   }
 
   private async fetchOwner(res: TRawContent[]) {
@@ -25,6 +28,20 @@ export class ContentController {
   }
 
   async create(newContent: TNewContent) {
+    // 获取当前用户的权限信息
+    const currentUser = await this.userController.getList();
+    const userRole = currentUser[0].role;
+    if (newContent.categoryId == null || typeof newContent.categoryId !== 'number')
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'categoryId 必须为有效的数字' });
+    // 获取内容类型信息
+    const categoryInfo = await this.poolController.getInfo(newContent.categoryId);
+    const categoryRole = categoryInfo.roleRequirement;
+
+    // 检查用户是否有权限创建该类型的内容
+    if (userRole === 'club' && categoryRole === 'admin')
+      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限创建该类型的内容' });
+
+    // 插入新内容到数据库
     await db.insert(contents).values(newContent);
     return '内容创建成功';
   }
