@@ -44,7 +44,7 @@
                       <CommandList>
                         <CommandGroup>
                           <CommandItem
-                            v-for="pool in categoryList"
+                            v-for="pool in filteredCategoryList"
                             :key="pool.id"
                             :value="pool.id"
                             @select="(ev: any) => {
@@ -141,7 +141,7 @@ import {
   getLocalTimeZone,
   today,
 } from '@internationalized/date';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import {
   Command,
@@ -200,6 +200,14 @@ const { data: categoryList } = useQuery({
   queryKey: ['pool', 'list'],
   queryFn: () => $api.pool.list.query(),
 });
+
+// 过滤内容类型，只显示用户有权限选择的内容类型
+const filteredCategoryList = computed(() => {
+  if (!categoryList.value)
+    return [];
+  return categoryList.value.filter(pool => pool.roleRequirement === 'club' || userStore.role === 'admin');
+});
+
 const { mutate: createMutation } = useMutation({
   mutationFn: $api.content.create.mutate,
   onSuccess: () => toast.success('内容创建成功'),
@@ -247,6 +255,13 @@ async function createContent() {
     form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
   } else {
     navigateTo('/login');
+    return;
+  }
+
+  // 校验选择的内容类型是否符合权限要求
+  const selectedCategory = categoryList.value?.find(pool => pool.id === form.categoryId);
+  if (selectedCategory && selectedCategory.roleRequirement !== 'club' && userStore.role !== 'admin') {
+    toast.error('您没有权限选择该类型的内容');
     return;
   }
 

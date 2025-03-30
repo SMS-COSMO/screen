@@ -15,9 +15,9 @@ export class PoolController {
     return '内容类型删除成功';
   }
 
-  async edit(id: number, new_name: string) {
+  async edit(id: number, new_name: string, new_roleRequire: 'admin' | 'club') {
     await db.update(pools)
-      .set({ category: new_name })
+      .set({ category: new_name, roleRequirement: new_roleRequire })
       .where(eq(pools.id, id));
     return '内容类型名修改成功';
   }
