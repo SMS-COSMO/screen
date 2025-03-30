@@ -1,16 +1,13 @@
 <template>
-  <Card>
-    <CardHeader>
-      <CardTitle>当前时间</CardTitle>
-    </CardHeader>
+  <Card class="border-0 shadow-none">
     <div>
-      <CardContent>
-        {{ date }}
-      </CardContent>
-    </div>
-    <div>
-      <CardContent>
-        {{ time }}
+      <CardContent class="flex flex-col items-center justify-center py-4">
+        <div class="text-6xl font-bold text-center tracking-widest">
+          {{ time }}
+        </div>
+        <div class="text-2xl mt-2 text-center text-black">
+          {{ date }}
+        </div>
       </CardContent>
     </div>
   </Card>

@@ -1,20 +1,13 @@
 <template>
-  <Card>
-    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle>
-        天气
-      </CardTitle>
-      <Icon v-if="info === undefined || !info.status" name="lucide:circle-x" class="h-10 w-10 text-muted-foreground" />
-      <div v-if="info !== undefined && info.status">
-        <Icon :name="getIconName(info.weather)" class="h-10 w-10 text-muted-foreground" />
-      </div>
-    </CardHeader>
-    <CardContent>
-      <div v-if="info !== undefined && info.status" class="text-2xl text-center table-cell">
+  <Card class="border-0 shadow-none bg-transparent">
+    <CardContent class="flex flex-col items-center justify-center py-2">
+      <div v-if="info !== undefined && info.status" class="text-2xl text-center flex items-center justify-center">
         {{ info.weather }} / {{ info.temperature }}°C / {{ info.humidity }}%
+        <Icon :name="getIconName(info.weather)" class="h-6 w-6 ml-2" />
       </div>
       <div v-if="info === undefined || !info.status" class="text-2xl text-center table-cell text-red-500">
         网络错误
+        <Icon name="lucide:circle-x" class="h-6 w-6 ml-2 inline" />
       </div>
     </CardContent>
   </Card>
