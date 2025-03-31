@@ -6,7 +6,7 @@
         <CardTitle class="text-2xl font-bold">
           {{ store.username }}
         </CardTitle>
-        <button @click="this.$router.go(-1)" class="absolute right-4 top-4">
+        <button @click="$router.go(-1)" class="absolute right-4 top-4">
           <ArrowLeft class="h-6 w-6" />
         </button>
       </CardHeader>
