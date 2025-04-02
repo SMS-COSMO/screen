@@ -69,14 +69,15 @@ export class ContentController {
       where: eq(contents.id, id),
     });
     const now = new Date(); // 创建一个时间戳
-    if (!res) {
+    if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    } else if (!relationToProgram) {
-      await db.update(contents).set({ state: 'inuse' }).where(eq(contents.id, id));
-      res.state = 'inuse';
-    } else if (now > res.expireDate) {
+    if (now > res.expireDate) {
       await db.update(contents).set({ state: 'outdated' }).where(eq(contents.id, id));
       res.state = 'outdated';
+    }
+    if (relationToProgram) {
+      await db.update(contents).set({ state: 'inuse' }).where(eq(contents.id, id));
+      res.state = 'inuse';
     }
     return res;
   }
