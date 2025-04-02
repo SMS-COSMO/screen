@@ -1,19 +1,22 @@
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { Relation, eq } from 'drizzle-orm';
 import type { TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
-import { contents } from '../../db/schema';
+import { contents, programsToContents } from '../../db/schema';
 import { UserController } from './user';
 import { PoolController } from './pool';
+import { ProgramController } from './program';
 
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
 export class ContentController {
   private userController: UserController;
   private poolController: PoolController;
+  private programController: ProgramController;
   constructor() {
     this.userController = new UserController();
     this.poolController = new PoolController();
+    this.programController = new ProgramController();
   }
 
   private async fetchOwner(res: TRawContent[]) {
@@ -59,11 +62,22 @@ export class ContentController {
   }
 
   async getInfo(id: number) {
+    const relationToProgram = await db.query.programsToContents.findFirst({
+      where: eq(programsToContents.contentId, id),
+    }); // 用关系表查找是否有节目引用
     const res = await db.query.contents.findFirst({
       where: eq(contents.id, id),
     });
-    if (!res)
+    const now = new Date(); // 创建一个时间戳
+    if (!res) {
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    } else if (!relationToProgram) {
+      await db.update(contents).set({ state: 'inuse' }).where(eq(contents.id, id));
+      res.state = 'inuse';
+    } else if (now > res.expireDate) {
+      await db.update(contents).set({ state: 'outdated' }).where(eq(contents.id, id));
+      res.state = 'outdated';
+    }
     return res;
   }
 
