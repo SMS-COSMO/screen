@@ -92,10 +92,10 @@
         </Card>
         <div class="flex gap-4">
           <button v-if = "!modifyBoardExpanded" @click="modifyBoardExpanded = true, modifyChoice = 'info' " class="w-full h-8 rounded border">
-          修改用户资料
+            修改用户资料
           </button>
           <button v-if = "!modifyBoardExpanded" @click="modifyBoardExpanded = true, modifyChoice = 'password'" class="w-full h-8 rounded border">
-          修改密码
+            修改密码
           </button>
         </div>
       </CardContent>
@@ -103,72 +103,69 @@
   </div>
 </template>
 
-
 <script setup lang = "ts">
-  import { Loader2, RollerCoaster, ArrowLeft } from 'lucide-vue-next';
-  import { toast } from 'vue-sonner';
-  import { ref } from 'vue';
+import { ArrowLeft, Loader2, RollerCoaster } from 'lucide-vue-next';
+import { toast } from 'vue-sonner';
+import { ref } from 'vue';
 
-  const modifyBoardExpanded = ref(false);
+const modifyBoardExpanded = ref(false);
 
-  const { $api } = useNuxtApp();
-  const store = useUserStore();
-  const queryClient = useQueryClient();
+const { $api } = useNuxtApp();
+const store = useUserStore();
+const queryClient = useQueryClient();
 
-  const modifyChoice = ref('');
+const modifyChoice = ref('');
 
-  const Info = reactive({
-    id: store.userId ?? 0,
-    username: store.username ?? "",
-    description: store.userDescription ?? ""
-  });
+const Info = reactive({
+  id: store.userId ?? 0,
+  username: store.username ?? "",
+  description: store.userDescription ?? ""
+});
 
-  const Password = reactive({
-    id: store.userId !== undefined ? store.userId : 0,
-    oldPassword: '',
-    newPassword: '',
-  });
+const Password = reactive({
+  id: store.userId !== undefined ? store.userId : 0,
+  oldPassword: '',
+  newPassword: '',
+});
 
-  const { mutate: modifyInfoMutation, isPending: isInfoPending } = useMutation({
-    mutationFn: $api.user.modifyUserInfo.mutate,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      store.modify(Info);
-      toast.success('修改成功');
-    },
-    onError: err => useErrorHandler(err),
-  })
+const { mutate: modifyInfoMutation, isPending: isInfoPending } = useMutation({
+  mutationFn: $api.user.modifyUserInfo.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+    store.modify(Info);
+    toast.success('修改成功');
+  },
+  onError: err => useErrorHandler(err),
+});
 
-  const { mutate: modifyPasswordMutation, isPending: isPasswordPending } = useMutation({
-    mutationFn: $api.user.modifyPassword.mutate,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      toast.success('修改成功');
-      clearPasswordCache();
-    },
-    onError: err => {
-      useErrorHandler(err),
-      clearPasswordCache();
-    }
-  })
+const { mutate: modifyPasswordMutation, isPending: isPasswordPending } = useMutation({
+  mutationFn: $api.user.modifyPassword.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+    toast.success('修改成功');
+    clearPasswordCache();
+  },
+  onError: (err) => {
+    useErrorHandler(err);
+    clearPasswordCache();
+  },
+});
 
-  function toggle_confirm(){
-    try{
-      if(modifyChoice.value === 'info'){
-        modifyInfoMutation(Info);
-      }
-      else if(modifyChoice.value === 'password'){
-        modifyPasswordMutation(Password); 
-      }
-      modifyBoardExpanded.value = false;
-    } catch (err) {
-      return false;
-    }
+function toggle_confirm() {
+  try {
+    if (modifyChoice.value === 'info')
+      modifyInfoMutation(Info);
+    else if (modifyChoice.value === 'password')
+      modifyPasswordMutation(Password);
+    modifyBoardExpanded.value = false;
+  } catch (err) {
+    return false;
   }
+}
 
-  //清除输入框中的内容
-  function clearPasswordCache(){
-      Password.oldPassword = "";
-      Password.newPassword = "";
-  }
+// 清除输入框中的内容
+function clearPasswordCache() {
+  Password.oldPassword = "";
+  Password.newPassword = "";
+}
 </script>
