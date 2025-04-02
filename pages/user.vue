@@ -38,16 +38,18 @@
                   required
                 />
               </div>
-              <button @click="modifyBoardExpanded = !modifyBoardExpanded" class="w-full h-8 bg-transparent rounded border">
-                取消修改
-              </button>
-              <button v-if = "!isInfoPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
-                保存修改
-              </button>
-              <Button v-if="isInfoPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
-                <Loader2 v-if="isInfoPending" class="w-4 h-4 mr-2 animate-spin" />
-                请稍候……
-              </Button>
+              <div class="flex gap-4">
+                <button @click="modifyBoardExpanded = !modifyBoardExpanded" class="w-full h-8 bg-transparent rounded border">
+                  取消修改
+                </button>
+                <button v-if = "!isInfoPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
+                  保存修改
+                </button>
+                <Button v-if="isInfoPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
+                  <Loader2 v-if="isInfoPending" class="w-4 h-4 mr-2 animate-spin" />
+                  请稍候……
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -77,16 +79,18 @@
                   required
                 />
               </div>
-              <button @click="modifyBoardExpanded = !modifyBoardExpanded, clearPasswordCache()" class="w-full h-8 bg-transparent rounded border">
-                取消修改
-              </button>
-              <button v-if = "!isPasswordPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
-                保存修改
-              </button>
-              <Button v-if="isPasswordPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
-                <Loader2 v-if="isPasswordPending" class="w-4 h-4 mr-2 animate-spin" />
-                请稍候……
-              </Button>
+              <div class="flex gap-4">
+                <button @click="modifyBoardExpanded = !modifyBoardExpanded, clearPasswordCache()" class="w-full h-8 bg-transparent rounded border">
+                  取消修改
+                </button>
+                <button v-if = "!isPasswordPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
+                  保存修改
+                </button>
+                <Button v-if="isPasswordPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
+                  <Loader2 v-if="isPasswordPending" class="w-4 h-4 mr-2 animate-spin" />
+                  请稍候……
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
