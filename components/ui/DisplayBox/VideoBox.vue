@@ -15,7 +15,6 @@
 <script setup lang="ts">
 import { VideoPlayer } from '@videojs-player/vue';
 import 'video.js/dist/video-js.css';
-import axios from 'axios';
 
 // 定义 props, 传输视频地址
 const props = defineProps<{
@@ -24,6 +23,7 @@ const props = defineProps<{
 const { $api } = useNuxtApp();
 
 // 进行视频查询操作
+// 被注释代码为调试用
 // console.log('props.videoKey=', props.videoKey);
 const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
 // console.log('url=', url);
@@ -34,7 +34,7 @@ const playerOptions = {
   autoplay: true,
   controls: true,
   responsive: true,
-  preload: 'auto',
+  preload: 'auto' as const,
   notSupportedMessage: '此视频暂无法播放，请稍后再试',
 };
 </script>
