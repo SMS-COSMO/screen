@@ -203,4 +203,18 @@ export class CodeController {
     // 列出所有未使用的邀请码
     return await this.list.listSpare();
   }
+
+  public isCodeExist(code: string) {
+    // 检查邀请码是否存在
+    return this.list.search(code, 'code', 'first')
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  public isCodeUsed(code: string): Promise<boolean> {
+    // 检查邀请码是否被使用
+    return this.list.search(code, 'code', 'first')
+      .then(result => result[0].state)
+      .catch(() => false);
+  }
 }

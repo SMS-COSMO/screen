@@ -7,11 +7,28 @@ import { db } from '../../db/db';
 import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
+import { CodeController } from './invitationCodeCotrol';
 
 export class UserController {
   private auth: Auth;
   constructor() {
     this.auth = new Auth();
+  }
+
+  private async iccCheck(invitationCode: string) {
+    // 对邀请码进行检查的函数
+    // 邀请码逻辑
+    const codeController = new CodeController();
+    if (!invitationCode)
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码不能为空' });
+    if (invitationCode.length !== 30)
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码长度必须为30' });
+    if (!/^[a-z0-9]+$/i.test(invitationCode))
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码只能包含字母和数字' });
+    if (!await codeController.isCodeExist(invitationCode))
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码不存在' });
+    if (await codeController.isCodeUsed(invitationCode))
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码已被使用' });
   }
 
   async getUserFromHeader(authorization: string | undefined) {
@@ -23,7 +40,10 @@ export class UserController {
     return result.user;
   }
 
-  async register(newUser: TNewUser) {
+  async register(newUser: TNewUser, invitationCode: string) {
+    // 邀请码逻辑
+    this.iccCheck(invitationCode);
+    // 之前的逻辑
     const { username, password, role } = newUser;
     const hash = await bcrypt.hash(password, 8);
     const user = { username, password: hash, role };

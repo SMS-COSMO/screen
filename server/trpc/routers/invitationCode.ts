@@ -38,4 +38,9 @@ export const invitationCodeRouter = router({
     .query(async ({ ctx }) => {
       return await ctx.codeController.listSpare();
     }),
+  isCodeExist: publicProcedure
+    .input(z.object({ code: codeZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.codeController.isCodeExist(input.code);
+    }),
 });
