@@ -58,7 +58,7 @@ export class UserController {
     }
   }
 
-  async modifyUserInfo(user: TRawUser, id: number, username:string, description:string){
+  async modifyUserInfo(user: TRawUser, id: number, username: string, description: string) {
     const newInfo = { username, description };
 
     const targetUser = user.id === id
@@ -70,9 +70,9 @@ export class UserController {
     try {
       await db.update(users).set({ username: newInfo.username, description: newInfo.description }).where(eq(users.id, id));
     } catch (err) {
+      // 不知道为什么会有一个err形参
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '用户名已经存在' });
     }
-
   }
 
   async modifyPassword(user: TRawUser, id: number, oldPassword: string, newPassword: string) {
