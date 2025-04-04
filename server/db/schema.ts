@@ -2,6 +2,7 @@
 import type { UpdateDeleteAction } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { Code } from 'lucide-vue-next';
 
 const cascade: {
   onUpdate?: UpdateDeleteAction | undefined;
@@ -125,3 +126,11 @@ export const poolsRelations = relations(pools, ({ many }) => ({
   contents: many(contents),
   programsToPools: many(programsToPools),
 }));
+
+// 邀请码表
+export const invitationCode = sqliteTable('invitationCode', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  code: text('code').notNull(),
+  state: integer('state', { mode: 'boolean' }).notNull().default(false),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+});

@@ -10,6 +10,7 @@ import { ProgramController } from './controllers/program';
 import { S3Controller } from './controllers/s3';
 import { UserController } from './controllers/user';
 import { WeatherController } from './controllers/weather';
+import { CodeController } from './controllers/invitationCodeCotrol';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
@@ -19,6 +20,7 @@ const newGlobal = globalThis as unknown as {
   poolController: PoolController | undefined;
   s3Controller: S3Controller | undefined;
   weatherController: WeatherController | undefined;
+  codeController: CodeController | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
@@ -28,6 +30,7 @@ const contentController = newGlobal.contentController ?? new ContentController()
 const poolController = newGlobal.poolController ?? new PoolController();
 const s3Controller = newGlobal.s3Controller ?? new S3Controller();
 const weatherController = newGlobal.weatherController ?? new WeatherController();
+const codeController = newGlobal.codeController ?? new CodeController();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
@@ -37,6 +40,7 @@ if (process.env.NODE_ENV !== 'production') {
   newGlobal.poolController = poolController;
   newGlobal.s3Controller = s3Controller;
   newGlobal.weatherController = weatherController;
+  newGlobal.codeController = codeController;
 }
 
 interface CreateContextOptions {
@@ -59,6 +63,7 @@ export function createInnerContext(opts: CreateContextOptions) {
     poolController,
     s3Controller,
     weatherController,
+    codeController,
   };
 }
 
@@ -70,6 +75,7 @@ export const ctl = {
   oc: poolController,
   s3c: s3Controller,
   wc: weatherController,
+  icc: codeController,
 };
 
 /**

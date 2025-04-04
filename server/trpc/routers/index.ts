@@ -6,6 +6,7 @@ import { programRouter } from './program';
 import { s3Router } from './s3';
 import { userRouter } from './user';
 import { weatherRouter } from './weather';
+import { invitationCodeRouter } from './invitationCode';
 
 export const appRouter = router({
   user: userRouter,
@@ -15,6 +16,7 @@ export const appRouter = router({
   pool: poolRouter,
   s3: s3Router,
   weather: weatherRouter,
+  invitationCode: invitationCodeRouter,
 });
 
 export type AppRouter = typeof appRouter;
