@@ -18,7 +18,6 @@ export const invitationCodeRouter = router({
       return await ctx.codeController.addCodeBatch(input.batch);
     }),
   invalidateCode: publicProcedure
-    .use(requireRoles(['admin', 'club']))
     .input(z.object({ code: codeZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.codeController.invalidateCode(input.code);
