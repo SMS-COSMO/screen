@@ -26,7 +26,7 @@ export const contentRouter = router({
       categoryId: categoryIdZod,
     }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.contentController.create(input);
+      return await ctx.contentController.create(input, ctx);
     }),
 
   delete: protectedProcedure
@@ -46,13 +46,13 @@ export const contentRouter = router({
   list: protectedProcedure
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
-      return await ctx.contentController.getList();
+      return await ctx.contentController.getList(ctx);
     }),
 
   listByCategory: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getListByCategory(input.id);
+      return await ctx.contentController.getListByCategory(input.id, ctx);
     }),
 
   getInfo: publicProcedure

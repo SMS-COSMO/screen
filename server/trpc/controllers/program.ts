@@ -7,13 +7,6 @@ import { ContentController } from './content';
 import { PoolController } from './pool';
 
 export class ProgramController {
-  private contentController: ContentController;
-  private poolController: PoolController;
-  constructor() {
-    this.contentController = new ContentController();
-    this.poolController = new PoolController();
-  }
-
   async create(newProgram: TNewProgram) {
     await db.insert(programs).values(newProgram);
     return '节目创建成功';
@@ -36,7 +29,15 @@ export class ProgramController {
   }
 
   // gets pool/content name by the way
-  async getSequence(id: number) {
+  // to avoid recursion problem, we consider all controllers as singletons
+  // that can be fetched via context.ts
+  async getSequence(
+    id: number, 
+    ctx: {
+      poolController: PoolController,
+      contentController: ContentController,
+    }
+  ) {
     const res = await db.query.programs.findFirst({
       where: eq(programs.id, id),
     });
@@ -47,8 +48,8 @@ export class ProgramController {
       seq.push({
         ...cnt,
         name: cnt.type === 'pool'
-          ? (await this.poolController.getInfo(cnt.id)).category
-          : (await this.contentController.getInfo(cnt.id)).name,
+          ? (await ctx.poolController.getInfo(cnt.id)).category
+          : (await ctx.contentController.getInfo(cnt.id)).name,
       });
     });
     return seq;

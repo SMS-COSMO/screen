@@ -40,10 +40,13 @@ export const programRouter = router({
       return await ctx.programController.getList();
     }),
 
+  // We fetch controllers from ctx so that we can ensure
+  // that controllers are CALLED by other controllers instead of being CREATED
+  // In this way the recursion problem is solved
   getSequence: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.programController.getSequence(input.id);
+      return await ctx.programController.getSequence(input.id, ctx);
     }),
 
   setSequence: protectedProcedure

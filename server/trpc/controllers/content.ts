@@ -10,34 +10,31 @@ import { ProgramController } from './program';
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
 export class ContentController {
-  private userController: UserController;
-  private poolController: PoolController;
-  //private programController: ProgramController;
-  constructor() {
-    this.userController = new UserController();
-    this.poolController = new PoolController();
-    //this.programController = new ProgramController();
-  }
-
-  private async fetchOwner(res: TRawContent[]) {
+  private async fetchOwner(res: TRawContent[], ctx: { userController: UserController }) {
     const named_res: (TRawContent & { owner: string })[] = [];
     res.forEach(async (cnt) => {
       named_res.push({
         ...cnt,
-        owner: (await this.userController.getProfile(cnt.ownerId)).username,
+        owner: (await ctx.userController.getProfile(cnt.ownerId)).username,
       });
     });
     return named_res;
   }
 
-  async create(newContent: TNewContent) {
+  async create(
+    newContent: TNewContent,
+    ctx: {
+      userController: UserController,
+      poolController: PoolController,
+    }
+  ) {
     // 获取当前用户的权限信息
-    const currentUser = await this.userController.getList();
+    const currentUser = await ctx.userController.getList();
     const userRole = currentUser[0].role;
     if (newContent.categoryId == null || typeof newContent.categoryId !== 'number')
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'categoryId 必须为有效的数字' });
     // 获取内容类型信息
-    const categoryInfo = await this.poolController.getInfo(newContent.categoryId);
+    const categoryInfo = await ctx.poolController.getInfo(newContent.categoryId);
     const categoryRole = categoryInfo.roleRequirement;
 
     // 检查用户是否有权限创建该类型的内容
@@ -82,23 +79,23 @@ export class ContentController {
     return res;
   }
 
-  async getList() {
+  async getList(ctx: { userController: UserController }) {
     const res = await db.query.contents.findMany();
-    return await this.fetchOwner(res);
+    return await this.fetchOwner(res, ctx);
   }
 
-  async getListByOwner(ownerId: number) {
+  async getListByOwner(ownerId: number, ctx: { userController: UserController }) {
     const res = await db.query.contents.findMany({
       where: eq(contents.ownerId, ownerId),
     });
-    return await this.fetchOwner(res);
+    return await this.fetchOwner(res, ctx);
   }
 
-  async getListByCategory(categoryId: number) {
+  async getListByCategory(categoryId: number, ctx: { userController: UserController }) {
     const res = await db.query.contents.findMany({
       where: eq(contents.categoryId, categoryId),
     });
-    return await this.fetchOwner(res);
+    return await this.fetchOwner(res, ctx);
   }
 
   async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string) {
