@@ -12,11 +12,11 @@ type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 export class ContentController {
   private userController: UserController;
   private poolController: PoolController;
-  private programController: ProgramController;
+  //private programController: ProgramController;
   constructor() {
     this.userController = new UserController();
     this.poolController = new PoolController();
-    this.programController = new ProgramController();
+    //this.programController = new ProgramController();
   }
 
   private async fetchOwner(res: TRawContent[]) {

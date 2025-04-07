@@ -7,7 +7,10 @@ import { db } from '../../db/db';
 import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
-import { CodeController } from './invitationCodeCotrol';
+import { CodeController } from './invitationCodeControl';
+import { toast } from 'vue-sonner';
+import { useErrorHandler } from '~/composables/errorHandler';
+import { invitationCodeRouter } from '../routers/invitationCode';
 
 export class UserController {
   private auth: Auth;
@@ -42,7 +45,7 @@ export class UserController {
 
   async register(newUser: TNewUser, invitationCode: string) {
     // 邀请码逻辑
-    this.iccCheck(invitationCode);
+    await this.iccCheck(invitationCode);//此处本来没有await导致错误无法捕获，猜测是漏掉了
     // 之前的逻辑
     const { username, password, role } = newUser;
     const hash = await bcrypt.hash(password, 8);
@@ -54,13 +57,12 @@ export class UserController {
       if (err instanceof LibsqlError && err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY')
         throw new TRPCError({ code: 'BAD_REQUEST', message: '学工号出现重复' });
       else
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '注册失败' });
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '该用户名已被使用' });
     }
   }
 
   async modifyUserInfo(user: TRawUser, id: number, username: string, description: string) {
     const newInfo = { username, description };
-
     const targetUser = user.id === id
       ? user
       : await db.query.users.findFirst({ where: eq(users.id, id) });

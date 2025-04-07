@@ -13,9 +13,10 @@ export const userRouter = router({
       role: roleEnumZod,
       username: usernameZod,
       password: newPasswordZod,
+      ic: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.userController.register(input);
+      return await ctx.userController.register(input, input.ic);
     }),
 
   remove: protectedProcedure
