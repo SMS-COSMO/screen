@@ -1,7 +1,7 @@
 <template>
   <Title>注册</Title>
   <div class="w-full lg:grid h-full">
-    <div class="flex items-center justify-center">
+    <div class="flex items-center text-center justify-center">
       <div class="mx-auto grid w-[400px] gap-6">
         <Card>
           <CardHeader>
@@ -72,7 +72,7 @@
 
 <script setup lang = "ts">
 
-import { Loader2, RollerCoaster } from 'lucide-vue-next';
+import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
 
@@ -120,16 +120,3 @@ function toggle_confirm(){
 }
 
 </script>
-
-
-
-
-
-<style>
-
-div{
-  text-align:center;
-}
-
-</style>
-```

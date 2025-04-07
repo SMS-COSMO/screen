@@ -1,7 +1,7 @@
 <template>
   <Title>登录</Title>
   <div class="w-full lg:grid h-full">
-    <div class="flex items-center justify-center">
+    <div class="flex items-center text-center justify-center">
       <div class="mx-auto grid w-[400px] gap-6">
         <Card>
           <CardHeader>
