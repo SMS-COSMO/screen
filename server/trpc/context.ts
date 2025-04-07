@@ -10,7 +10,7 @@ import { ProgramController } from './controllers/program';
 import { S3Controller } from './controllers/s3';
 import { UserController } from './controllers/user';
 import { WeatherController } from './controllers/weather';
-import { CodeController } from './controllers/invitationCodeCotrol';
+import { CodeController } from './controllers/invitationCodeControl';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;

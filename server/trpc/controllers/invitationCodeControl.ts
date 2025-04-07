@@ -93,10 +93,10 @@ class MutateCode {
   public async invalidateCode(code: string) {
     // 进行检查
     const codeInfo = await this.list.search(code, 'code', 'first');
-    if (codeInfo[0].state === false) {
+    if (codeInfo[0].state === true) {
       throw new TRPCError({ code: 'BAD_REQUEST', message: '邀请码已经失效' });
     }
-    await db.update(invitationCode).set({ state: false }).where(eq(invitationCode.code, code)).execute();
+    await db.update(invitationCode).set({ state: true }).where(eq(invitationCode.code, code)).execute();
     return '修改成功';
   }
 
@@ -106,7 +106,8 @@ class MutateCode {
     try {
       await this.list.search(Code, 'code', 'first');
     } catch (e: any) {
-      if (e.code !== 'NOT_FOUND') {
+      if (e.code === 'NOT_FOUND') {
+        // 此处本为!==，猜测是小错误
         // 说明不存在, 可以添加
         db.insert(invitationCode).values({ code: Code }).execute();
         return '添加完成';

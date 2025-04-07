@@ -30,6 +30,7 @@
             <ReuseTemplate icon="lucide:list-video" name="节目管理" path="/program" />
             <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
             <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
+            <ReuseTemplate icon="lucide:ticket" name="邀请码管理" path="/invitation" />
           </nav>
         </div>
       </div>
@@ -61,6 +62,7 @@
               <ReuseTemplate icon="lucide:list-video" name="节目管理" path="/program" />
               <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
               <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
+              <ReuseTemplate icon="lucide:key" name="邀请码管理" path="/invitation" />
             </nav>
           </SheetContent>
         </Sheet>
