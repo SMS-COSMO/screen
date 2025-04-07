@@ -1,5 +1,4 @@
 // 操作邀请码数据库
-import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
