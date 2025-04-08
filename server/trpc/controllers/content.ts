@@ -60,14 +60,13 @@ export class ContentController {
     const now = new Date(); // 创建一个时间戳
     if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    if (now > res.expireDate) {
-      await db.update(contents).set({ state: 'outdated' }).where(eq(contents.id, id));
+    if (now > res.expireDate)
       res.state = 'outdated';
-    }
-    if (relationToProgram) {
-      await db.update(contents).set({ state: 'inuse' }).where(eq(contents.id, id));
+    if (relationToProgram)
       res.state = 'inuse';
-    }
+    await db.update(contents)
+      .set({ state: res.state })
+      .where(eq(contents.id, id));
     return res;
   }
 
