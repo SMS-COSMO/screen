@@ -4,7 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { db } from '../../db/db';
 import { invitationCode } from '../../db/schema';
-import { UserController } from './user';
+import { Context } from '../context';
 
 interface Code {
   id: number;
@@ -117,31 +117,26 @@ class MutateCode {
   }
 }
 
+// 用于检查用户是否有权限使用邀请码的类
 class UserChecker {
-  // 用于检查用户是否有权限使用邀请码的类
-  private userController: UserController;
-  constructor() {
-    this.userController = new UserController();
-  }
-
-  private async getUserInfo() {
+  private async getUserInfo(ctx: Context) {
     // 获取当前用户信息
-    const currentUser = await this.userController.getList();
+    const currentUser = await ctx.userController.getList();
     return currentUser[0];
   }
 
-  public async checkRole(target: 'admin' | 'club' = 'admin') {
+  public async checkRole(target: 'admin' | 'club' = 'admin', ctx: Context) {
     // 按照传入的要求进行检查用户权限
-    const userInfo = await this.getUserInfo();
+    const userInfo = await this.getUserInfo(ctx);
     if (userInfo.role !== target) {
       return false;
     }
     return true;
   }
 
-  public async autoCheckAdmin() {
+  public async autoCheckAdmin(ctx: Context) {
     // 无参数自动处理越权访问
-    const userInfo = await this.getUserInfo();
+    const userInfo = await this.getUserInfo(ctx);
     if (userInfo.role !== 'admin') {
       throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限使用邀请码' });
     }
@@ -159,17 +154,17 @@ export class CodeController {
     this.user = new UserChecker();
   }
 
-  public async generateBatchCode(batch: number) {
-    await this.user.autoCheckAdmin(); // 检查用户权限
+  public async generateBatchCode(batch: number, ctx: Context) {
+    await this.user.autoCheckAdmin(ctx); // 检查用户权限
     // 生成随机数 包含字母与数字, batch为生成的数量
     const nanoid30 = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 30);
     const codes = Array.from({ length: batch }, () => nanoid30());
     return codes;
   }
 
-  public async addCodeBatch(batch: string[]) {
+  public async addCodeBatch(batch: string[], ctx: Context) {
     // 权限
-    await this.user.autoCheckAdmin();
+    await this.user.autoCheckAdmin(ctx);
     // 批量添加邀请码
     for (const code of batch) {
       await this.mutate.addCode(code);
@@ -183,23 +178,23 @@ export class CodeController {
     return await this.mutate.invalidateCode(code);
   }
 
-  public async listAll() {
+  public async listAll(ctx: Context) {
     // 权限
-    await this.user.autoCheckAdmin();
+    await this.user.autoCheckAdmin(ctx);
     // 列出所有邀请码
     return await this.list.listAll();
   }
 
-  public async listUsed() {
+  public async listUsed(ctx: Context) {
     // 权限
-    await this.user.autoCheckAdmin();
+    await this.user.autoCheckAdmin(ctx);
     // 列出所有已使用的邀请码
     return await this.list.listUsed();
   }
 
-  public async listSpare() {
+  public async listSpare(ctx: Context) {
     // 权限
-    await this.user.autoCheckAdmin();
+    await this.user.autoCheckAdmin(ctx);
     // 列出所有未使用的邀请码
     return await this.list.listSpare();
   }

@@ -9,13 +9,13 @@ export const invitationCodeRouter = router({
     .use(requireRoles(['admin']))
     .input(z.object({ batch: BatchZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.codeController.generateBatchCode(input.batch);
+      return await ctx.codeController.generateBatchCode(input.batch, ctx);
     }),
   addCodeBatch: protectedProcedure
     .use(requireRoles(['admin']))
     .input(z.object({ batch: z.array(codeZod) }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.codeController.addCodeBatch(input.batch);
+      return await ctx.codeController.addCodeBatch(input.batch, ctx);
     }),
   invalidateCode: publicProcedure
     .input(z.object({ code: codeZod }))
@@ -25,17 +25,17 @@ export const invitationCodeRouter = router({
   listAll: protectedProcedure
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
-      return await ctx.codeController.listAll();
+      return await ctx.codeController.listAll(ctx);
     }),
   listUsed: protectedProcedure
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
-      return await ctx.codeController.listUsed();
+      return await ctx.codeController.listUsed(ctx);
     }),
   listSpare: protectedProcedure
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
-      return await ctx.codeController.listSpare();
+      return await ctx.codeController.listSpare(ctx);
     }),
   isCodeExist: publicProcedure
     .input(z.object({ code: codeZod }))
