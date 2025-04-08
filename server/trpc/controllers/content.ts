@@ -1,16 +1,14 @@
 import { TRPCError } from '@trpc/server';
-import { Relation, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents, programsToContents } from '../../db/schema';
-import { UserController } from './user';
-import { PoolController } from './pool';
-import { ProgramController } from './program';
+import { Context } from '../context';
 
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
 export class ContentController {
-  private async fetchOwner(res: TRawContent[], ctx: { userController: UserController }) {
+  private async fetchOwner(res: TRawContent[], ctx: Context) {
     const named_res: (TRawContent & { owner: string })[] = [];
     res.forEach(async (cnt) => {
       named_res.push({
@@ -21,13 +19,7 @@ export class ContentController {
     return named_res;
   }
 
-  async create(
-    newContent: TNewContent,
-    ctx: {
-      userController: UserController,
-      poolController: PoolController,
-    }
-  ) {
+  async create(newContent: TNewContent, ctx: Context) {
     // 获取当前用户的权限信息
     const currentUser = await ctx.userController.getList();
     const userRole = currentUser[0].role;
@@ -79,19 +71,19 @@ export class ContentController {
     return res;
   }
 
-  async getList(ctx: { userController: UserController }) {
+  async getList(ctx: Context) {
     const res = await db.query.contents.findMany();
     return await this.fetchOwner(res, ctx);
   }
 
-  async getListByOwner(ownerId: number, ctx: { userController: UserController }) {
+  async getListByOwner(ownerId: number, ctx: Context) {
     const res = await db.query.contents.findMany({
       where: eq(contents.ownerId, ownerId),
     });
     return await this.fetchOwner(res, ctx);
   }
 
-  async getListByCategory(categoryId: number, ctx: { userController: UserController }) {
+  async getListByCategory(categoryId: number, ctx: Context) {
     const res = await db.query.contents.findMany({
       where: eq(contents.categoryId, categoryId),
     });

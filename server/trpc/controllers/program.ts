@@ -3,8 +3,7 @@ import { eq } from 'drizzle-orm';
 import type { TNewProgram, TSequenceUnit } from '../../db/db';
 import { db } from '../../db/db';
 import { programs } from '../../db/schema';
-import { ContentController } from './content';
-import { PoolController } from './pool';
+import { Context } from '../context';
 
 export class ProgramController {
   async create(newProgram: TNewProgram) {
@@ -31,13 +30,7 @@ export class ProgramController {
   // gets pool/content name by the way
   // to avoid recursion problem, we consider all controllers as singletons
   // that can be fetched via context.ts
-  async getSequence(
-    id: number, 
-    ctx: {
-      poolController: PoolController,
-      contentController: ContentController,
-    }
-  ) {
+  async getSequence(id: number, ctx: Context) {
     const res = await db.query.programs.findFirst({
       where: eq(programs.id, id),
     });
