@@ -5,7 +5,7 @@
         <div class="text-6xl font-bold text-center tracking-widest">
           {{ time }}
         </div>
-        <div class="text-2xl mt-2 text-center text-black">
+        <div class="text-2xl mt-2 text-center">
           {{ date }}
         </div>
       </CardContent>
