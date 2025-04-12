@@ -21,13 +21,13 @@ const { $api } = useNuxtApp();
 function getIconName(key: string | undefined) {
   const now = (new Date()).getHours();
   if (key === '晴') {
-    if (now >= 6 && now <= 19)
+    if (now >= 6 && now <= 18)
       return 'lucide:sun';
     else
       return 'lucide:moon-star';
   }
   if (key === '晴间多云') {
-    if (now >= 6 && now <= 19)
+    if (now >= 6 && now <= 18)
       return 'lucide:cloud-sun';
     else
       return 'lucide:cloud-moon';
@@ -36,6 +36,8 @@ function getIconName(key: string | undefined) {
     return 'lucide:cloud';
   if (key === '多云' || key === '阴')
     return 'lucide:cloudy';
+  if (key === '雾' || key === '霾')
+    return 'lucide:cloud-fog';
   if (key === '阵雨' || key === '细雨' || key === '小雨' || key === '中雨' || key === '大雨' || key === '暴雨' || key === '大暴雨')
     return 'lucide:cloud-drizzle';
   if (key === '雷阵雨')
