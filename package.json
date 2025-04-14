@@ -42,6 +42,7 @@
     "jose": "^5.10.0",
     "lucide-vue-next": "^0.367.0",
     "nanoid": "^5.1.5",
+    "nuxt-swiper": "^2.0.0",
     "reka-ui": "^2.1.1",
     "superjson": "^2.2.2",
     "tailwind-merge": "^2.6.0",

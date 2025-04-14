@@ -77,6 +77,9 @@ importers:
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
+      nuxt-swiper:
+        specifier: ^2.0.0
+        version: 2.0.0(magicast@0.3.5)
       reka-ui:
         specifier: ^2.1.1
         version: 2.1.1(typescript@5.8.2)(vue@3.5.13(typescript@5.8.2))
@@ -4172,7 +4175,6 @@ packages:
 
   libsql@0.3.19:
     resolution: {integrity: sha512-Aj5cQ5uk/6fHdmeW0TiXK42FqUlwx7ytmMLPSaUQPin5HKKKuUPD62MAbN4OEweGBBI7q1BekoEN4gPUEL6MZA==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@3.1.3:
@@ -4543,6 +4545,9 @@ packages:
 
   nuxt-icon@0.6.10:
     resolution: {integrity: sha512-S9zHVA66ox4ZSpMWvCjqKZC4ZogC0s2z3vZs+M4D95YXGPEXwxDZu+insMKvkbe8+k7gvEmtTk0eq3KusKlxiw==}
+
+  nuxt-swiper@2.0.0:
+    resolution: {integrity: sha512-9NJ7ipoo3sBqFOtnYccVjVPuywGqY1vA82R2YinHo/U4Mw8c0Uy/Q+ep7qihLWr/3wZq9BqFOKPuWKw5xKl77Q==}
 
   nuxt@3.16.2:
     resolution: {integrity: sha512-yjIC/C4HW8Pd+m0ACGliEF0HnimXYGYvUzjOsTiLQKkDDt2T+djyZ+pCl9BfhQBA8rYmnsym2jUI+ubjv1iClw==}
@@ -5472,6 +5477,10 @@ packages:
     resolution: {integrity: sha512-OoohrmuUlBs8B8o6MB2Aevn+pRIH9zDALSR+6hhqVfa6fRwG/Qw9VUMSMW9VNg2CFc/MTIfabtdOVl9ODIJjpw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  swiper@11.2.6:
+    resolution: {integrity: sha512-8aXpYKtjy3DjcbzZfz+/OX/GhcU5h+looA6PbAzHMZT6ESSycSp9nAjPCenczgJyslV+rUGse64LMGpWE3PX9Q==}
+    engines: {node: '>= 4.7.0'}
 
   synckit@0.10.3:
     resolution: {integrity: sha512-R1urvuyiTaWfeCggqEvpDJwAlDVdsT9NM+IP//Tk2x7qHCkSvBk/fwFgw/TLAHzZlrAnnazMcRw0ZD8HlYFTEQ==}
@@ -11289,6 +11298,13 @@ snapshots:
       - vite
       - vue
 
+  nuxt-swiper@2.0.0(magicast@0.3.5):
+    dependencies:
+      '@nuxt/kit': 3.16.2(magicast@0.3.5)
+      swiper: 11.2.6
+    transitivePeerDependencies:
+      - magicast
+
   nuxt@3.16.2(@libsql/client@0.5.6(encoding@0.1.13))(@parcel/watcher@2.5.1)(@types/node@22.13.17)(db0@0.3.1(@libsql/client@0.5.6(encoding@0.1.13))(drizzle-orm@0.29.5(@libsql/client@0.5.6(encoding@0.1.13))(@opentelemetry/api@1.8.0)))(drizzle-orm@0.29.5(@libsql/client@0.5.6(encoding@0.1.13))(@opentelemetry/api@1.8.0))(encoding@0.1.13)(eslint@8.57.1)(ioredis@5.6.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.39.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(vite@6.2.4(@types/node@22.13.17)(jiti@2.4.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.1))(vue-tsc@1.8.27(typescript@5.8.2))(xml2js@0.6.2)(yaml@2.7.1):
     dependencies:
       '@nuxt/cli': 3.24.0(magicast@0.3.5)
@@ -12396,6 +12412,8 @@ snapshots:
       css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.1.1
+
+  swiper@11.2.6: {}
 
   synckit@0.10.3:
     dependencies:
