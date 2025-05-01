@@ -26,7 +26,7 @@
         <div class="flex-1">
           <nav class="grid items-start px-2 text-sm font-medium lg:px-4">
             <ReuseTemplate icon="lucide:home" name="主页" path="/" />
-            <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
+            <ReuseTemplate icon="lucide:package" name="内容管理" path="/content/club" />
             <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
           </nav>
         </div>
@@ -55,9 +55,7 @@
                 <span class="sr-only">食堂显示屏</span>
               </a>
               <ReuseTemplate icon="lucide:home" name="主页" path="/" />
-              <ReuseTemplate icon="lucide:monitor" name="设备管理" path="/device" />
-              <ReuseTemplate icon="lucide:list-video" name="节目管理" path="/program" />
-              <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
+              <ReuseTemplate icon="lucide:package" name="内容管理" path="/content/club" />
               <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
             </nav>
           </SheetContent>
@@ -77,7 +75,9 @@
                 {{ store.username }}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem @click="navigateTo('/user')">设置</DropdownMenuItem>
+              <DropdownMenuItem @click="navigateTo('/user')">
+                设置
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem @click="logout">
                 登出
