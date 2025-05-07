@@ -8,9 +8,7 @@ import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
 import { CodeController } from './invitationCodeControl';
-import { toast } from 'vue-sonner';
-import { useErrorHandler } from '~/composables/errorHandler';
-import { invitationCodeRouter } from '../routers/invitationCode';
+import { TRole } from '~/types';
 
 export class UserController {
   private auth: Auth;
@@ -43,11 +41,31 @@ export class UserController {
     return result.user;
   }
 
+  // There shouldn't be a router for this function
+  async createAdmin(adminUser: TNewUser) {
+    const { username, password } = adminUser;
+    const hash = await bcrypt.hash(password, 8);
+    const admin = { username, password: hash, role: 'admin' } as 
+      { username: string, password: string, role: TRole };
+    try {
+      await db.insert(users).values(admin);
+      return '注册成功';
+    } catch (err) {
+      if (err instanceof LibsqlError && err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY')
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '学工号出现重复' });
+      else
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '该用户名已被使用' });
+    }
+  }
+
   async register(newUser: TNewUser, invitationCode: string) {
     // 邀请码逻辑
-    await this.iccCheck(invitationCode);//此处本来没有await导致错误无法捕获，猜测是漏掉了
+    await this.iccCheck(invitationCode);// 此处本来没有await导致错误无法捕获，猜测是漏掉了
     // 之前的逻辑
     const { username, password, role } = newUser;
+    // Creating admin is not allowed
+    if (role === "admin")
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '不允许新建管理员账户' });
     const hash = await bcrypt.hash(password, 8);
     const user = { username, password: hash, role };
     try {
