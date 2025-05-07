@@ -28,7 +28,7 @@
             <ReuseTemplate icon="lucide:home" name="主页" path="/" />
             <ReuseTemplate icon="lucide:monitor" name="设备管理" path="/device" />
             <ReuseTemplate icon="lucide:list-video" name="节目管理" path="/program" />
-            <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
+            <ReuseTemplate icon="lucide:package" name="内容管理" path="/content/admin" />
             <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
             <ReuseTemplate icon="lucide:ticket" name="邀请码管理" path="/invitation" />
           </nav>
@@ -60,7 +60,7 @@
               <ReuseTemplate icon="lucide:home" name="主页" path="/" />
               <ReuseTemplate icon="lucide:monitor" name="设备管理" path="/device" />
               <ReuseTemplate icon="lucide:list-video" name="节目管理" path="/program" />
-              <ReuseTemplate icon="lucide:package" name="内容管理" path="/content" />
+              <ReuseTemplate icon="lucide:package" name="内容管理" path="/content/admin" />
               <ReuseTemplate icon="lucide:upload" name="上传内容" path="/content/create" />
               <ReuseTemplate icon="lucide:key" name="邀请码管理" path="/invitation" />
             </nav>
@@ -81,7 +81,9 @@
                 {{ store.username }}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem @click="navigateTo('/user')">设置</DropdownMenuItem>
+              <DropdownMenuItem @click="navigateTo('/user')">
+                设置
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem @click="logout">
                 登出

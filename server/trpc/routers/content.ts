@@ -67,4 +67,10 @@ export const contentRouter = router({
     .mutation(async ({ ctx, input }) => {
       return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes);
     }),
+
+  getListByOwner: protectedProcedure
+    .input(z.object({ ownerId: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getListByOwner(input.ownerId, ctx);
+    }),
 });

@@ -160,7 +160,7 @@
                             <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 py-2">
                               修改意见
                             </Label>
-                            <Textarea v-show="!isPassExa" v-model="exa_idea" class="row-span-4 col-span-4 ml-2 py-2" />
+                            <Textarea v-model="exa_idea" />
                           </div>
                         </div>
                       </div>
@@ -380,8 +380,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { BookmarkCheck, Loader2, Pencil, Trash2 } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -414,6 +415,12 @@ import { Textarea } from '@/components/ui/textarea';
 
 // 以下为前朝遗物
 const { $api } = useNuxtApp();
+
+onMounted(() => {
+  if (useUserStore().role === 'club') {
+    useRouter().push('club'); // 跳转到 admin 页面
+  }
+});
 
 const queryClient = useQueryClient();
 const { data: contentList, suspense } = useQuery({
@@ -510,6 +517,12 @@ const { mutate: editExaStateMutation, isPending: isPending_Exa } = useMutation({
     toast.success('审核提交成功');
   },
   onError: err => useErrorHandler(err),
+});
+
+// 设置使用 admin 布局
+definePageMeta({
+  layout: 'default',
+  name: 'admin',
 });
 
 // 测试函数
