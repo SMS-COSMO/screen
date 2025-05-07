@@ -58,7 +58,7 @@
               </Button>
             </div>
             <br>
-            <a href="/login" class="text-sm text-gray-500 hover:underline hover:text-gray-800 black:hover:text-white">已有帐号？请登录</a>
+            <a href="/login" class="text-sm text-gray-500 hover:underline hover:text-gray-800 dark:hover:text-white">已有帐号？请登录</a>
           </CardContent>
         </Card>
       </div>
