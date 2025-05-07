@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import type { TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents, programsToContents } from '../../db/schema';
-import { Context } from '../context';
+import type { Context } from '../context';
 
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
 
@@ -50,23 +50,36 @@ export class ContentController {
     return '内容名修改成功';
   }
 
-  async getInfo(id: number) {
-    const relationToProgram = await db.query.programsToContents.findFirst({
+  async getName(id: number) {
+    const res = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    return res;
+  } // 一个新的函数，不更新状态，只获取content信息(与getInfo区别开)
+
+  async getInfo(id: number, ctx: Context) {
+    const relationToProgram = await db.query.programsToContents.findMany({
       where: eq(programsToContents.contentId, id),
-    }); // 用关系表查找是否有节目引用
+    }); // 获取所有跟id为指定值的content有关的program
     const res = await db.query.contents.findFirst({
       where: eq(contents.id, id),
     });
     const now = new Date(); // 创建一个时间戳
-    if (!res)
+    if (!res) {
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    if (now > res.expireDate)
-      res.state = 'outdated';
-    if (relationToProgram)
-      res.state = 'inuse';
-    await db.update(contents)
-      .set({ state: res.state })
-      .where(eq(contents.id, id));
+    } else if (relationToProgram.length > 0) {
+      if (res.expireDate <= now)
+        res.state = 'outdated';
+      relationToProgram.forEach(async (ids) => {
+        const sequences = await ctx.programController.getSequence(ids.programId, ctx);
+        sequences.forEach(async (seq) => {
+          if (seq.type === 'content')
+            res.state = 'inuse';
+        });
+      });
+    }
     return res;
   }
 
