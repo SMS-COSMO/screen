@@ -160,6 +160,7 @@
                             <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 py-2">
                               修改意见
                             </Label>
+                            <Textarea v-model="exa_idea" />
                           </div>
                         </div>
                       </div>

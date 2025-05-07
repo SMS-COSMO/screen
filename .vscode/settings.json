@@ -26,5 +26,6 @@
     "editor.tabSize": 2,
     "cSpell.words": [
         "Nuxt"
-    ]
+    ],
+    "code-runner.customCommand": "pnpm dev"
 }

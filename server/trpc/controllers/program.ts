@@ -2,8 +2,8 @@ import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import type { TNewProgram, TSequenceUnit } from '../../db/db';
 import { db } from '../../db/db';
-import { programs } from '../../db/schema';
-import { Context } from '../context';
+import { programs, programsToContents } from '../../db/schema';
+import type { Context } from '../context';
 
 export class ProgramController {
   async create(newProgram: TNewProgram) {
@@ -42,13 +42,26 @@ export class ProgramController {
         ...cnt,
         name: cnt.type === 'pool'
           ? (await ctx.poolController.getInfo(cnt.id)).category
-          : (await ctx.contentController.getInfo(cnt.id)).name,
+          : (await ctx.contentController.getName(cnt.id)).name,
       });
     });
     return seq;
   }
 
-  async setSequence(id: number, sequence: TSequenceUnit[]) {
+  async setSequence(id: number, sequence: TSequenceUnit[], ctx: Context) {
+    const programsAll = await db.query.programs.findMany();
+    programsAll.forEach(async (pgm) => {
+      pgm.sequence.forEach(async (seq) => {
+        if (seq.type === 'content') {
+          await db.update(programsToContents)
+            .set({ contentId: seq.id })
+            .where(eq(programsToContents.programId, pgm.id));
+        }
+        const usedContent = await ctx.contentController.getInfo(pgm.id, ctx);
+        if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
+      });
+    });
     await db.update(programs)
       .set({ sequence })
       .where(eq(programs.id, id));
