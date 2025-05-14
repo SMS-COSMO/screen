@@ -58,7 +58,7 @@
               </Button>
             </div>
             <br>
-            <a href="/login" class="text-sm text-gray-500 hover:underline hover:text-white">已有帐号？请登录</a>
+            <a href="/login" class="text-sm text-gray-500 hover:underline hover:text-gray-800 dark:hover:text-white">已有帐号？请登录</a>
           </CardContent>
         </Card>
       </div>
@@ -103,6 +103,7 @@ const { mutate: invalidateMutation } = useMutation({
   mutationFn: $api.invitationCode.invalidateCode.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['invitation'] });
+    navigateTo('/login');
   },
   onError: err => useErrorHandler(err),
 })
@@ -115,7 +116,6 @@ function toggle_confirm(){
   else{
     note.value = '';
     registMutation(form);
-    console.log(form.ic);
   }
 }
 

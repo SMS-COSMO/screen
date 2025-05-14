@@ -40,7 +40,7 @@
               </Button>
             </div>
             <br>
-            <a href="/register" class="text-sm text-gray-500 hover:underline hover:text-white">没有帐号？请注册</a>
+            <a href="/register" class="text-sm text-gray-500 hover:underline hover:text-gray-800 dark:hover:text-white">没有帐号？请注册</a>
           </CardContent>
         </Card>
       </div>
