@@ -1,31 +1,21 @@
 <template>
   <Title>内容展示</Title>
-  <div class="grid gap-4 md:gap-8">
-    <Card class="col-span-4">
-      <CardContent>
-        <!-- 这里可以添加具体的展示内容 -->
-        <div class="min-h-[500px] flex items-center justify-center text-muted-foreground">
-          <Card class="bg-gray-200 p-4 rounded-lg swiper-wrapper-inner">
-            <swiper-container ref="swiperBasicRef" class="swiper-basic" :loop="true">
-              <swiper-slide v-for="content in contentList" :key="content.id" class="flex justify-center items-center bg-green-500 text-white">
-                <div v-if="content.state === 'approved'" class="flex">
-                  <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType" />
-                </div>
-              </swiper-slide>
-            </swiper-container>
-
-            <div class="swiper-basic-buttons">
-              <button class="rounded-e-md cursor-pointer" @click="swiper1.prev()">
-                Prev
-              </button>
-              <button class="rounded-e-md cursor-pointer" @click="swiper1.next()">
-                Next
-              </button>
+  <div class="left-[22vw] h-[100vh] border-2 fixed" />
+  <!-- 这是那一条竖线 -->
+  <div class="grid gap-4 md:gap-8 fixed left-1/4 h-[100vh] w-3/4 bg-gray-200 dark:bg-gray-900">
+    <div class="flex items-center justify-center text-muted-foreground">
+      <!-- 你可能会疑惑，为什么 div 后面还跟个 span, 写在一起不好吗? 我有试着这么写，结果 swiper.next() 不跑了 -->
+      <span class="border-0 p-4 rounded-none max-w-[75vw]">
+        <!-- 根据经验, 这里必须限定 max-w, 否则整个 swiper 会飞起来 -->
+        <swiper-container ref="swiperBasicRef" :loop="true">
+          <swiper-slide v-for="content in contentList" :key="content.id" class="flex justify-center items-center text-white">
+            <div v-if="content.state === 'approved'" class="flex">
+              <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType" image-class="h-[90vh] w-auto" />
             </div>
-          </Card>
-        </div>
-      </CardContent>
-    </Card>
+          </swiper-slide>
+        </swiper-container>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -46,26 +36,20 @@ await suspense();
 
 const swiperBasicRef = ref(null);
 const swiper1 = useSwiper(swiperBasicRef);
+
+const { ArrowLeft, ArrowRight } = useMagicKeys();
+watch([ArrowLeft, ArrowRight], (v) => {
+  if (v[0])
+    swiper1.prev();
+  if (v[1])
+    swiper1.next();
+});
 </script>
 
 <style lang="css">
-swiper-slide {
-  min-height: 621px;
-}
-
 .swiper-wrapper {
   display: flex;
   flex-direction: column;
-}
-
-.swiper-wrapper-inner {
-  max-width: 1104px;
-}
-
-.swiper-basic-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
 }
 
 .swiper-basic-buttons button {

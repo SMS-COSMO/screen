@@ -1,7 +1,7 @@
 <!-- 用于展示图片的组件 -->
 <!-- 使用VueUse的Image -->
 <template>
-  <NuxtImg v-slot="{ isLoaded, imgAttrs, src }" :src="url || undefined" class="h-[71vh] w-auto m-auto" :custom="true">
+  <NuxtImg v-slot="{ isLoaded, imgAttrs, src }" :src="url || undefined" :class="cn('w-auto m-auto', props.class)" :custom="true">
     <img
       v-if="isLoaded"
       v-bind="imgAttrs"
@@ -17,9 +17,13 @@
 </template>
 
 <script setup lang="ts">
+import type { HTMLAttributes } from 'vue';
+import { cn } from '@/lib/utils';
+
 // 定义 props, 传输图片地址
 const props = defineProps<{
   imageKey: string;
+  class?: HTMLAttributes['class'];
 }>();
 
 // 初始化查询前置

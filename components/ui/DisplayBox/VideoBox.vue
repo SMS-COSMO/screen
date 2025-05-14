@@ -2,7 +2,7 @@
 <!-- 注: VideoPlayer有内部样式, 需要样式覆盖才能够修改大小 -->
 <template>
   <!-- 在小屏下默认最大高度为50vh，大于768px时设置为600px，同时设置宽度自适应、居中和16:9 横纵比 -->
-  <div class="w-full mx-auto aspect-[16/9] max-h-[50vh] md:max-h-[600px]">
+  <div :class="cn('w-full mx-auto aspect-[16/9]', props.class)">
     <!-- video-player 组件设置为充满容器 -->
     <VideoPlayer
       class="w-full h-full"
@@ -13,12 +13,15 @@
 </template>
 
 <script setup lang="ts">
+import type { HTMLAttributes } from 'vue';
 import { VideoPlayer } from '@videojs-player/vue';
+import { cn } from '@/lib/utils';
 import 'video.js/dist/video-js.css';
 
 // 定义 props, 传输视频地址
 const props = defineProps<{
   videoKey: string;
+  class?: HTMLAttributes['class'];
 }>();
 const { $api } = useNuxtApp();
 
