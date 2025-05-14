@@ -56,10 +56,10 @@ export class ProgramController {
           await db.update(programsToContents)
             .set({ contentId: seq.id })
             .where(eq(programsToContents.programId, pgm.id));
+          const usedContent = await ctx.contentController.getInfo(seq.id, ctx);
+          if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
+            throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
         }
-        const usedContent = await ctx.contentController.getInfo(pgm.id, ctx);
-        if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
-          throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
       });
     });
     await db.update(programs)
