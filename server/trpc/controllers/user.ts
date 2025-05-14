@@ -10,6 +10,7 @@ import { Auth } from '../utils/auth';
 import { CodeController } from './invitationCodeControl';
 import { TRole } from '~/types';
 import { nanoid } from 'nanoid';
+import { env } from '~/server/env';
 
 export class UserController {
   private auth: Auth;
@@ -62,7 +63,7 @@ export class UserController {
   // There shouldn't be a router for this function
   async createLostnFound() {
     const password = nanoid(50);
-    const lnf = { username: "LostnFound", password, role: 'lnf' } as 
+    const lnf = { username: env.LNF_USER_NAME, password, role: 'lnf' } as 
       { username: string, password: string, role: TRole };
     try {
       await db.insert(users).values(lnf);

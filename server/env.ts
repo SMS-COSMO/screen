@@ -23,6 +23,8 @@ const envSchema = z.object({
   BUCKET_NAME: z.string(),
   WEATHER_API_KEY: z.string(),
   WEATHER_CITY_CODE: z.string(),
+  LNF_USER_NAME: z.string(),
+  LNF_POOL_NAME: z.string(),
 });
 
 const envParse = envSchema.safeParse(process.env);
