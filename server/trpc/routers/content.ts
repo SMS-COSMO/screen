@@ -58,7 +58,13 @@ export const contentRouter = router({
   getInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getInfo(input.id, ctx);
+      return await ctx.contentController.getInfo(input.id);
+    }),
+  
+  updateInfo: publicProcedure
+    .input(z.object({ id: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.updateInfo(input.id, ctx);
     }),
 
   updateReviewStatus: protectedProcedure

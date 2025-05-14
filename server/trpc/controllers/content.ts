@@ -50,16 +50,18 @@ export class ContentController {
     return '内容名修改成功';
   }
 
-  async getName(id: number) {
+  // getInfo doesn't update the state
+  async getInfo(id: number) {
     const res = await db.query.contents.findFirst({
       where: eq(contents.id, id),
     });
     if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
     return res;
-  } // 一个新的函数，不更新状态，只获取content信息(与getInfo区别开)
+  }
 
-  async getInfo(id: number, ctx: Context) {
+  // updateInfo returns the updated info
+  async updateInfo(id: number, ctx: Context) {
     const relationToProgram = await db.query.programsToContents.findMany({
       where: eq(programsToContents.contentId, id),
     }); // 获取所有跟id为指定值的content有关的program
