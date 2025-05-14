@@ -14,11 +14,11 @@ if (ans === 'n' || ans === 'N')
   process.exit(0);
 
 const pwd = await rl.question('? Password (default: 12345678): ') || '12345678';
-await ctl.uc.register({
+await ctl.uc.createAdmin({
   username: 'admin',
   password: pwd,
-  role: 'admin',
 });
+await ctl.uc.createLostnFound();
 
 const admin = await db.select().from(users).where(eq(users.username, 'admin')).get();
 if (!admin)

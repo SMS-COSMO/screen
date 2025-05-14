@@ -53,6 +53,6 @@ export const programRouter = router({
     .use(requireRoles(['admin']))
     .input(z.object({ id: idZod, sequence: sequenceZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.programController.setSequence(input.id, input.sequence);
+      return await ctx.programController.setSequence(input.id, input.sequence, ctx);
     }),
 });

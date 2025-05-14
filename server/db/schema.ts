@@ -2,7 +2,6 @@
 import type { UpdateDeleteAction } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { Code } from 'lucide-vue-next';
 
 const cascade: {
   onUpdate?: UpdateDeleteAction | undefined;
@@ -18,7 +17,7 @@ export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
-  role: text('role', { enum: ['admin', 'club'] }).notNull().default('club'),
+  role: text('role', { enum: ['admin', 'club', 'lnf'] }).notNull().default('club'),
   description: text('description').default('SMS Student Club'), // default值为调试用
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });

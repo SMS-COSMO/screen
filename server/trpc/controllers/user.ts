@@ -9,6 +9,7 @@ import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
 import { CodeController } from './invitationCodeControl';
 import { TRole } from '~/types';
+import { nanoid } from 'nanoid';
 
 export class UserController {
   private auth: Auth;
@@ -49,6 +50,22 @@ export class UserController {
       { username: string, password: string, role: TRole };
     try {
       await db.insert(users).values(admin);
+      return '注册成功';
+    } catch (err) {
+      if (err instanceof LibsqlError && err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY')
+        throw new TRPCError({ code: 'BAD_REQUEST', message: '学工号出现重复' });
+      else
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '该用户名已被使用' });
+    }
+  }
+
+  // There shouldn't be a router for this function
+  async createLostnFound() {
+    const password = nanoid(50);
+    const lnf = { username: "LostnFound", password, role: 'lnf' } as 
+      { username: string, password: string, role: TRole };
+    try {
+      await db.insert(users).values(lnf);
       return '注册成功';
     } catch (err) {
       if (err instanceof LibsqlError && err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY')
