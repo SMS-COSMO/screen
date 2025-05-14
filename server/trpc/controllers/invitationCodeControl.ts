@@ -4,7 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { db } from '../../db/db';
 import { invitationCode } from '../../db/schema';
-import { Context } from '../context';
+import type { Context } from '../context';
 
 interface Code {
   id: number;
