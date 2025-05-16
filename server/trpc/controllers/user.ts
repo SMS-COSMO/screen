@@ -2,14 +2,14 @@ import { LibsqlError } from '@libsql/client';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 import type { TNewUser, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
 import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
 import { CodeController } from './invitationCodeControl';
-import { TRole } from '~/types';
-import { nanoid } from 'nanoid';
+import type { TRole } from '~/types';
 import { env } from '~/server/env';
 
 export class UserController {
@@ -47,8 +47,8 @@ export class UserController {
   async createAdmin(adminUser: TNewUser) {
     const { username, password } = adminUser;
     const hash = await bcrypt.hash(password, 8);
-    const admin = { username, password: hash, role: 'admin' } as 
-      { username: string, password: string, role: TRole };
+    const admin = { username, password: hash, role: 'admin' } as
+      { username: string; password: string; role: TRole };
     try {
       await db.insert(users).values(admin);
       return '注册成功';
@@ -63,8 +63,8 @@ export class UserController {
   // There shouldn't be a router for this function
   async createLostnFound() {
     const password = nanoid(50);
-    const lnf = { username: env.LNF_USER_NAME, password, role: 'lnf' } as 
-      { username: string, password: string, role: TRole };
+    const lnf = { username: env.LNF_USER_NAME, password, role: 'lnf' } as
+      { username: string; password: string; role: TRole };
     try {
       await db.insert(users).values(lnf);
       return '注册成功';
@@ -82,7 +82,7 @@ export class UserController {
     // 之前的逻辑
     const { username, password, role } = newUser;
     // Creating admin is not allowed
-    if (role === "admin")
+    if (role === 'admin')
       throw new TRPCError({ code: 'BAD_REQUEST', message: '不允许新建管理员账户' });
     const hash = await bcrypt.hash(password, 8);
     const user = { username, password: hash, role };
