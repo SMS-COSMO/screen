@@ -3,6 +3,8 @@ import { eq } from 'drizzle-orm';
 import type { TNewPool } from '../../db/db';
 import { db } from '../../db/db';
 import { pools } from '../../db/schema';
+import type { TRole } from '~/types';
+import { env } from '~/server/env';
 
 export class PoolController {
   async create(newPool: TNewPool) {
@@ -10,12 +12,17 @@ export class PoolController {
     return '内容类型创建成功';
   }
 
+  async createLnFPool() {
+    await db.insert(pools).values({ category: env.LNF_POOL_NAME, roleRequirement: 'lnf' });
+    return '失物招领内容类型创建成功';
+  }
+
   async delete(id: number) {
     await db.delete(pools).where(eq(pools.id, id));
     return '内容类型删除成功';
   }
 
-  async edit(id: number, new_name: string, new_roleRequire: 'admin' | 'club') {
+  async edit(id: number, new_name: string, new_roleRequire: TRole) {
     await db.update(pools)
       .set({ category: new_name, roleRequirement: new_roleRequire })
       .where(eq(pools.id, id));
