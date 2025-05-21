@@ -12,4 +12,4 @@ export type TUserModify = {
   description: string;
 }; 
 export type TRole = 'admin' | 'club';
-export type TInner = TRole | 'lnf';
+export type TInnerRole = TRole | 'lnf';

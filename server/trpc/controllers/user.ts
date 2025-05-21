@@ -9,7 +9,7 @@ import { users } from '../../db/schema';
 import { TRPCForbidden } from '../../trpc/utils/shared';
 import { Auth } from '../utils/auth';
 import { CodeController } from './invitationCodeControl';
-import type { TRole } from '~/types';
+import type { TInnerRole, TRole } from '~/types';
 import { env } from '~/server/env';
 
 export class UserController {
@@ -64,7 +64,7 @@ export class UserController {
   async createLostnFound() {
     const password = nanoid(50);
     const lnf = { username: env.LNF_USER_NAME, password, role: 'lnf' } as
-      { username: string; password: string; role: TRole };
+      { username: string; password: string; role: TInnerRole };
     try {
       await db.insert(users).values(lnf);
       return '注册成功';
@@ -81,9 +81,15 @@ export class UserController {
     await this.iccCheck(invitationCode);// 此处本来没有await导致错误无法捕获，猜测是漏掉了
     // 之前的逻辑
     const { username, password, role } = newUser;
+
+    // The following are security checks. The message shouldn't be the true error message.
     // Creating admin is not allowed
     if (role === 'admin')
-      throw new TRPCError({ code: 'BAD_REQUEST', message: '不允许新建管理员账户' });
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '学工号出现重复' });
+    // Creating lnf is not allowed either
+    if (role === 'lnf')
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '学工号出现重复' });
+
     const hash = await bcrypt.hash(password, 8);
     const user = { username, password: hash, role };
     try {
