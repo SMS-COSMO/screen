@@ -11,4 +11,5 @@ export type TUserModify = {
   username: string;
   description: string;
 }; 
-export type TRole = 'admin' | 'club' | 'lnf';
+export type TRole = 'admin' | 'club';
+export type TInner = TRole | 'lnf';
