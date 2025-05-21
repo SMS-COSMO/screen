@@ -13,11 +13,16 @@ const setNull: {
   onDelete?: UpdateDeleteAction | undefined;
 } = { onDelete: 'set null', onUpdate: 'set null' };
 
+// for god's sake why am I copying type declarations
+// Anyway, when declaring enums like roles, use this
+const roleEnum: Readonly<[string, ...string[]]> = ['admin', 'club', 'lnf'];
+const stateEnum: Readonly<[string, ...string[]]> = ['created', 'approved', 'rejected', 'inuse', 'outdated'];
+
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
-  role: text('role', { enum: ['admin', 'club', 'lnf'] }).notNull().default('club'),
+  role: text('role', { enum: roleEnum }).notNull().default('club'),
   description: text('description').default('SMS Student Club'), // default值为调试用
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
@@ -61,7 +66,7 @@ export const contents = sqliteTable('contents', {
   fileType: text('file_type').notNull(),
   S3FileId: text('s3_file_id').notNull(),
   expireDate: integer('expireDate', { mode: 'timestamp' }).notNull(),
-  state: text('state', { enum: ['created', 'approved', 'rejected', 'inuse', 'outdated'] }).notNull().default('created'),
+  state: text('state', { enum: stateEnum }).notNull().default('created'),
   categoryId: integer('category_id').references(() => pools.id, setNull),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   reviewNotes: text('reviewNotes'),
@@ -100,7 +105,7 @@ export const programsToContentsRelations = relations(programsToContents, ({ one 
 export const pools = sqliteTable('pools', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   category: text('category').notNull(),
-  roleRequirement: text('role_requirement', { enum: ['admin', 'club'] }).notNull().default('club'),
+  roleRequirement: text('role_requirement', { enum: roleEnum }).notNull().default('club'),
 });
 
 export const programsToPools = sqliteTable('programs_to_pools', {
