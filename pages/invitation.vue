@@ -91,7 +91,7 @@
                 </Badge>
               </TableCell>
               <TableCell class="text-gray-500">
-                {{ String(invitation.createdAt).substring(4,15) }}
+                {{ invitation.createdAt.toLocaleDateString() }}
               </TableCell>
             </TableRow>
           </TableBody>
