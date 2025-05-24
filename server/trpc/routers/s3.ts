@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
 
 const S3FileIdZod = z.string();
 
@@ -23,5 +23,11 @@ export const s3Router = router({
     .input(z.object({ s3FileId: S3FileIdZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.s3Controller.deleteFile(input.s3FileId);
+    }),
+
+  getLnfUploadURL: publicProcedure
+    .input(z.object({ s3FileId: S3FileIdZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.s3Controller.getStandardUploadPresignedUrl(input.s3FileId);
     }),
 });

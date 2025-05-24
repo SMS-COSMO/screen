@@ -110,4 +110,13 @@ export class ContentController {
       .where(eq(contents.id, id));
     return '内容审核状态修改成功';
   }
+
+  async createLostnfound(newContent: TNewContent, ctx: Context) {
+    const categoryInfo = await ctx.poolController.getLnfInfo();
+    const userInfo = await ctx.userController.getLnfInfo();
+    newContent.categoryId = categoryInfo.id;
+    newContent.ownerId = userInfo.id;
+    await db.insert(contents).values(newContent);
+    return '创建成功';
+  }
 }

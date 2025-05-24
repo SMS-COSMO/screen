@@ -198,4 +198,13 @@ export class UserController {
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '删除失败' });
     }
   }
+
+  async getLnfInfo() {
+    const res = await db.query.users.findFirst({
+      where: eq(users.username, env.LNF_USER_NAME),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '用户类型不存在' });
+    return res;
+  }
 }
