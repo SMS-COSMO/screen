@@ -23,10 +23,11 @@ if (!admin) {
   const res = await db.select().from(users).where(eq(users.username, 'admin')).get();
   if (!res) {
     console.log('Failed to create admin');
-    process.exit(0)
+    process.exit(0);
   }
-} else
-  console.log('Admin detected. Skipping creation...')
+} else {
+  console.log('Admin detected. Skipping creation...');
+}
 
 const lnfUser = await db.select().from(users).where(eq(users.username, env.LNF_USER_NAME)).get();
 if (!lnfUser) {
@@ -34,20 +35,22 @@ if (!lnfUser) {
   const res = await db.select().from(users).where(eq(users.username, env.LNF_USER_NAME)).get();
   if (!res) {
     console.log('Failed to create Lost and Found user');
-    process.exit(0)
+    process.exit(0);
   }
-} else
-  console.log('Lost and Found user detected. Skipping creation...')
+} else {
+  console.log('Lost and Found user detected. Skipping creation...');
+}
 
-const lnfPool = await db.select().from(users).where(eq(users.username, env.LNF_USER_NAME)).get();
+const lnfPool = await db.select().from(pools).where(eq(pools.category, env.LNF_POOL_NAME)).get();
 if (!lnfPool) {
   await ctl.oc.createLnFPool();
   const res = await db.select().from(pools).where(eq(pools.category, env.LNF_POOL_NAME)).get();
   if (!res) {
     console.log('Failed to create Lost and Found category');
-    process.exit(0)
+    process.exit(0);
   }
-} else
-  console.log('Lost and Found category detected. Skipping creation...')
+} else {
+  console.log('Lost and Found category detected. Skipping creation...');
+}
 
 process.exit(0);
