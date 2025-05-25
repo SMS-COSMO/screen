@@ -85,4 +85,29 @@ export const contentRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getContentById(input.id, input.userId);
     }),
+  updateContent: protectedProcedure
+    .use(requireRoles(['admin', 'club']))
+    .input(z.object({
+      newContent: z.object({
+        id: idZod,
+        name: nameZod,
+        ownerId: idZod,
+        duration: durationZod,
+        fileType: fileTypeZod,
+        S3FileId: S3FileIdZod,
+        expireDate: expireDateZod,
+        categoryId: categoryIdZod,
+        state: nameZod,
+        reviewNotes: reviewNotesZod,
+        createdAt: z.date(),
+      }),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // 转换 undefined 为 null, 解决报错
+      const newContent = {
+        ...input.newContent,
+        reviewNotes: input.newContent.reviewNotes ?? null,
+      };
+      return await ctx.contentController.updateContentById(newContent);
+    }),
 });

@@ -127,4 +127,16 @@ export class ContentController {
       throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限获取该类型的内容' });
     return content;
   }
+
+  async updateContentById(newContent: TRawContent) {
+    const content = await db.query.contents.findFirst({
+      where: eq(contents.id, newContent.id),
+    });
+    if (!content)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    await db.update(contents)
+      .set(newContent)
+      .where(eq(contents.id, newContent.id));
+    return '内容更新成功';
+  }
 }

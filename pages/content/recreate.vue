@@ -9,7 +9,7 @@
               重新上传内容
             </CardTitle>
             <CardDescription>
-              修改原本上传的内容
+              修改原本上传的内容, 将会使审核状态变为"初创建"
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -115,8 +115,8 @@
                 </div>
               </div>
               <Progress v-if="isUploading" v-model="progress" />
-              <Button v-if="!isUploading" type="submit" class="w-full" @click="createContent">
-                创建内容
+              <Button v-if="!isUploading" type="submit" class="w-full" @click="recreateContent">
+                确定修改
               </Button>
               <Button v-if="isUploading" type="submit" class="w-full" disabled>
                 <Loader2 v-if="isUploading" class="w-4 h-4 mr-2 animate-spin" />
@@ -133,7 +133,7 @@
 <script setup lang="ts">
 import type { AxiosProgressEvent } from 'axios';
 import axios from 'axios';
-import { CalendarIcon, Check, ChevronsUpDown, Loader2, Route } from 'lucide-vue-next';
+import { CalendarIcon, Check, ChevronsUpDown, Loader2, Route, Router, Underline } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import {
   DateFormatter,
@@ -142,7 +142,7 @@ import {
   today,
 } from '@internationalized/date';
 import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import {
   Command,
@@ -179,6 +179,9 @@ const df = new DateFormatter('zh-CN', {
   dateStyle: 'long',
 });
 
+// 查询
+const queryClient = useQueryClient();
+
 // 获取内容id
 const route = useRoute();
 const ctId = Number(route.query.ctId);
@@ -192,15 +195,6 @@ interface Form {
   expireDate: Date;
   categoryId: number;
 };
-const form: Form = reactive({
-  name: '',
-  ownerId: 0,
-  duration: 0,
-  fileType: '',
-  S3FileId: '',
-  expireDate: new Date(),
-  categoryId: 0,
-});
 
 // 获取内容信息
 function queryFn() {
@@ -210,13 +204,27 @@ function queryFn() {
   return $api.content.getContentById.query({ id: ctId, userId: uId });
 }
 
-// 使用 queryFn 进行查询
+// 使用 queryFn 进行查询内容, 经测试, 似乎不会查询到权限外的?
 const { data: contentInfo, suspense } = useQuery({
   queryKey: ['content', 'getContentById'],
   queryFn,
 });
 await suspense();
-console.log('contentInfo', contentInfo);
+
+if (contentInfo.value === undefined) {
+  toast.error('内容不存在');
+  navigateTo('/content/club');
+}
+
+const form: Form = reactive({
+  name: contentInfo.value?.name || '',
+  ownerId: contentInfo.value?.ownerId || 0,
+  duration: contentInfo.value?.duration || 0,
+  fileType: contentInfo.value?.fileType || '',
+  S3FileId: contentInfo.value?.S3FileId || '',
+  expireDate: contentInfo.value?.expireDate ? new Date(contentInfo.value.expireDate) : new Date(),
+  categoryId: contentInfo.value?.categoryId || 0,
+});
 
 const allowed_types = new Set(['video', 'image']);
 const { data: categoryList } = useQuery({
@@ -231,9 +239,10 @@ const filteredCategoryList = computed(() => {
   return categoryList.value.filter(pool => pool.roleRequirement === 'club' || userStore.role === 'admin');
 });
 
-const { mutate: createMutation } = useMutation({
-  mutationFn: $api.content.create.mutate,
-  onSuccess: () => toast.success('内容创建成功'),
+// 修改函数
+const { mutate: updateMutation } = useMutation({
+  mutationFn: $api.content.updateContent.mutate,
+  onSuccess: () => toast.success('内容修改成功'),
   onError: err => useErrorHandler(err),
 });
 const { files, open: openFileDialog, reset, onChange } = useFileDialog({
@@ -253,9 +262,18 @@ onChange((filelist: FileList | null) => {
   }
 });
 
+// 删除文件函数
+const { mutate: deleteMutation } = useMutation({
+  mutationFn: $api.s3.deleteFile.mutate,
+  onSuccess: () => {
+    toast.success('内容删除成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+
 const progress = ref(0);
 const isUploading = ref(false);
-async function createContent() {
+async function recreateContent() {
   if (!files.value) {
     toast.error('未选择文件');
     return;
@@ -273,13 +291,6 @@ async function createContent() {
     return;
   }
   form.expireDate = value.value.toDate(getLocalTimeZone());
-  if (userStore.userId) {
-    form.ownerId = userStore.userId;
-    form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
-  } else {
-    navigateTo('/login');
-    return;
-  }
 
   // 校验选择的内容类型是否符合权限要求
   const selectedCategory = categoryList.value?.find(pool => pool.id === form.categoryId);
@@ -289,6 +300,22 @@ async function createContent() {
   }
 
   try {
+    // 准备删除旧文件
+    if (contentInfo.value?.S3FileId) {
+      await deleteMutation({ s3FileId: contentInfo.value.S3FileId });
+    }
+
+    // 重新生成fileid
+    if (userStore.userId) {
+      form.ownerId = userStore.userId;
+      form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
+    } else {
+      navigateTo('/login');
+      return;
+    }
+
+    // 准备上传新文件
+    // 这里的 S3FileId 是一个随机生成的 ID，格式为 {makeId(20)}|user-{userId}|file-{file.name}
     const uploadURL = await $api.s3.getUploadURL.query({ s3FileId: form.S3FileId });
     const file = files.value[0];
     if (uploadURL) {
@@ -307,7 +334,14 @@ async function createContent() {
     isUploading.value = false;
     return;
   }
-  createMutation(form);
+  // 更新数据
+  updateMutation({
+    newContent: { id: ctId, createdAt: new Date(), state: 'created', ...form },
+  });
   isUploading.value = false;
+
+  // 返回原来的页面
+  queryClient.invalidateQueries({ queryKey: ['content'] });
+  navigateTo('/content/club');
 };
 </script>
