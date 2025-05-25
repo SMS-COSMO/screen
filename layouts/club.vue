@@ -18,7 +18,7 @@
             <Icon name="lucide:monitor" size="24" />
             <span class="">食堂显示屏</span>
           </a>
-          <Button variant="outline" size="icon" class="ml-auto h-8 w-8">
+          <Button variant="outline" size="icon" class="ml-auto h-8 w-8" @click="navigateTo('/notifications')">
             <Bell class="h-4 w-4" />
             <span class="sr-only">Toggle notifications</span>
           </Button>
