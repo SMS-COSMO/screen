@@ -418,7 +418,7 @@ const { $api } = useNuxtApp();
 
 onMounted(() => {
   if (useUserStore().role === 'club') {
-    useRouter().push('club'); // 跳转到 admin 页面
+    useRouter().push('club'); // 跳转到club页面
   }
 });
 

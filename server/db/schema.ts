@@ -29,6 +29,7 @@ export const users = sqliteTable('users', {
 
 export const usersRelations = relations(users, ({ many }) => ({
   contents: many(contents),
+  notifications: many(notificationToUser),
 }));
 
 export const programs = sqliteTable('programs', {
@@ -138,3 +139,46 @@ export const invitationCode = sqliteTable('invitationCode', {
   state: integer('state', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
+
+// 通知表
+export const notifications = sqliteTable('notifications', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  senderId: integer('sender_id').notNull().references(() => users.id, setNull),
+  receiverId: integer('receiver_id').notNull().references(() => users.id, setNull),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  unread: integer('unread', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+});
+
+export const notificationToUser = sqliteTable('notification_to_user', {
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+  notificationId: integer('notification_id').notNull().references(() => notifications.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+}, t => ({
+  pk: primaryKey({ columns: [t.userId, t.notificationId] }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one, many }) => ({
+  sender: one(users, {
+    fields: [notifications.senderId],
+    references: [users.id],
+    relationName: 'notificationSender',
+  }),
+  receiver: one(users, {
+    fields: [notifications.receiverId],
+    references: [users.id],
+    relationName: 'notificationReceiver',
+  }),
+  notificationToUser: many(notificationToUser),
+}));
+
+export const notificationToUserRelations = relations(notificationToUser, ({ one }) => ({
+  user: one(users, {
+    fields: [notificationToUser.userId],
+    references: [users.id],
+  }),
+  notification: one(notifications, {
+    fields: [notificationToUser.notificationId],
+    references: [notifications.id],
+  }),
+}));
