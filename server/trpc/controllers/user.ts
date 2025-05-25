@@ -110,7 +110,6 @@ export class UserController {
       : await db.query.users.findFirst({ where: eq(users.id, id) });
     if (!targetUser)
       throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
-
     try {
       await db.update(users).set({ username: newInfo.username, description: newInfo.description }).where(eq(users.id, id));
     } catch (err) {

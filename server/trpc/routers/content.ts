@@ -60,7 +60,7 @@ export const contentRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getInfo(input.id);
     }),
-  
+
   updateInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
@@ -78,5 +78,11 @@ export const contentRouter = router({
     .input(z.object({ ownerId: idZod }))
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getListByOwner(input.ownerId, ctx);
+    }),
+  getContentById: protectedProcedure
+    .use(requireRoles(['admin', 'club']))
+    .input(z.object({ id: idZod, userId: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getContentById(input.id, input.userId);
     }),
 });
