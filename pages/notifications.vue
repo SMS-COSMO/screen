@@ -25,26 +25,36 @@
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="notificantion in fetchList" :key="notificantion.id">
+        <TableRow v-for="notification in fetchList" :key="notification.id">
           <TableCell>
             <Card>
               <CardHeader>
-                <CardTitle>{{ notificantion.title }}</CardTitle>
+                <CardTitle>{{ notification.title }}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Dialog>
                   <DialogTrigger>
-                    <Button>查看</Button>
+                    <Button>
+                      查看
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>标题：{{ notificantion.title }}</DialogTitle>
+                      <DialogTitle>标题：{{ notification.title }}</DialogTitle>
                     </DialogHeader>
                     <div>
-                      {{ notificantion.cotent }}
+                      通知日期:{{ notification.createdAt.toDateString() }}
                     </div>
+                    {{ notification.content }}
                     <DialogClose>
-                      <Button>确认已读</Button>
+                      <Button v-if="!markIsPending" @click="markMutation({ notificationId: notification.id })">
+                        确认已读
+                      </Button>
+                      <Button v-if="markIsPending">
+                        <Loader2 v-if="markIsPending">
+                          请稍候...
+                        </Loader2>
+                      </Button>
                     </DialogClose>
                   </DialogContent>
                 </Dialog>
@@ -59,17 +69,45 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 
 const { $api } = useNuxtApp();
+const filter = ref('all');
+const queryCilent = useQueryClient();
 
-const filter = ref('all'); // all:全部消息 unread:未读消息
-// type notification = { id: number; createAt: Date; title: string; cotent: string; unread: boolean }
+const { mutate: markMutation, isPending: markIsPending } = useMutation({
+  mutationFn: $api.notification.markRead.mutate,
+  onSuccess: () => {
+    queryCilent.invalidateQueries({ queryKey: ['notification'] });
+    toast.success('已标记为已读');
+  },
+  onError: err => useErrorHandler(err),
+}); // 单个查询操作
 
-// 测试用
+const { mutate: createMutaion, isPending: createIsPending } = useMutation({
+  mutationFn: $api.notification.createNotification.mutate,
+  onSuccess: () => {
+    toast.success('创建成功');
+  },
+  onError: err => useErrorHandler(err),
+}); // 创建通知
+
+const { data: allList, suspense: allSuspense } = useQuery({
+  queryKey: ['notification', 'all'],
+  queryFn: () => $api.notification.getAllByOwner.query(),
+});
+await allSuspense(); // 获取所有的通知
+
+const { data: unreadList, suspense: unreadSuspense } = useQuery({
+  queryKey: ['notification', 'unread'],
+  queryFn: () => $api.notification.getUnreadByOwner.query(),
+});
+await unreadSuspense(); // 获取未读通知
+
 const fetchList = computed(() => {
   return {
-    all: [{ id: 1, createAt: 2, title: '33', cotent: '44', unread: true }, { id: 2, createAt: 2, title: '3222', cotent: '424', unread: false }],
-    unread: [{ id: 1, createAt: 2, title: '33', cotent: '44', unread: true }],
+    all: allList.value || [],
+    unread: unreadList.value || [],
   }[filter.value];
 });
 </script>
