@@ -114,6 +114,7 @@ export class ContentController {
   }
 
   // 通过内容id获取内容, 同时检查请求者是否可以获得内容
+  // 注意: 本函数仅用于非管理员查询内容, 管理员可使用list, 然后在查询
   async getContentById(id: number, accessToken: string) {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, id),
