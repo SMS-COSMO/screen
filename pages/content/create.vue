@@ -166,7 +166,14 @@ const userStore = useUserStore();
 const unfoldCheckbox = ref(false);
 const checkedCategory = ref('');
 const value = ref<DateValue>();
-
+if (userStore.role === 'admin') {
+  setPageLayout('default');
+} else if (userStore.role === 'club') {
+  setPageLayout('club');
+}
+definePageMeta({
+  layout: false,
+});
 // 定义df为日期格式化工具，将 Date 对象转换为特定格式的字符串
 // 参数含义：full  2024年1月1日星期一
 //          long  2024年1月1日
