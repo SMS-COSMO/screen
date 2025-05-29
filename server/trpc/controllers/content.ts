@@ -4,9 +4,10 @@ import type { TNewContent, TRawContent, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
 import { contents, programsToContents, users } from '../../db/schema';
 import type { Context } from '../context';
+import { UserController } from './user';
 
+const UserCtrl = new UserController();
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
-
 export class ContentController {
   private async fetchOwner(res: TRawContent[], ctx: Context) {
     const named_res: (TRawContent & { owner: string })[] = [];
@@ -48,16 +49,6 @@ export class ContentController {
       .set({ name: new_name })
       .where(eq(contents.id, id));
     return '内容名修改成功';
-  }
-
-  // getInfo doesn't update the state
-  async getInfo(id: number) {
-    const res = await db.query.contents.findFirst({
-      where: eq(contents.id, id),
-    });
-    if (!res)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    return res;
   }
 
   // updateInfo returns the updated info
@@ -112,28 +103,37 @@ export class ContentController {
   }
 
   // 通过内容id获取内容, 同时检查请求者是否可以获得内容
-  async getContentById(id: number, uId: number) {
-    // !!! 缺陷, 在后端检查是否有权时却需要前端告诉是否有权
-    // 这会导致前端可以伪造请求, 使得后端无法判断是否有权, 待修正
+  // 注意: 本函数仅用于非管理员查询内容, 管理员可使用list, 然后在查询
+  // 重载签名
+  async getContentById(id: number, accessToken: string): Promise<TNewContent>;
+  async getContentById(id: number): Promise<TNewContent>;
+
+  // 共同实现
+  async getContentById(id: number, accessToken?: string): Promise<TRawContent> {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, id),
     });
-    const user = await db.query.users.findFirst({ where: eq(users.id, uId) });
     if (!content)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    if (!user)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
-    if (user.id !== content?.ownerId)
+
+    if (!accessToken)
+      return content;
+    const res = await UserCtrl.checkAccessToken(accessToken, content.ownerId);
+    if (!res)
       throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限获取该类型的内容' });
     return content;
   }
 
-  async updateContentById(newContent: TRawContent) {
+  // 同样进行用户检验
+  async updateContentById(newContent: TRawContent, accessToken: string) {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, newContent.id),
     });
     if (!content)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    const res = await UserCtrl.checkAccessToken(accessToken, content?.ownerId);
+    if (!res)
+      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限更新该类型的内容' });
     await db.update(contents)
       .set(newContent)
       .where(eq(contents.id, newContent.id));

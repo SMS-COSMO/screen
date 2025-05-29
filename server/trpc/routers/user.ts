@@ -6,6 +6,7 @@ const roleEnumZod = z.enum(['admin', 'club'], { errorMap: () => ({ message: '提
 const userIdZod = z.number().int().min(1, { message: '用户不存在' });
 const usernameZod = z.string().min(2, { message: '用户名长度应至少为2' }).max(15, { message: '用户名超出长度范围' });
 const newPasswordZod = z.string().min(8, { message: '用户密码长度应至少为8' }).regex(passwordRegex, '密码必须包含大小写字母、数字与特殊符号');
+const accessTokenZod = z.string().min(1, { message: '访问令牌不能为空' });
 
 export const userRouter = router({
   register: publicProcedure
@@ -77,5 +78,14 @@ export const userRouter = router({
     .use(requireRoles(['admin']))
     .query(async ({ ctx }) => {
       return await ctx.userController.getList();
+    }),
+  checkAccessToken: protectedProcedure
+    .use(requireRoles(['admin', 'club']))
+    .input(z.object({
+      accessToken: accessTokenZod,
+      uid: userIdZod,
+    }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.userController.checkAccessToken(input.accessToken, input.uid);
     }),
 });

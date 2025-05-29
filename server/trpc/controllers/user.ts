@@ -112,6 +112,7 @@ export class UserController {
       throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
     try {
       await db.update(users).set({ username: newInfo.username, description: newInfo.description }).where(eq(users.id, id));
+    // eslint-disable-next-line unused-imports/no-unused-vars
     } catch (err) {
       // 不知道为什么会有一个err形参
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '用户名已经存在' });
@@ -196,5 +197,18 @@ export class UserController {
     } catch {
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: '删除失败' });
     }
+  }
+
+  async checkAccessToken(authorization: string | undefined, uid: number) {
+    // 传入一个uid，与accessToken, 检查两者是否指向同一个用户
+    if (!authorization)
+      return false;
+    const res_user = await this.auth.getUserFromToken(authorization);
+    if (res_user.user?.id === uid) {
+      return true;
+    }
+    if (res_user.err)
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: res_user.err });
+    return false;
   }
 }

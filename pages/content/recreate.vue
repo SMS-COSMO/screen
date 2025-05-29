@@ -165,6 +165,10 @@ const { $api } = useNuxtApp();
 const userStore = useUserStore();
 
 const uId = useUserStore().userId; // userId 存储在 store 中
+if (!uId) {
+  toast.error('用户ID未找到');
+  navigateTo('/login');
+}
 
 const unfoldCheckbox = ref(false);
 const checkedCategory = ref('');
@@ -185,6 +189,13 @@ const queryClient = useQueryClient();
 // 获取内容id
 const route = useRoute();
 const ctId = Number(route.query.ctId);
+
+// 获取自己的accessToken, 待检验
+const accessToken = useCookie('accessToken');
+if (!accessToken.value) {
+  toast.error('请先登录');
+  navigateTo('/login');
+}
 
 interface Form {
   name: string;
@@ -211,7 +222,14 @@ const { data: contentInfo, suspense } = useQuery({
 });
 await suspense();
 
-if (contentInfo.value === undefined) {
+// 防止越权访问
+const { data: isAuth, suspense: isAuth_suspense } = useQuery({
+  queryKey: ['user', 'checkAccessToken'],
+  // 注意, 此处uid与uId有不同
+  queryFn: () => { $api.user.checkAccessToken.query({ accessToken: accessToken.value!, uid: uId! }); },
+});
+await isAuth_suspense();
+if (!isAuth.value) {
   toast.error('内容不存在');
   navigateTo('/content/club');
 }

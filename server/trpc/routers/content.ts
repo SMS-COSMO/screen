@@ -58,7 +58,7 @@ export const contentRouter = router({
   getInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getInfo(input.id);
+      return await ctx.contentController.getContentById(input.id);
     }),
 
   updateInfo: publicProcedure
