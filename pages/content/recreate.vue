@@ -322,10 +322,8 @@ async function recreateContent() {
   }
 
   try {
-    // 准备删除旧文件
-    if (contentInfo.value?.S3FileId) {
-      await deleteMutation({ s3FileId: contentInfo.value.S3FileId });
-    }
+    // 暂存旧文件, 遵循先上传再删除原则
+    const oldFileId = contentInfo.value?.S3FileId;
 
     // 重新生成fileid
     if (userStore.userId) {
@@ -350,6 +348,10 @@ async function recreateContent() {
           progress.value = Math.floor((p.progress ?? 0) * 100);
         },
       });
+    }
+    // 如果有旧文件，删除旧文件, 从而避免上传报错而导致空文件指针(即fileId)
+    if (oldFileId) {
+      await deleteMutation({ s3FileId: oldFileId });
     }
   } catch (err: any) {
     useErrorHandler(err);
