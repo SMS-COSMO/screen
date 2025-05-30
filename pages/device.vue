@@ -274,6 +274,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+onMounted(() => {
+  if (useUserStore().role === 'club') {
+    useRouter().push('/'); // 跳转到首页
+  }
+});
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();
