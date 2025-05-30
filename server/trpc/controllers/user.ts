@@ -146,7 +146,6 @@ export class UserController {
       throw new TRPCError({ code: 'UNAUTHORIZED', message: '用户名或密码错误' });
 
     const accessToken = await this.auth.produceAccessToken(user.id);
-
     const {
       password: _password,
       ...info

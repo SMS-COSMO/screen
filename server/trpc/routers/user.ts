@@ -86,6 +86,7 @@ export const userRouter = router({
       uid: userIdZod,
     }))
     .query(async ({ ctx, input }) => {
-      return await ctx.userController.checkAccessToken(input.accessToken, input.uid);
+      const res = await ctx.userController.checkAccessToken(input.accessToken, input.uid);
+      return await res;
     }),
 });

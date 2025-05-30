@@ -191,8 +191,9 @@ const route = useRoute();
 const ctId = Number(route.query.ctId);
 
 // 获取自己的accessToken, 待检验
-const accessToken = useCookie('accessToken');
-if (!accessToken.value) {
+const accessToken = useUserStore().accessToken;
+
+if (!accessToken) {
   toast.error('请先登录');
   navigateTo('/login');
 }
@@ -226,7 +227,10 @@ await suspense();
 const { data: isAuth, suspense: isAuth_suspense } = useQuery({
   queryKey: ['user', 'checkAccessToken'],
   // 注意, 此处uid与uId有不同
-  queryFn: () => { $api.user.checkAccessToken.query({ accessToken: accessToken.value!, uid: uId! }); },
+  queryFn: () => {
+    // 切记要返回, 不然报错很令人疑惑, 找了好久
+    return $api.user.checkAccessToken.query({ accessToken: accessToken!, uid: uId! });
+  },
 });
 await isAuth_suspense();
 if (!isAuth.value) {
@@ -355,7 +359,7 @@ async function recreateContent() {
   // 更新数据
   updateMutation({
     newContent: { id: ctId, createdAt: new Date(), state: 'created', ...form },
-    accessToken: accessToken.value!,
+    accessToken: accessToken!,
   });
   isUploading.value = false;
 
