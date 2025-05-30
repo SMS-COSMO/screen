@@ -102,26 +102,15 @@ export class ContentController {
     return '内容审核状态修改成功';
   }
 
-  // 通过内容id获取内容, 同时检查请求者是否可以获得内容
-  // 注意: 本函数仅用于非管理员查询内容, 管理员可使用list, 然后在查询
-  // 重载签名
-  async getContentById(id: number, accessToken: string): Promise<TNewContent>;
-  async getContentById(id: number): Promise<TNewContent>;
-
-  // 共同实现
-  async getContentById(id: number, accessToken?: string): Promise<TRawContent> {
-    const content = await db.query.contents.findFirst({
+  // 通过内容id获取内容
+  // getInfo doesn't update the state
+  async getContentById(id: number) {
+    const res = await db.query.contents.findFirst({
       where: eq(contents.id, id),
     });
-    if (!content)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-
-    if (!accessToken)
-      return content;
-    const res = await UserCtrl.checkAccessToken(accessToken, content.ownerId);
     if (!res)
-      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限获取该类型的内容' });
-    return content;
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    return res;
   }
 
   // 同样进行用户检验

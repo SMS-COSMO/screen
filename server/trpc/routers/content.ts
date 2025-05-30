@@ -61,6 +61,13 @@ export const contentRouter = router({
       return await ctx.contentController.getContentById(input.id);
     }),
 
+  // 保证兼容性, 本函数与上一个函数是一致的异名的
+  getContentById: publicProcedure
+    .input(z.object({ id: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getContentById(input.id);
+    }),
+
   updateInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
@@ -79,12 +86,6 @@ export const contentRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getListByOwner(input.ownerId, ctx);
     }),
-  getContentById: protectedProcedure
-    .use(requireRoles(['admin', 'club']))
-    .input(z.object({ id: idZod, userId: idZod }))
-    .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getContentById(input.id, input.userId);
-    }),
   updateContent: protectedProcedure
     .use(requireRoles(['admin', 'club']))
     .input(z.object({
@@ -101,6 +102,7 @@ export const contentRouter = router({
         reviewNotes: reviewNotesZod,
         createdAt: z.date(),
       }),
+      accessToken: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
       // 转换 undefined 为 null, 解决报错
@@ -108,6 +110,6 @@ export const contentRouter = router({
         ...input.newContent,
         reviewNotes: input.newContent.reviewNotes ?? null,
       };
-      return await ctx.contentController.updateContentById(newContent);
+      return await ctx.contentController.updateContentById(newContent, input.accessToken);
     }),
 });

@@ -212,7 +212,7 @@ function queryFn() {
   if (!uId) {
     throw new Error('用户ID未找到');
   }
-  return $api.content.getContentById.query({ id: ctId, userId: uId });
+  return $api.content.getContentById.query({ id: ctId });
 }
 
 // 使用 queryFn 进行查询内容, 经测试, 似乎不会查询到权限外的?
@@ -355,6 +355,7 @@ async function recreateContent() {
   // 更新数据
   updateMutation({
     newContent: { id: ctId, createdAt: new Date(), state: 'created', ...form },
+    accessToken: accessToken.value!,
   });
   isUploading.value = false;
 
