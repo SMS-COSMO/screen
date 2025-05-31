@@ -205,6 +205,8 @@ export class UserController {
     if (!res)
       throw new TRPCError({ code: 'NOT_FOUND', message: '用户类型不存在' });
     return res;
+  }
+
   async checkAccessToken(authorization: string | undefined, uid: number) {
     // 传入一个uid，与accessToken, 检查两者是否指向同一个用户
     if (!authorization)

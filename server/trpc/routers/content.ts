@@ -63,8 +63,6 @@ export const contentRouter = router({
       return await ctx.contentController.getContentById(input.id);
     }),
 
-<<<<<<< HEAD
-=======
   // 保证兼容性, 本函数与上一个函数是一致的异名的
   getContentById: publicProcedure
     .input(z.object({ id: idZod }))
@@ -72,7 +70,6 @@ export const contentRouter = router({
       return await ctx.contentController.getContentById(input.id);
     }),
 
->>>>>>> 33540a0abed5258050e267612b5a35a4dcb47b4a
   updateInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
@@ -109,6 +106,7 @@ export const contentRouter = router({
       const { fingerprint, date, ...contentInput } = input;
       const uploadForm = { fingerprint, date };
       return await ctx.contentController.createLostnfound(uploadForm, contentInput, ctx, fingerprint);
+    }),
   updateContent: protectedProcedure
     .use(requireRoles(['admin', 'club']))
     .input(z.object({

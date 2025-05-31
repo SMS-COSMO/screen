@@ -1,14 +1,8 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-<<<<<<< HEAD
-import type { TLnfUploadForm, TNewContent, TRawContent } from '../../db/db';
+import type { TLnfUploadForm, TNewContent, TRawContent, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
-import { contents, programsToContents, uploadLimits } from '../../db/schema';
-=======
-import type { TNewContent, TRawContent, TRawUser } from '../../db/db';
-import { db } from '../../db/db';
-import { contents, programsToContents, users } from '../../db/schema';
->>>>>>> 33540a0abed5258050e267612b5a35a4dcb47b4a
+import { contents, programsToContents, uploadLimits, users } from '../../db/schema';
 import type { Context } from '../context';
 import { UserController } from './user';
 
@@ -144,6 +138,8 @@ export class ContentController {
     newContent.ownerId = userInfo.id;
     await db.insert(contents).values(newContent);
     return '创建成功';
+  }
+
   // 通过内容id获取内容
   // getInfo doesn't update the state
   async getContentById(id: number) {
