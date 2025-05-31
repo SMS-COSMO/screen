@@ -79,7 +79,7 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="invitation in fetchList":key="invitation.id" class="text-left">
+            <TableRow v-for="invitation in fetchList" :key="invitation.id" class="text-left">
               <TableCell class="text-gray-500">
                 {{ invitation.id }}
               </TableCell>

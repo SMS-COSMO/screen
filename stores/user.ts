@@ -17,17 +17,17 @@ export const useUserStore = defineStore('user', () => {
 
     userId.value = data.id;
     username.value = data.username;
-    userDescription.value = (data.description != null) ? data.description : "还没有介绍哦~";
-    //null暂未明确处理方式
+    userDescription.value = (data.description != null) ? data.description : '还没有介绍哦~';
+    // null暂未明确处理方式
 
     role.value = data.role;
   };
 
-  //modify方法用于在刷新用户资料同时不重新登录
+  // modify方法用于在刷新用户资料同时不重新登录
   const modify = (data: TUserModify) => {
     username.value = data.username;
-    userDescription.value = (data.description != null) ? data.description : "还没有介绍哦~";
-  }
+    userDescription.value = (data.description != null) ? data.description : '还没有介绍哦~';
+  };
 
   const logout = () => {
     loggedIn.value = false;

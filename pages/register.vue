@@ -66,12 +66,7 @@
   </div>
 </template>
 
-
-
-
-
 <script setup lang = "ts">
-
 import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
@@ -86,18 +81,8 @@ const form = reactive({
   username: '',
   password: '',
   ic: '',
-  role: <'club'> 'club'
+  role: 'club' as TRole,
 });
-
-const { mutate: registMutation, isPending: isPending } = useMutation({
-  mutationFn: $api.user.register.mutate,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['user'] });
-    invalidateMutation({code: form.ic})//切换邀请码状态
-    toast.success('注册成功');
-  },
-  onError: err => useErrorHandler(err),
-})
 
 const { mutate: invalidateMutation } = useMutation({
   mutationFn: $api.invitationCode.invalidateCode.mutate,
@@ -106,17 +91,25 @@ const { mutate: invalidateMutation } = useMutation({
     navigateTo('/login');
   },
   onError: err => useErrorHandler(err),
-})
+});
 
-function toggle_confirm(){
-  if(form.password != cpassword.value){
+const { mutate: registMutation, isPending } = useMutation({
+  mutationFn: $api.user.register.mutate,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+    invalidateMutation({ code: form.ic });// 切换邀请码状态
+    toast.success('注册成功');
+  },
+  onError: err => useErrorHandler(err),
+});
+
+function toggle_confirm() {
+  if (form.password !== cpassword.value) {
     cpassword.value = '';
     toast.error('请重新确认密码');
-  }
-  else{
+  } else {
     note.value = '';
     registMutation(form);
   }
 }
-
 </script>

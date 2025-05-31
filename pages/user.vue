@@ -6,7 +6,7 @@
         <CardTitle class="text-2xl font-bold">
           {{ store.username }}
         </CardTitle>
-        <button @click="$router.go(-1)" class="absolute right-4 top-4">
+        <button class="absolute right-4 top-4" @click="$router.go(-1)">
           <ArrowLeft class="h-6 w-6" />
         </button>
       </CardHeader>
@@ -14,7 +14,7 @@
         <p class="text-xs text-gray-400">
           {{ store.userDescription }}
         </p>
-        <Card v-if = "modifyBoardExpanded && modifyChoice === 'info'">
+        <Card v-if="modifyBoardExpanded && modifyChoice === 'info'">
           <CardHeader>
             <CardTitle>
               用户资料设置
@@ -39,10 +39,10 @@
                 />
               </div>
               <div class="flex gap-4">
-                <button @click="modifyBoardExpanded = !modifyBoardExpanded" class="w-full h-8 bg-transparent rounded border">
+                <button class="w-full h-8 bg-transparent rounded border" @click="modifyBoardExpanded = !modifyBoardExpanded">
                   取消修改
                 </button>
-                <button v-if = "!isInfoPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
+                <button v-if="!isInfoPending" class="w-full h-8 bg-blue-600 text-white rounded border" @click="toggle_confirm()">
                   保存修改
                 </button>
                 <Button v-if="isInfoPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
@@ -53,7 +53,7 @@
             </div>
           </CardContent>
         </Card>
-        <Card v-if = "modifyBoardExpanded && modifyChoice === 'password'">
+        <Card v-if="modifyBoardExpanded && modifyChoice === 'password'">
           <CardHeader>
             <CardTitle>
               密码设置
@@ -80,10 +80,10 @@
                 />
               </div>
               <div class="flex gap-4">
-                <button @click="modifyBoardExpanded = !modifyBoardExpanded, clearPasswordCache()" class="w-full h-8 bg-transparent rounded border">
+                <button class="w-full h-8 bg-transparent rounded border" @click="modifyBoardExpanded = !modifyBoardExpanded, clearPasswordCache()">
                   取消修改
                 </button>
-                <button v-if = "!isPasswordPending" @click="toggle_confirm()" class="w-full h-8 bg-blue-600 text-white rounded border">
+                <button v-if="!isPasswordPending" class="w-full h-8 bg-blue-600 text-white rounded border" @click="toggle_confirm()">
                   保存修改
                 </button>
                 <Button v-if="isPasswordPending" type="submit" class="w-full" disabled @click="toggle_confirm()">
@@ -95,10 +95,10 @@
           </CardContent>
         </Card>
         <div class="flex gap-4">
-          <button v-if = "!modifyBoardExpanded" @click="modifyBoardExpanded = true, modifyChoice = 'info' " class="w-full h-8 rounded border">
+          <button v-if="!modifyBoardExpanded" class="w-full h-8 rounded border" @click="modifyBoardExpanded = true, modifyChoice = 'info' ">
             修改用户资料
           </button>
-          <button v-if = "!modifyBoardExpanded" @click="modifyBoardExpanded = true, modifyChoice = 'password'" class="w-full h-8 rounded border">
+          <button v-if="!modifyBoardExpanded" class="w-full h-8 rounded border" @click="modifyBoardExpanded = true, modifyChoice = 'password'">
             修改密码
           </button>
         </div>
@@ -122,8 +122,8 @@ const modifyChoice = ref('');
 
 const Info = reactive({
   id: store.userId ?? 0,
-  username: store.username ?? "",
-  description: store.userDescription ?? ""
+  username: store.username ?? '',
+  description: store.userDescription ?? '',
 });
 
 const Password = reactive({
@@ -169,7 +169,7 @@ function toggle_confirm() {
 
 // 清除输入框中的内容
 function clearPasswordCache() {
-  Password.oldPassword = "";
-  Password.newPassword = "";
+  Password.oldPassword = '';
+  Password.newPassword = '';
 }
 </script>
