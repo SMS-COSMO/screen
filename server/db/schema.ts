@@ -138,3 +138,11 @@ export const invitationCode = sqliteTable('invitationCode', {
   state: integer('state', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
+
+// 失物招领限流计数器表
+export const uploadLimits = sqliteTable('upload_limits', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  fingerprint: text('fingerprint').notNull(),
+  date: integer('uploadDate', { mode: 'timestamp' }).notNull(),
+  count: integer('count').default(0).notNull(),
+});

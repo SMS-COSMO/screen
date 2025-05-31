@@ -12,8 +12,8 @@ const expireDateZod = z.date();
 const categoryIdZod = z.number();
 const stateEnumZod = z.enum(['created', 'approved', 'rejected', 'inuse', 'outdated'], { errorMap: () => ({ message: '审核状态错误' }) });
 const reviewNotesZod = z.string().optional();
-const LnFnameZod = z.string();
-const LnFdurationZod = z.number();
+const LnFdurationZod = z.number();// 时长暂无限制
+const fingerprintZod = z.string();
 
 export const contentRouter = router({
   create: protectedProcedure
@@ -84,15 +84,20 @@ export const contentRouter = router({
 
   createLostnfound: publicProcedure
     .input(z.object({
-      name: LnFnameZod,
+      name: nameZod,
       ownerId: idZod,
       duration: LnFdurationZod,
       fileType: fileTypeZod,
       S3FileId: S3FileIdZod,
       expireDate: expireDateZod,
       categoryId: categoryIdZod,
+      fingerprint: fingerprintZod,
+      date: z.date(),
     }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.contentController.createLostnfound(input, ctx);
+      // 使用解构分离 fingerprint 和其他属性
+      const { fingerprint, date, ...contentInput } = input;
+      const uploadForm = { fingerprint, date };
+      return await ctx.contentController.createLostnfound(uploadForm, contentInput, ctx, fingerprint);
     }),
 });

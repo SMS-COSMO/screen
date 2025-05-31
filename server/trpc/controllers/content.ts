@@ -1,8 +1,8 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import type { TNewContent, TRawContent } from '../../db/db';
+import type { TLnfUploadForm, TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
-import { contents, programsToContents } from '../../db/schema';
+import { contents, programsToContents, uploadLimits } from '../../db/schema';
 import type { Context } from '../context';
 
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
@@ -111,7 +111,36 @@ export class ContentController {
     return '内容审核状态修改成功';
   }
 
-  async createLostnfound(newContent: TNewContent, ctx: Context) {
+  // 真正创建失物招领内容
+  async createLostnfound(lnfUploadForm: TLnfUploadForm, newContent: TNewContent, ctx: Context, fingerprint: string) {
+    // 1、创建或更新上传记录
+    const res = await db.query.uploadLimits.findFirst({
+      where: eq(uploadLimits.fingerprint, fingerprint),
+    });
+    const now = new Date();
+    if (!res) {
+      // 如果没有记录插入新纪录，（为啥TLnfUploadForm的count字段是可选的？schema里有notnull啊）
+      lnfUploadForm.count = 1;
+      await db.insert(uploadLimits).values(lnfUploadForm);
+    } else if (now.getTime() - res.date.getTime() > 24 * 3600 * 1000) {
+      // 如果有记录但记录过期，时间变为当前，count变为1
+      await db.update(uploadLimits).set({ date: now, count: 1 }).where(eq(uploadLimits.fingerprint, fingerprint));
+    } else {
+      // 如果有记录且记录没有过期，count+1,时间不变
+      await db.update(uploadLimits).set({ count: res.count + 1 }).where(eq(uploadLimits.fingerprint, fingerprint));
+    }
+    // 2、获得失物招领能否上传的指示
+    const nowRes = await db.query.uploadLimits.findFirst({
+      where: eq(uploadLimits.fingerprint, fingerprint),
+    });
+    let disAbilityToUpload = false;// 默认可以上传
+    // 如果一天内上传大于3次，disAbilityToUpload变为true,也就是不能上传。
+    if (nowRes) {
+      disAbilityToUpload = nowRes.count > 3 && now.getTime() - nowRes.date.getTime() < 24 * 3600 * 1000;
+    }
+    if (disAbilityToUpload)
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '上传次数过多' });
+    // 3、真正开始上传
     const categoryInfo = await ctx.poolController.getLnfInfo();
     const userInfo = await ctx.userController.getLnfInfo();
     newContent.categoryId = categoryInfo.id;

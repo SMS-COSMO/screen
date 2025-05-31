@@ -8,9 +8,6 @@
             <CardTitle class="text-2xl">
               失物招领
             </CardTitle>
-            <CardDescription>
-              上传物品名称及图片以显示到食堂显示屏上
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
@@ -86,6 +83,7 @@ import {
   today,
 } from '@internationalized/date';
 import { ref } from 'vue';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import {
   Popover,
   PopoverContent,
@@ -117,15 +115,19 @@ interface Form {
   S3FileId: string;
   expireDate: Date;
   categoryId: number;
+  fingerprint: string;
+  date: Date;
 };
 const form: Form = reactive({
   name: '',
   ownerId: 0, // 与lnf用户关联的代码放在controller里了
-  duration: 90, // 指定一个统一的失物招领信息展示时间
+  duration: 90, // 指定一个统一的失物招领信息展示时间,暂为90s
   fileType: '',
   S3FileId: '',
   expireDate: new Date(),
   categoryId: 0,
+  fingerprint: '',
+  date: new Date(),
 });
 
 const allowed_types = new Set(['image']); // 一个 Set 集合,检查文件的主类型是否合法。
@@ -154,6 +156,12 @@ onChange((filelist: FileList | null) => {
 
 const progress = ref(0);
 const isUploading = ref(false);
+// 创建用户浏览器指纹
+async function makeFingerprint() {
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  return result.visitorId;
+}
 async function createLnfContent() {
   if (!form.name) {
     toast.error('未填写物品名');
@@ -167,6 +175,7 @@ async function createLnfContent() {
     toast.error('未选择文件');
     return;
   }
+  form.fingerprint = await makeFingerprint();
   form.expireDate = value.value.toDate(getLocalTimeZone());
   form.S3FileId = `${makeId(20)}|file-${files.value[0].name}`;
   try {
