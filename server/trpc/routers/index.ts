@@ -1,6 +1,7 @@
 import { router } from '../trpc';
 import { contentRouter } from './content';
 import { deviceRouter } from './device';
+import { notificationRouter } from './notification';
 import { poolRouter } from './pool';
 import { programRouter } from './program';
 import { s3Router } from './s3';
@@ -17,6 +18,7 @@ export const appRouter = router({
   s3: s3Router,
   weather: weatherRouter,
   invitationCode: invitationCodeRouter,
+  notification: notificationRouter,
 });
 
 export type AppRouter = typeof appRouter;

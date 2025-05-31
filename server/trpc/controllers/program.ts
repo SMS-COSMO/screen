@@ -42,7 +42,7 @@ export class ProgramController {
         ...cnt,
         name: cnt.type === 'pool'
           ? (await ctx.poolController.getInfo(cnt.id)).category
-          : (await ctx.contentController.getInfo(cnt.id)).name,
+          : (await ctx.contentController.getContentById(cnt.id)).name,
       });
     });
     return seq;
@@ -56,7 +56,7 @@ export class ProgramController {
           await db.update(programsToContents)
             .set({ contentId: seq.id })
             .where(eq(programsToContents.programId, pgm.id));
-          const usedContent = await ctx.contentController.getInfo(seq.id);
+          const usedContent = await ctx.contentController.getContentById(seq.id);
           if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
             throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
         }

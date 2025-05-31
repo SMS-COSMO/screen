@@ -1,12 +1,19 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
+<<<<<<< HEAD
 import type { TLnfUploadForm, TNewContent, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { contents, programsToContents, uploadLimits } from '../../db/schema';
+=======
+import type { TNewContent, TRawContent, TRawUser } from '../../db/db';
+import { db } from '../../db/db';
+import { contents, programsToContents, users } from '../../db/schema';
+>>>>>>> 33540a0abed5258050e267612b5a35a4dcb47b4a
 import type { Context } from '../context';
+import { UserController } from './user';
 
+const UserCtrl = new UserController();
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
-
 export class ContentController {
   private async fetchOwner(res: TRawContent[], ctx: Context) {
     const named_res: (TRawContent & { owner: string })[] = [];
@@ -48,16 +55,6 @@ export class ContentController {
       .set({ name: new_name })
       .where(eq(contents.id, id));
     return '内容名修改成功';
-  }
-
-  // getInfo doesn't update the state
-  async getInfo(id: number) {
-    const res = await db.query.contents.findFirst({
-      where: eq(contents.id, id),
-    });
-    if (!res)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    return res;
   }
 
   // updateInfo returns the updated info
@@ -147,5 +144,30 @@ export class ContentController {
     newContent.ownerId = userInfo.id;
     await db.insert(contents).values(newContent);
     return '创建成功';
+  // 通过内容id获取内容
+  // getInfo doesn't update the state
+  async getContentById(id: number) {
+    const res = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    return res;
+  }
+
+  // 同样进行用户检验
+  async updateContentById(newContent: TRawContent, accessToken: string) {
+    const content = await db.query.contents.findFirst({
+      where: eq(contents.id, newContent.id),
+    });
+    if (!content)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    const res = await UserCtrl.checkAccessToken(accessToken, content?.ownerId);
+    if (!res)
+      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限更新该类型的内容' });
+    await db.update(contents)
+      .set(newContent)
+      .where(eq(contents.id, newContent.id));
+    return '内容更新成功';
   }
 }

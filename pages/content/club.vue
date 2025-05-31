@@ -86,6 +86,9 @@
               {{ content.createdAt.toLocaleDateString() }}
             </TableCell>
             <TableCell>
+              <Button variant="outline" @click="handleReUpload(content.id)">
+                重新上传
+              </Button>
               <Dialog>
                 <DialogTrigger as-child>
                   <Button variant="outline">
@@ -107,9 +110,11 @@
                 </DialogContent>
               </Dialog>
             </TableCell>
-            <TableCell class="flex justify-left mt-2">
-              <Badge :variant="TransState(content.state).color">
-                {{ TransState(content.state).text }}
+            <TableCell class="flex justify-left mt-5">
+              <Badge :variant="TransState(content.state).color" class="w-20">
+                <div class="ml-2.5">
+                  {{ TransState(content.state).text }}
+                </div>
               </Badge>
               <Dialog>
                 <DialogTrigger as-child>
@@ -130,8 +135,10 @@
                         <Label class="text-center col-span-2 row-span-1 py-2">
                           审核状态
                         </Label>
-                        <Badge :variant="TransState(content.state).color" class="col-span-2 row-span-1 py-2">
-                          {{ TransState(content.state).text }}
+                        <Badge :variant="TransState(content.state).color" class="col-span-2 row-span-1 py-2 w-40">
+                          <div class="ml-12">
+                            {{ TransState(content.state).text }}
+                          </div>
                         </Badge>
                       </div>
                       <div v-if="content.reviewNotes" class="flex flex-col gap-4">
@@ -249,4 +256,12 @@ definePageMeta({
   layout: 'club',
   name: 'club',
 });
+
+// 处理重新上传按钮
+const router = useRouter();
+function handleReUpload(contentId: number) {
+  router.push({ path: '/content/recreate', query: {
+    ctId: contentId,
+  } });
+}
 </script>
