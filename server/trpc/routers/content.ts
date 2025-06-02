@@ -71,7 +71,7 @@ export const contentRouter = router({
     .use(requireRoles(['admin']))
     .input(z.object({ id: idZod, state: stateEnumZod, reviewNotes: reviewNotesZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes);
+      return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes, ctx);
     }),
 
   getListByOwner: protectedProcedure
@@ -108,6 +108,6 @@ export const contentRouter = router({
         ...input.newContent,
         reviewNotes: input.newContent.reviewNotes ?? null,
       };
-      return await ctx.contentController.updateContentById(newContent);
+      return await ctx.contentController.updateContentById(newContent, ctx);
     }),
 });
