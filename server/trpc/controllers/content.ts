@@ -72,10 +72,36 @@ export class ContentController {
     return '内容删除成功';
   }
 
-  async edit(id: number, new_name: string) {
+  async edit(id: number, new_name: string, ctx?: Context) {
+    // 获取内容信息用于通知
+    const content = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+
     await db.update(contents)
       .set({ name: new_name })
       .where(eq(contents.id, id));
+
+    // 发送通知给所有管理员
+    if (ctx && content) {
+      try {
+        const adminIds = await this.getAdminUserIds();
+        const userInfo = await ctx.userController.getProfile(content.ownerId);
+
+        for (const adminId of adminIds) {
+          await ctx.notificationController.createNotification(
+            content.ownerId, // 发送者是内容修改者
+            adminId, // 接收者是管理员
+            '内容已修改',
+            `用户 ${userInfo.username} 修改了内容"${new_name}"，请重新审核。`,
+          );
+        }
+      } catch (error) {
+        // 通知发送失败不影响内容修改
+        console.error('发送修改通知失败:', error);
+      }
+    }
+
     return '内容名修改成功';
   }
 
@@ -204,12 +230,27 @@ export class ContentController {
     newContent.categoryId = categoryInfo.id;
     newContent.ownerId = userInfo.id;
     await db.insert(contents).values(newContent);
+
+    // 发送通知给所有管理员
+    try {
+      const adminIds = await this.getAdminUserIds();
+
+      for (const adminId of adminIds) {
+        await ctx.notificationController.createNotification(
+          newContent.ownerId, // 发送者是内容创建者
+          adminId, // 接收者是管理员
+          '新失物招领内容待审核',
+          `用户提交了新的失物招领内容"${newContent.name}"，请及时审核。`,
+        );
+      }
+    } catch (error) {
+      // 通知发送失败不影响内容创建
+      console.error('发送失物招领通知失败:', error);
+    }
+
     return '创建成功';
   }
 
-<<<<<<< HEAD
-  async updateContentById(newContent: TRawContent, ctx?: Context) {
-=======
   // 通过内容id获取内容
   // getInfo doesn't update the state
   async getContentById(id: number) {
@@ -222,26 +263,20 @@ export class ContentController {
   }
 
   // 同样进行用户检验
-  async updateContentById(newContent: TRawContent, accessToken: string) {
->>>>>>> 9917f8c2143fda5e1b1b4f192a6b8764c7e9d0f6
+  async updateContentById(newContent: TRawContent, accessToken: string, ctx?: Context) {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, newContent.id),
     });
     if (!content)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-<<<<<<< HEAD
-
-    // 更新内容
-=======
     const res = await UserCtrl.checkAccessToken(accessToken, content?.ownerId);
     if (!res)
       throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限更新该类型的内容' });
->>>>>>> 9917f8c2143fda5e1b1b4f192a6b8764c7e9d0f6
     await db.update(contents)
       .set(newContent)
       .where(eq(contents.id, newContent.id));
 
-    // 发送通知给所有管理员（如果内容被修改）
+    // 发送通知给所有管理员
     if (ctx) {
       try {
         const adminIds = await this.getAdminUserIds();
