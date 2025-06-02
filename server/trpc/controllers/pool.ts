@@ -42,4 +42,13 @@ export class PoolController {
     const res = await db.query.pools.findMany();
     return res;
   }
+
+  async getLnfInfo() {
+    const res = await db.query.pools.findFirst({
+      where: eq(pools.category, env.LNF_POOL_NAME),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容类型不存在' });
+    return res;
+  }
 }

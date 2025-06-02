@@ -1,12 +1,13 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import type { TNewContent, TRawContent, TRawUser } from '../../db/db';
+import type { TLnfUploadForm, TNewContent, TRawContent, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
-import { contents, programsToContents, users } from '../../db/schema';
+import { contents, programsToContents, uploadLimits, users } from '../../db/schema';
 import type { Context } from '../context';
+import { UserController } from './user';
 
+const UserCtrl = new UserController();
 type ContentState = 'created' | 'approved' | 'rejected' | 'inuse' | 'outdated';
-
 export class ContentController {
   private async fetchOwner(res: TRawContent[], ctx: Context) {
     const named_res: (TRawContent & { owner: string })[] = [];
@@ -48,16 +49,6 @@ export class ContentController {
       .set({ name: new_name })
       .where(eq(contents.id, id));
     return '内容名修改成功';
-  }
-
-  // getInfo doesn't update the state
-  async getInfo(id: number) {
-    const res = await db.query.contents.findFirst({
-      where: eq(contents.id, id),
-    });
-    if (!res)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    return res;
   }
 
   // updateInfo returns the updated info
@@ -111,29 +102,65 @@ export class ContentController {
     return '内容审核状态修改成功';
   }
 
-  // 通过内容id获取内容, 同时检查请求者是否可以获得内容
-  async getContentById(id: number, uId: number) {
-    // !!! 缺陷, 在后端检查是否有权时却需要前端告诉是否有权
-    // 这会导致前端可以伪造请求, 使得后端无法判断是否有权, 待修正
-    const content = await db.query.contents.findFirst({
-      where: eq(contents.id, id),
+  // 真正创建失物招领内容
+  async createLostnfound(lnfUploadForm: TLnfUploadForm, newContent: TNewContent, ctx: Context, fingerprint: string) {
+    // 1、创建或更新上传记录
+    const res = await db.query.uploadLimits.findFirst({
+      where: eq(uploadLimits.fingerprint, fingerprint),
     });
-    const user = await db.query.users.findFirst({ where: eq(users.id, uId) });
-    if (!content)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
-    if (!user)
-      throw new TRPCError({ code: 'NOT_FOUND', message: '用户不存在' });
-    if (user.id !== content?.ownerId)
-      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限获取该类型的内容' });
-    return content;
+    const now = new Date();
+    if (!res) {
+      // 如果没有记录插入新纪录，（为啥TLnfUploadForm的count字段是可选的？schema里有notnull啊）
+      lnfUploadForm.count = 1;
+      await db.insert(uploadLimits).values(lnfUploadForm);
+    } else if (now.getTime() - res.date.getTime() > 24 * 3600 * 1000) {
+      // 如果有记录但记录过期，时间变为当前，count变为1
+      await db.update(uploadLimits).set({ date: now, count: 1 }).where(eq(uploadLimits.fingerprint, fingerprint));
+    } else {
+      // 如果有记录且记录没有过期，count+1,时间不变
+      await db.update(uploadLimits).set({ count: res.count + 1 }).where(eq(uploadLimits.fingerprint, fingerprint));
+    }
+    // 2、获得失物招领能否上传的指示
+    const nowRes = await db.query.uploadLimits.findFirst({
+      where: eq(uploadLimits.fingerprint, fingerprint),
+    });
+    let disAbilityToUpload = false;// 默认可以上传
+    // 如果一天内上传大于3次，disAbilityToUpload变为true,也就是不能上传。
+    if (nowRes) {
+      disAbilityToUpload = nowRes.count > 3 && now.getTime() - nowRes.date.getTime() < 24 * 3600 * 1000;
+    }
+    if (disAbilityToUpload)
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '上传次数过多' });
+    // 3、真正开始上传
+    const categoryInfo = await ctx.poolController.getLnfInfo();
+    const userInfo = await ctx.userController.getLnfInfo();
+    newContent.categoryId = categoryInfo.id;
+    newContent.ownerId = userInfo.id;
+    await db.insert(contents).values(newContent);
+    return '创建成功';
   }
 
-  async updateContentById(newContent: TRawContent) {
+  // 通过内容id获取内容
+  // getInfo doesn't update the state
+  async getContentById(id: number) {
+    const res = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+    if (!res)
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    return res;
+  }
+
+  // 同样进行用户检验
+  async updateContentById(newContent: TRawContent, accessToken: string) {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, newContent.id),
     });
     if (!content)
       throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    const res = await UserCtrl.checkAccessToken(accessToken, content?.ownerId);
+    if (!res)
+      throw new TRPCError({ code: 'FORBIDDEN', message: '用户没有权限更新该类型的内容' });
     await db.update(contents)
       .set(newContent)
       .where(eq(contents.id, newContent.id));

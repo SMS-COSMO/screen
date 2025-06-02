@@ -19,9 +19,9 @@
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHeader>
+          <TableHead>
             通知
-          </TableHeader>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
