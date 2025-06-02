@@ -7,6 +7,7 @@ import type {
   devices,
   pools,
   programs,
+  uploadLimits,
   users,
 } from './schema';
 import * as schema from './schema';
@@ -29,3 +30,4 @@ export type TRawContent = typeof contents.$inferSelect;
 export type TNewContent = typeof contents.$inferInsert;
 export type TNewPool = typeof pools.$inferInsert;
 export type TSequenceUnit = NonNullable<ReturnType<typeof programs.sequence._.data.at>>;
+export type TLnfUploadForm = typeof uploadLimits.$inferInsert;

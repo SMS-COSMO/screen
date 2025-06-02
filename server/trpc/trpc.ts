@@ -20,14 +20,14 @@ const t = initTRPC
           zodError:
             error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
               ? error.cause.errors.map((x) => {
-                const { message, ...rest } = x;
-                return {
+                  const { message, ...rest } = x;
+                  return {
                   // only replace strings without Chinese characters
                   // silly, but it works lol
-                  message: /[\u4E00-\u9FA5]+/.test(message) ? message : localizeError(x).message,
-                  ...rest,
-                };
-              })
+                    message: /[\u4E00-\u9FA5]+/.test(message) ? message : localizeError(x).message,
+                    ...rest,
+                  };
+                })
               : null,
         },
       };

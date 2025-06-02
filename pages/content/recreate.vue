@@ -165,6 +165,10 @@ const { $api } = useNuxtApp();
 const userStore = useUserStore();
 
 const uId = useUserStore().userId; // userId 存储在 store 中
+if (!uId) {
+  toast.error('用户ID未找到');
+  navigateTo('/login');
+}
 
 const unfoldCheckbox = ref(false);
 const checkedCategory = ref('');
@@ -186,6 +190,14 @@ const queryClient = useQueryClient();
 const route = useRoute();
 const ctId = Number(route.query.ctId);
 
+// 获取自己的accessToken, 待检验
+const accessToken = useUserStore().accessToken;
+
+if (!accessToken) {
+  toast.error('请先登录');
+  navigateTo('/login');
+}
+
 interface Form {
   name: string;
   ownerId: number;
@@ -201,7 +213,7 @@ function queryFn() {
   if (!uId) {
     throw new Error('用户ID未找到');
   }
-  return $api.content.getContentById.query({ id: ctId, userId: uId });
+  return $api.content.getContentById.query({ id: ctId });
 }
 
 // 使用 queryFn 进行查询内容, 经测试, 似乎不会查询到权限外的?
@@ -211,7 +223,17 @@ const { data: contentInfo, suspense } = useQuery({
 });
 await suspense();
 
-if (contentInfo.value === undefined) {
+// 防止越权访问
+const { data: isAuth, suspense: isAuth_suspense } = useQuery({
+  queryKey: ['user', 'checkAccessToken'],
+  // 注意, 此处uid与uId有不同
+  queryFn: () => {
+    // 切记要返回, 不然报错很令人疑惑, 找了好久
+    return $api.user.checkAccessToken.query({ accessToken: accessToken!, uid: uId! });
+  },
+});
+await isAuth_suspense();
+if (!isAuth.value) {
   toast.error('内容不存在');
   navigateTo('/content/club');
 }
@@ -300,10 +322,8 @@ async function recreateContent() {
   }
 
   try {
-    // 准备删除旧文件
-    if (contentInfo.value?.S3FileId) {
-      await deleteMutation({ s3FileId: contentInfo.value.S3FileId });
-    }
+    // 暂存旧文件, 遵循先上传再删除原则
+    const oldFileId = contentInfo.value?.S3FileId;
 
     // 重新生成fileid
     if (userStore.userId) {
@@ -329,6 +349,10 @@ async function recreateContent() {
         },
       });
     }
+    // 如果有旧文件，删除旧文件, 从而避免上传报错而导致空文件指针(即fileId)
+    if (oldFileId) {
+      await deleteMutation({ s3FileId: oldFileId });
+    }
   } catch (err: any) {
     useErrorHandler(err);
     isUploading.value = false;
@@ -337,6 +361,7 @@ async function recreateContent() {
   // 更新数据
   updateMutation({
     newContent: { id: ctId, createdAt: new Date(), state: 'created', ...form },
+    accessToken: accessToken!,
   });
   isUploading.value = false;
 

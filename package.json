@@ -21,6 +21,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.779.0",
     "@aws-sdk/s3-request-presigner": "^3.779.0",
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@internationalized/date": "^3.7.0",
     "@libsql/client": "^0.5.6",
     "@tanstack/vue-query": "^5.71.1",

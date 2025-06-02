@@ -1,80 +1,21 @@
 <template>
-  <Title>上传内容</Title>
+  <Title>失物招领</Title>
   <div class="w-full lg:grid h-full">
     <div class="flex items-center justify-center">
       <div class="mx-auto grid w-[400px] gap-6">
         <Card>
           <CardHeader>
             <CardTitle class="text-2xl">
-              上传内容
+              失物招领
             </CardTitle>
-            <CardDescription>
-              上传图片或视频以显示到食堂显示屏上
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div class="grid gap-4">
               <div class="grid gap-2">
-                <Label for="email">内容名</Label>
+                <Label for="email">物品名</Label>
                 <Input
                   id="username"
                   v-model="form.name"
-                  required
-                />
-              </div>
-              <div class="grid gap-2">
-                <Label for="category">类型</Label>
-                <Popover v-model:open="unfoldCheckbox">
-                  <PopoverTrigger as-child>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      :aria-expanded="unfoldCheckbox"
-                      class="flex w-full justify-between"
-                    >
-                      <p>
-                        {{ checkedCategory ? checkedCategory : '选择类型' }}
-                      </p>
-                      <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent class="w-[200px] p-2">
-                    <Command>
-                      <CommandEmpty>请选择类型</CommandEmpty>
-                      <CommandList>
-                        <CommandGroup>
-                          <CommandItem
-                            v-for="pool in filteredCategoryList"
-                            :key="pool.id"
-                            :value="pool.id"
-                            @select="(ev: any) => {
-                              if (typeof ev.detail.value === 'number') {
-                                form.categoryId = ev.detail.value;
-                                checkedCategory = pool.category;
-                              }
-                              unfoldCheckbox = false;
-                            }"
-                          >
-                            {{ pool.category }}
-                            <Check
-                              v-if="form.categoryId === pool.id"
-                              class="ml-auto h-4 w-4"
-                            />
-                          </CommandItem>
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div class="grid gap-2">
-                <Label for="duration">显示时长（秒）</Label>
-                <Input
-                  id="duration"
-                  v-model="form.duration"
-                  type="number"
-                  max="90"
-                  min="0"
                   required
                 />
               </div>
@@ -115,7 +56,7 @@
                 </div>
               </div>
               <Progress v-if="isUploading" v-model="progress" />
-              <Button v-if="!isUploading" type="submit" class="w-full" @click="createContent">
+              <Button v-if="!isUploading" type="submit" class="w-full" @click="createLnfContent">
                 创建内容
               </Button>
               <Button v-if="isUploading" type="submit" class="w-full" disabled>
@@ -133,7 +74,7 @@
 <script setup lang="ts">
 import type { AxiosProgressEvent } from 'axios';
 import axios from 'axios';
-import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-vue-next';
+import { CalendarIcon, Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import {
   DateFormatter,
@@ -141,39 +82,22 @@ import {
   getLocalTimeZone,
   today,
 } from '@internationalized/date';
-import { computed, ref } from 'vue';
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { ref } from 'vue';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
-import { makeId } from '~/server/trpc/utils/shared';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { makeId } from '~/server/trpc/utils/shared';
 
 const { $api } = useNuxtApp();
-const userStore = useUserStore();
 
-const unfoldCheckbox = ref(false);
-const checkedCategory = ref('');
 const value = ref<DateValue>();
-if (userStore.role === 'admin') {
-  setPageLayout('default');
-} else if (userStore.role === 'club') {
-  setPageLayout('club');
-}
-definePageMeta({
-  layout: false,
-});
+
 // 定义df为日期格式化工具，将 Date 对象转换为特定格式的字符串
 // 参数含义：full  2024年1月1日星期一
 //          long  2024年1月1日
@@ -191,37 +115,30 @@ interface Form {
   S3FileId: string;
   expireDate: Date;
   categoryId: number;
+  fingerprint: string;
+  date: Date;
 };
 const form: Form = reactive({
   name: '',
-  ownerId: 0,
-  duration: 0,
+  ownerId: 0, // 与lnf用户关联的代码放在controller里了
+  duration: 90, // 指定一个统一的失物招领信息展示时间,暂为90s
   fileType: '',
   S3FileId: '',
   expireDate: new Date(),
   categoryId: 0,
+  fingerprint: '',
+  date: new Date(),
 });
 
-const allowed_types = new Set(['video', 'image']);
-const { data: categoryList } = useQuery({
-  queryKey: ['pool', 'list'],
-  queryFn: () => $api.pool.list.query(),
-});
-
-// 过滤内容类型，只显示用户有权限选择的内容类型
-const filteredCategoryList = computed(() => {
-  if (!categoryList.value)
-    return [];
-  return categoryList.value.filter(pool => pool.roleRequirement === 'club' || userStore.role === 'admin');
-});
+const allowed_types = new Set(['image']); // 一个 Set 集合,检查文件的主类型是否合法。
 
 const { mutate: createMutation } = useMutation({
-  mutationFn: $api.content.create.mutate,
+  mutationFn: $api.content.createLostnfound.mutate,
   onSuccess: () => toast.success('内容创建成功'),
   onError: err => useErrorHandler(err),
 });
 const { files, open: openFileDialog, reset, onChange } = useFileDialog({
-  accept: 'image/*,video/*',
+  accept: 'image/*',
   multiple: false,
   directory: false,
 });
@@ -232,48 +149,37 @@ onChange((filelist: FileList | null) => {
       form.fileType = fileType;
     } else {
       reset();
-      toast.error('只能上传图片或视频');
+      toast.error('只能上传图片');
     }
   }
 });
 
 const progress = ref(0);
 const isUploading = ref(false);
-async function createContent() {
-  if (!files.value) {
-    toast.error('未选择文件');
-    return;
-  }
-  if (form.duration > 90) {
-    toast.error('内容展示时长不能超过90秒');
-    return;
-  }
-  if (form.duration <= 0) {
-    toast.error('内容展示时长必须是正值');
+// 创建用户浏览器指纹
+async function makeFingerprint() {
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  return result.visitorId;
+}
+async function createLnfContent() {
+  if (!form.name) {
+    toast.error('未填写物品名');
     return;
   }
   if (!value.value) {
     toast.error('请选择截止日期');
     return;
   }
+  if (!files.value) {
+    toast.error('未选择文件');
+    return;
+  }
+  form.fingerprint = await makeFingerprint();
   form.expireDate = value.value.toDate(getLocalTimeZone());
-  if (userStore.userId) {
-    form.ownerId = userStore.userId;
-    form.S3FileId = `${makeId(20)}|user-${userStore.userId}|file-${files.value[0].name}`;
-  } else {
-    navigateTo('/login');
-    return;
-  }
-
-  // 校验选择的内容类型是否符合权限要求
-  const selectedCategory = categoryList.value?.find(pool => pool.id === form.categoryId);
-  if (selectedCategory && selectedCategory.roleRequirement !== 'club' && userStore.role !== 'admin') {
-    toast.error('您没有权限选择该类型的内容');
-    return;
-  }
-
+  form.S3FileId = `${makeId(20)}|file-${files.value[0].name}`;
   try {
-    const uploadURL = await $api.s3.getUploadURL.query({ s3FileId: form.S3FileId });
+    const uploadURL = await $api.s3.getLnfUploadURL.query({ s3FileId: form.S3FileId });
     const file = files.value[0];
     if (uploadURL) {
       isUploading.value = true;
@@ -287,6 +193,7 @@ async function createContent() {
       });
     }
   } catch (err: any) {
+    toast('上传失败');
     useErrorHandler(err);
     isUploading.value = false;
     return;

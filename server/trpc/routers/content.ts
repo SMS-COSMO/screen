@@ -12,6 +12,8 @@ const expireDateZod = z.date();
 const categoryIdZod = z.number();
 const stateEnumZod = z.enum(['created', 'approved', 'rejected', 'inuse', 'outdated'], { errorMap: () => ({ message: '审核状态错误' }) });
 const reviewNotesZod = z.string().optional();
+const LnFdurationZod = z.number();// 时长暂无限制
+const fingerprintZod = z.string();
 
 export const contentRouter = router({
   create: protectedProcedure
@@ -58,7 +60,14 @@ export const contentRouter = router({
   getInfo: publicProcedure
     .input(z.object({ id: idZod }))
     .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getInfo(input.id);
+      return await ctx.contentController.getContentById(input.id);
+    }),
+
+  // 保证兼容性, 本函数与上一个函数是一致的异名的
+  getContentById: publicProcedure
+    .input(z.object({ id: idZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.contentController.getContentById(input.id);
     }),
 
   updateInfo: publicProcedure
@@ -79,11 +88,24 @@ export const contentRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.contentController.getListByOwner(input.ownerId, ctx);
     }),
-  getContentById: protectedProcedure
-    .use(requireRoles(['admin', 'club']))
-    .input(z.object({ id: idZod, userId: idZod }))
-    .query(async ({ ctx, input }) => {
-      return await ctx.contentController.getContentById(input.id, input.userId);
+
+  createLostnfound: publicProcedure
+    .input(z.object({
+      name: nameZod,
+      ownerId: idZod,
+      duration: LnFdurationZod,
+      fileType: fileTypeZod,
+      S3FileId: S3FileIdZod,
+      expireDate: expireDateZod,
+      categoryId: categoryIdZod,
+      fingerprint: fingerprintZod,
+      date: z.date(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // 使用解构分离 fingerprint 和其他属性
+      const { fingerprint, date, ...contentInput } = input;
+      const uploadForm = { fingerprint, date };
+      return await ctx.contentController.createLostnfound(uploadForm, contentInput, ctx, fingerprint);
     }),
   updateContent: protectedProcedure
     .use(requireRoles(['admin', 'club']))
@@ -101,6 +123,7 @@ export const contentRouter = router({
         reviewNotes: reviewNotesZod,
         createdAt: z.date(),
       }),
+      accessToken: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
       // 转换 undefined 为 null, 解决报错
@@ -108,6 +131,10 @@ export const contentRouter = router({
         ...input.newContent,
         reviewNotes: input.newContent.reviewNotes ?? null,
       };
+<<<<<<< HEAD
       return await ctx.contentController.updateContentById(newContent, ctx);
+=======
+      return await ctx.contentController.updateContentById(newContent, input.accessToken);
+>>>>>>> 9917f8c2143fda5e1b1b4f192a6b8764c7e9d0f6
     }),
 });

@@ -544,6 +544,11 @@ const {
   mutationFn: $api.program.setSequence.mutate,
   onError: err => useErrorHandler(err),
 });
+onMounted(() => {
+  if (useUserStore().role === 'club') {
+    useRouter().push('/'); // 跳转到首页
+  }
+});
 function appendContent() {
   if (sequence.value === undefined)
     return;

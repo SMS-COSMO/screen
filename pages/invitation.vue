@@ -4,7 +4,9 @@
     <Card>
       <CardHeader class="flex flex-row gap-2">
         <div class="mr-auto">
-          <CardTitle class="text-2xl font-bold">邀请码管理</CardTitle>
+          <CardTitle class="text-2xl font-bold">
+            邀请码管理
+          </CardTitle>
         </div>
         <div class="flex ml-auto gap-4">
           <Select v-model="filter">
@@ -69,7 +71,7 @@
               </TableHead>
               <TableHead>
                 状态
-                <!--badge列-->
+                <!-- badge列 -->
               </TableHead>
               <TableHead>
                 创建日期
@@ -77,7 +79,7 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="invitation in fetchList":key="invitation.id" class="text-left">
+            <TableRow v-for="invitation in fetchList" :key="invitation.id" class="text-left">
               <TableCell class="text-gray-500">
                 {{ invitation.id }}
               </TableCell>
@@ -86,7 +88,7 @@
               </TableCell>
               <TableCell>
                 <Badge :variant="invitation.state ? 'c_created' : 'c_approved'">
-                  <!--此处没有专门的variant于是暂时选了颜色合适的-->
+                  <!-- 此处没有专门的variant于是暂时选了颜色合适的 -->
                   {{ invitation.state ? '已使用' : '未使用' }}
                 </Badge>
               </TableCell>
@@ -111,35 +113,40 @@ const number = ref<number>(0);
 const filter = ref('all');
 
 const queryClient = useQueryClient();
+onMounted(() => {
+  if (useUserStore().role === 'club') {
+    useRouter().push('/'); // 跳转到首页
+  }
+});
 
-type Invitation = { id: number; code: string; state: boolean; createdAt: Date }
-//定义获取邀请码的返回类型
+interface Invitation { id: number; code: string; state: boolean; createdAt: Date }
+// 定义获取邀请码的返回类型
 
-const generateCodes = async (count: number) => {
-  return await $api.invitationCode.generateBatchCode.query({batch: count});
-};
-//邀请码生成
+async function generateCodes(count: number) {
+  return await $api.invitationCode.generateBatchCode.query({ batch: count });
+}
+// 邀请码生成
 
 const { data: alllist, suspense: allSuspense } = useQuery({
   queryKey: ['invitation', 'all'],
-  queryFn: () => $api.invitationCode.listAll.query() as Promise<Invitation[]>
+  queryFn: () => $api.invitationCode.listAll.query() as Promise<Invitation[]>,
 });
 await allSuspense();
-//获取全部邀请码列表
+// 获取全部邀请码列表
 
 const { data: usedlist, suspense: usedSuspense } = useQuery({
   queryKey: ['invitation', 'used'],
-  queryFn: () => $api.invitationCode.listUsed.query() as Promise<Invitation[]>
+  queryFn: () => $api.invitationCode.listUsed.query() as Promise<Invitation[]>,
 });
 await usedSuspense();
-//获取已使用的邀请码列表
+// 获取已使用的邀请码列表
 
 const { data: sparelist, suspense: spareSuspense } = useQuery({
   queryKey: ['invitation', 'spare'],
-  queryFn: () => $api.invitationCode.listSpare.query() as Promise<Invitation[]>
+  queryFn: () => $api.invitationCode.listSpare.query() as Promise<Invitation[]>,
 });
 await spareSuspense();
-//获取未使用的邀请码列表
+// 获取未使用的邀请码列表
 
 const { mutate: addMutation, isPending } = useMutation({
   mutationFn: $api.invitationCode.addCodeBatch.mutate,
@@ -151,27 +158,25 @@ const { mutate: addMutation, isPending } = useMutation({
   },
   onError: err => useErrorHandler(err),
 });
-//邀请码添加
+// 邀请码添加
 
-const handleGenerate = async () => {
+async function handleGenerate() {
   try {
     const generatedCodes = await generateCodes(Number(number.value));
-    //储存生成的邀请码
+    // 储存生成的邀请码
     addMutation({ batch: generatedCodes });
-
   } catch (err) {
     useErrorHandler(err);
   }
-};
-//handleGenerate方法集成了后端的生成邀请码和添加邀请码操作
+}
+// handleGenerate方法集成了后端的生成邀请码和添加邀请码操作
 
 const fetchList = computed(() => {
   return {
     all: alllist.value || [],
     used: usedlist.value || [],
-    spare: sparelist.value || []
-  }[filter.value]
-})
-//返回响应式数据
-
+    spare: sparelist.value || [],
+  }[filter.value];
+});
+// 返回响应式数据
 </script>

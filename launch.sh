@@ -1,0 +1,11 @@
+echo "Installing dependencies..."
+pnpm config set registry https://registry.npmmirror.com
+pnpm i
+
+echo "Building..."
+pnpm build
+
+echo "Launching..."
+sudo systemctl start minio.service
+pm2 start ecosystem.config.cjs
+caddy run
