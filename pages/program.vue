@@ -213,7 +213,7 @@
                             </DialogHeader>
                             <div class="grid gap-4 py-4">
                               <div class="flex gap-1.5">
-                                <Checkbox v-model:checked="chooseRandomContent" />
+                                <Checkbox v-model="chooseRandomContent" />
                                 <Label class="text-left">
                                   使用随机内容
                                 </Label>
@@ -517,7 +517,7 @@ const { data: sequence } = useQuery({
   },
 });
 
-const chooseRandomContent = ref(false);
+const chooseRandomContent = ref<boolean | 'indeterminate'>(false);
 const unfoldCheckbox = ref(false);
 const checkedCategory = reactive({ id: -1, category: '' });
 const { data: categoryList } = useQuery({
