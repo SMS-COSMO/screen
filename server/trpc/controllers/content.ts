@@ -149,6 +149,12 @@ export class ContentController {
     return await this.fetchOwner(res, ctx);
   }
 
+  async getListByCategoryTemp(categoryId: number) {
+    return await db.query.contents.findMany({
+      where: eq(contents.categoryId, categoryId),
+    });
+  }
+
   async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string, ctx?: Context) {
     // 获取内容信息
     const content = await db.query.contents.findFirst({

@@ -12,7 +12,7 @@ const expireDateZod = z.date();
 const categoryIdZod = z.number();
 const stateEnumZod = z.enum(['created', 'approved', 'rejected', 'inuse', 'outdated'], { errorMap: () => ({ message: '审核状态错误' }) });
 const reviewNotesZod = z.string().optional();
-const LnFdurationZod = z.number();// 时长暂无限制
+const LnFDurationZod = z.number();// 时长暂无限制
 const fingerprintZod = z.string();
 
 export const contentRouter = router({
@@ -93,7 +93,7 @@ export const contentRouter = router({
     .input(z.object({
       name: nameZod,
       ownerId: idZod,
-      duration: LnFdurationZod,
+      duration: LnFDurationZod,
       fileType: fileTypeZod,
       S3FileId: S3FileIdZod,
       expireDate: expireDateZod,
@@ -131,10 +131,6 @@ export const contentRouter = router({
         ...input.newContent,
         reviewNotes: input.newContent.reviewNotes ?? null,
       };
-<<<<<<< HEAD
-      return await ctx.contentController.updateContentById(newContent, ctx);
-=======
       return await ctx.contentController.updateContentById(newContent, input.accessToken);
->>>>>>> 9917f8c2143fda5e1b1b4f192a6b8764c7e9d0f6
     }),
 });
