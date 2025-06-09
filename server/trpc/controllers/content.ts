@@ -149,7 +149,7 @@ export class ContentController {
     return await this.fetchOwner(res, ctx);
   }
 
-  async getListByCategoryTemp(categoryId: number) {
+  async getListByCategoryTemp(categoryId: number) { // 等待填坑
     return await db.query.contents.findMany({
       where: eq(contents.categoryId, categoryId),
     });

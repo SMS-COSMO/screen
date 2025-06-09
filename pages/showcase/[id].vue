@@ -15,8 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const { params } = useRoute();
 const { $api } = useNuxtApp();
 // 设置使用 showcase 布局
