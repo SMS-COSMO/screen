@@ -2,7 +2,7 @@
 <template>
   <div class="max-h-100% justify-center items-center">
     <ImageBox v-if="checkMediaType(props.filetype) === 'image'" :image-key="props.srcKey" :class="props.imageClass" />
-    <VideoBox v-else-if="checkMediaType(props.filetype) === 'video'" :video-key="props.srcKey" :class="props.videoClass" />
+    <VideoBox v-else-if="checkMediaType(props.filetype) === 'video'" :video-key="props.srcKey" :class="props.videoClass" :player-options="props.videoPlayerOptions" />
     <span v-else>未知文件类型, 无法预览</span>
   </div>
 </template>
@@ -18,10 +18,28 @@ const props = withDefaults(
     filetype: string;
     imageClass?: string;
     videoClass?: string;
+    videoPlayerOptions?: {
+      autoplay: boolean;
+      controls: boolean;
+      responsive: boolean;
+      preload: string;
+      notSupportedMessage: string;
+    };
   }>(),
   {
     imageClass: 'h-[71vh]',
+    // 在小屏下默认最大高度为50vh，大于768px时设置为600px
     videoClass: 'max-h-[50vh] md:max-h-[600px]',
+    // 定义视频播放器的配置项
+    videoPlayerOptions() {
+      return {
+        autoplay: true,
+        controls: true,
+        responsive: true,
+        preload: 'auto' as const,
+        notSupportedMessage: '此视频暂无法播放，请稍后再试',
+      };
+    },
   },
 );
 

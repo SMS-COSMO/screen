@@ -1,8 +1,9 @@
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import type { TNewDevice } from '../../db/db';
+import type { TNewDevice, TRawContent } from '../../db/db';
 import { db } from '../../db/db';
 import { devices } from '../../db/schema';
+import type { Context } from '../context';
 
 export class DeviceController {
   async create(newDevice: TNewDevice) {
@@ -44,5 +45,27 @@ export class DeviceController {
   async getList() {
     const res = await db.query.devices.findMany();
     return res;
+  }
+
+  async getContentsByDevice(id: number, ctx: Context) {
+    // 在和 (TRawContent & { owner: string })[] 这个 getListByCategory() 返回的数据类型斗智斗勇的过程中我破防了
+    // 于是写了一个返回值不带 owner 的 getListByCategoryTemp()，如果有同学能修这个 bug 非常感谢。
+
+    const device = await this.getInfo(id);
+    const contentList: (TRawContent)[] = [];
+    device.program?.sequence.forEach(async (item) => {
+      if (item.type === 'pool') {
+        const contents = await ctx.contentController.getListByCategoryTemp(item.id);
+        const randomKey = Math.floor(Math.random() * contents.length);
+        contents.forEach((content) => {
+          if (contents.indexOf(content) === randomKey)
+            contentList.push(content); // push a random content into contentList
+        });
+      } else if (item.type === 'content') {
+        const content = await ctx.contentController.getContentById(item.id);
+        contentList.push(content);
+      }
+    });
+    return contentList;
   }
 }

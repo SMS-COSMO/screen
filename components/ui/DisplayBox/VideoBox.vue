@@ -1,13 +1,13 @@
 <!-- 视频播放器 -->
 <!-- 注: VideoPlayer有内部样式, 需要样式覆盖才能够修改大小 -->
 <template>
-  <!-- 在小屏下默认最大高度为50vh，大于768px时设置为600px，同时设置宽度自适应、居中和16:9 横纵比 -->
+  <!-- 设置宽度自适应、居中和16:9 横纵比 -->
   <div :class="cn('w-full mx-auto aspect-[16/9]', props.class)">
     <!-- video-player 组件设置为充满容器 -->
     <VideoPlayer
       class="w-full h-full"
       :src="typeof url === 'string' ? url : undefined"
-      :options="playerOptions"
+      :options="props.playerOptions"
     />
   </div>
 </template>
@@ -22,6 +22,7 @@ import 'video.js/dist/video-js.css';
 const props = defineProps<{
   videoKey: string;
   class?: HTMLAttributes['class'];
+  playerOptions: object;
 }>();
 const { $api } = useNuxtApp();
 
@@ -33,11 +34,4 @@ const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
 // const data = fetch(url).then(res => res.json()).then(data => console.log('data=', data));
 // axios.get(url).then(res => console.log('res=', res));
 // 定义视频播放器的配置项
-const playerOptions = {
-  autoplay: true,
-  controls: true,
-  responsive: true,
-  preload: 'auto' as const,
-  notSupportedMessage: '此视频暂无法播放，请稍后再试',
-};
 </script>

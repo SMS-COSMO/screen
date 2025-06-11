@@ -20,6 +20,15 @@ export class ContentController {
     return named_res;
   }
 
+  // 获取所有管理员用户ID
+  private async getAdminUserIds(): Promise<number[]> {
+    const adminUsers = await db.query.users.findMany({
+      where: eq(users.role, 'admin'),
+      columns: { id: true },
+    });
+    return adminUsers.map(user => user.id);
+  }
+
   async create(newContent: TNewContent, ctx: Context) {
     // 获取当前用户的权限信息
     const currentUser = await ctx.userController.getList();
@@ -36,6 +45,25 @@ export class ContentController {
 
     // 插入新内容到数据库
     await db.insert(contents).values(newContent);
+
+    // 发送通知给所有管理员
+    try {
+      const adminIds = await this.getAdminUserIds();
+      const userInfo = await ctx.userController.getProfile(newContent.ownerId);
+
+      for (const adminId of adminIds) {
+        await ctx.notificationController.createNotification(
+          newContent.ownerId, // 发送者是内容创建者
+          adminId, // 接收者是管理员
+          '新内容待审核',
+          `用户 ${userInfo.username} 提交了新内容"${newContent.name}"，请及时审核。`,
+        );
+      }
+    } catch (error) {
+      // 通知发送失败不影响内容创建
+      console.error('发送通知失败:', error);
+    }
+
     return '内容创建成功';
   }
 
@@ -44,10 +72,36 @@ export class ContentController {
     return '内容删除成功';
   }
 
-  async edit(id: number, new_name: string) {
+  async edit(id: number, new_name: string, ctx?: Context) {
+    // 获取内容信息用于通知
+    const content = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+
     await db.update(contents)
       .set({ name: new_name })
       .where(eq(contents.id, id));
+
+    // 发送通知给所有管理员
+    if (ctx && content) {
+      try {
+        const adminIds = await this.getAdminUserIds();
+        const userInfo = await ctx.userController.getProfile(content.ownerId);
+
+        for (const adminId of adminIds) {
+          await ctx.notificationController.createNotification(
+            content.ownerId, // 发送者是内容修改者
+            adminId, // 接收者是管理员
+            '内容已修改',
+            `用户 ${userInfo.username} 修改了内容"${new_name}"，请重新审核。`,
+          );
+        }
+      } catch (error) {
+        // 通知发送失败不影响内容修改
+        console.error('发送修改通知失败:', error);
+      }
+    }
+
     return '内容名修改成功';
   }
 
@@ -95,10 +149,55 @@ export class ContentController {
     return await this.fetchOwner(res, ctx);
   }
 
-  async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string) {
+  async getListByCategoryTemp(categoryId: number) { // 等待填坑
+    return await db.query.contents.findMany({
+      where: eq(contents.categoryId, categoryId),
+    });
+  }
+
+  async updateReviewStatus(id: number, state: ContentState, reviewNotes?: string, ctx?: Context) {
+    // 获取内容信息
+    const content = await db.query.contents.findFirst({
+      where: eq(contents.id, id),
+    });
+
+    if (!content) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: '内容不存在' });
+    }
+
+    // 更新审核状态
     await db.update(contents)
       .set({ state, reviewNotes: reviewNotes ?? null })
       .where(eq(contents.id, id));
+
+    // 发送通知给内容所有者
+    if (ctx && ctx.user) {
+      try {
+        let notificationTitle = '';
+        let notificationContent = '';
+
+        if (state === 'approved') {
+          notificationTitle = '内容审核通过';
+          notificationContent = `您的内容"${content.name}"已通过审核，现在可以正常使用了。`;
+        } else if (state === 'rejected') {
+          notificationTitle = '内容审核未通过';
+          notificationContent = `您的内容"${content.name}"审核未通过。${reviewNotes ? `原因：${reviewNotes}` : '请联系管理员了解详情。'}`;
+        }
+
+        if (notificationTitle && notificationContent) {
+          await ctx.notificationController.createNotification(
+            ctx.user.id, // 发送者是当前管理员
+            content.ownerId, // 接收者是内容所有者
+            notificationTitle,
+            notificationContent,
+          );
+        }
+      } catch (error) {
+        // 通知发送失败不影响审核状态更新
+        console.error('发送审核通知失败:', error);
+      }
+    }
+
     return '内容审核状态修改成功';
   }
 
@@ -137,6 +236,24 @@ export class ContentController {
     newContent.categoryId = categoryInfo.id;
     newContent.ownerId = userInfo.id;
     await db.insert(contents).values(newContent);
+
+    // 发送通知给所有管理员
+    try {
+      const adminIds = await this.getAdminUserIds();
+
+      for (const adminId of adminIds) {
+        await ctx.notificationController.createNotification(
+          newContent.ownerId, // 发送者是内容创建者
+          adminId, // 接收者是管理员
+          '新失物招领内容待审核',
+          `用户提交了新的失物招领内容"${newContent.name}"，请及时审核。`,
+        );
+      }
+    } catch (error) {
+      // 通知发送失败不影响内容创建
+      console.error('发送失物招领通知失败:', error);
+    }
+
     return '创建成功';
   }
 
@@ -152,7 +269,7 @@ export class ContentController {
   }
 
   // 同样进行用户检验
-  async updateContentById(newContent: TRawContent, accessToken: string) {
+  async updateContentById(newContent: TRawContent, accessToken: string, ctx?: Context) {
     const content = await db.query.contents.findFirst({
       where: eq(contents.id, newContent.id),
     });
@@ -164,6 +281,27 @@ export class ContentController {
     await db.update(contents)
       .set(newContent)
       .where(eq(contents.id, newContent.id));
+
+    // 发送通知给所有管理员
+    if (ctx) {
+      try {
+        const adminIds = await this.getAdminUserIds();
+        const userInfo = await ctx.userController.getProfile(newContent.ownerId);
+
+        for (const adminId of adminIds) {
+          await ctx.notificationController.createNotification(
+            newContent.ownerId, // 发送者是内容修改者
+            adminId, // 接收者是管理员
+            '内容已修改',
+            `用户 ${userInfo.username} 修改了内容"${newContent.name}"，请重新审核。`,
+          );
+        }
+      } catch (error) {
+        // 通知发送失败不影响内容更新
+        console.error('发送修改通知失败:', error);
+      }
+    }
+
     return '内容更新成功';
   }
 }

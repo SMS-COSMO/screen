@@ -12,7 +12,7 @@ const expireDateZod = z.date();
 const categoryIdZod = z.number();
 const stateEnumZod = z.enum(['created', 'approved', 'rejected', 'inuse', 'outdated'], { errorMap: () => ({ message: '审核状态错误' }) });
 const reviewNotesZod = z.string().optional();
-const LnFdurationZod = z.number();// 时长暂无限制
+const LnFDurationZod = z.number();// 时长暂无限制
 const fingerprintZod = z.string();
 
 export const contentRouter = router({
@@ -80,7 +80,7 @@ export const contentRouter = router({
     .use(requireRoles(['admin']))
     .input(z.object({ id: idZod, state: stateEnumZod, reviewNotes: reviewNotesZod }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes);
+      return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes, ctx);
     }),
 
   getListByOwner: protectedProcedure
@@ -93,7 +93,7 @@ export const contentRouter = router({
     .input(z.object({
       name: nameZod,
       ownerId: idZod,
-      duration: LnFdurationZod,
+      duration: LnFDurationZod,
       fileType: fileTypeZod,
       S3FileId: S3FileIdZod,
       expireDate: expireDateZod,
