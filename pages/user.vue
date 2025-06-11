@@ -119,7 +119,7 @@ const store = useUserStore();
 const queryClient = useQueryClient();
 
 const modifyChoice = ref('');
-
+const userStore = useUserStore();
 const Info = reactive({
   id: store.userId ?? 0,
   username: store.username ?? '',
@@ -153,6 +153,15 @@ const { mutate: modifyPasswordMutation, isPending: isPasswordPending } = useMuta
     useErrorHandler(err);
     clearPasswordCache();
   },
+});
+
+if (userStore.role === 'admin') {
+  setPageLayout('default');
+} else if (userStore.role === 'club') {
+  setPageLayout('club');
+}
+definePageMeta({
+  layout: false,
 });
 
 function toggle_confirm() {
