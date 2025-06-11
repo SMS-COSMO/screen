@@ -13,7 +13,40 @@
     <TabsContent value="content">
       <Card>
         <CardHeader>
-          <CardTitle>内容管理</CardTitle>
+          <CardTitle class="flex"> 
+            <div>
+              内容管理
+            </div>
+            <div class="ml-auto">
+              <Select v-model="filter">
+                <SelectTrigger class="w-[200px]">
+                  <SelectValue placeholder="按类别筛选" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">
+                      全部
+                    </SelectItem>
+                    <SelectItem value="created">
+                      初创建
+                    </SelectItem>
+                    <SelectItem value="approved">
+                      已通过
+                    </SelectItem>
+                    <SelectItem value="rejected">
+                      已拒绝
+                    </SelectItem>
+                    <SelectItem value="inuse">
+                      展示中
+                    </SelectItem>
+                    <SelectItem value="outdated">
+                      已过期
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardTitle>
         </CardHeader>
         <CardContent class="space-y-2">
           <Table>
@@ -40,161 +73,181 @@
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-for="content in contentList" :key="content.id">
-                <TableCell>
-                  {{ content.id }}
-                </TableCell>
-                <TableCell>
-                  <div class="flex">
-                    <p class="w-48 truncate">
-                      {{ content.name }}
-                    </p>
+              <template v-for="content in contentList">
+                <!-- 此处只显示匹配过滤器的内容，filter由复选框动态设定 -->
+                <TableRow v-if="filtState(content.state, filter)" :key="content.id" >
+                  <TableCell>
+                    {{ content.id }}
+                  </TableCell>
+                  <TableCell>
+                    <div class="flex">
+                      <p class="w-48 truncate">
+                        {{ content.name }}
+                      </p>
+                      <Dialog>
+                        <DialogTrigger as-child>
+                          <!-- 徽章样式剪切板 -->
+                          <Pencil
+                            class="opacity-35 flex-initial w-5 text-right
+                            "
+                            :size="12"
+                          />
+                        </DialogTrigger>
+                        <DialogContent class="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>请输入新的内容名</DialogTitle>
+                          </DialogHeader>
+                          <div class="grid gap-4 py-4">
+                            <div class="grid grid-cols-4 items-center gap-4">
+                              <Label for="c-name" class="text-right">
+                                内容名称
+                              </Label>
+                              <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
+                            </div>
+                          </div>
+                          <DialogClose>
+                            <Button
+                              v-if="!isPendingContentEdit"
+                              type="submit"
+                              @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
+                            >
+                              确认修改
+                            </Button>
+                            <Button v-if="isPendingContentEdit" type="submit" disabled>
+                              <Loader2 v-if="isPendingContentEdit" class="w-4 h-4 mr-2 animate-spin" />
+                              请稍候……
+                            </Button>
+                          </DialogClose>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog>
+                        <DialogTrigger as-child>
+                          <Trash2
+                            class="opacity-35 flex-initial w-5 text-right"
+                            :size="12"/>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>确认删除内容？</DialogTitle>
+                          </DialogHeader>
+                          <DialogClose>
+                            <div class="flex gap-7 justify-center">
+                              <Button type="confirm" @click="deleteContentMutation( content.id )">
+                                确认删除
+                              </Button>
+                              <Button variant="outline">
+                                取消操作
+                              </Button>
+                            </div>
+                          </DialogClose>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {{ content.owner }}
+                  </TableCell>
+                  <TableCell>
+                    {{ content.createdAt.toLocaleDateString() }}
+                  </TableCell>
+                  <TableCell>
                     <Dialog>
                       <DialogTrigger as-child>
-                        <!-- 徽章样式剪切板 -->
-                        <Pencil
-                          class="opacity-35 flex-initial w-5 text-right
-                          "
-                          :size="12"
-                        />
+                        <Button variant="outline">
+                          查看
+                        </Button>
                       </DialogTrigger>
-                      <DialogContent class="sm:max-w-[425px]">
+                      <DialogContent class="sm:max-w-[94vw] sm:max-h-[90vh]">
                         <DialogHeader>
-                          <DialogTitle>请输入新的内容名</DialogTitle>
+                          <DialogTitle>源文件预览</DialogTitle>
                         </DialogHeader>
-                        <div class="grid gap-4 py-4">
-                          <div class="grid grid-cols-4 items-center gap-4">
-                            <Label for="c-name" class="text-right">
-                              内容名称
-                            </Label>
-                            <Input id="c-name" v-model="edit_new_content_name" class="col-span-3" />
-                          </div>
+                        <div>
+                          <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType" />
                         </div>
                         <DialogClose>
-                          <Button
-                            v-if="!isPendingContentEdit"
-                            type="submit"
-                            @click="editContentNameMutation({ id: content.id, new_name: edit_new_content_name })"
-                          >
-                            确认修改
-                          </Button>
-                          <Button v-if="isPendingContentEdit" type="submit" disabled>
-                            <Loader2 v-if="isPendingContentEdit" class="w-4 h-4 mr-2 animate-spin" />
-                            请稍候……
+                          <Button type="submit">
+                            返回
                           </Button>
                         </DialogClose>
                       </DialogContent>
                     </Dialog>
-                    <Trash2
-                      class="opacity-35 flex-initial w-5 text-right"
-                      :size="12"
-                      @click="deleteContentMutation({ id: content.id })"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {{ content.owner }}
-                </TableCell>
-                <TableCell>
-                  {{ content.createdAt.toLocaleDateString() }}
-                </TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger as-child>
-                      <Button variant="outline">
-                        查看
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent class="sm:max-w-[94vw] sm:max-h-[90vh]">
-                      <DialogHeader>
-                        <DialogTitle>源文件预览</DialogTitle>
-                      </DialogHeader>
-                      <div>
-                        <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType" />
-                      </div>
-                      <DialogClose>
-                        <Button type="submit">
-                          返回
-                        </Button>
-                      </DialogClose>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-                <TableCell class="flex justify-left mt-2">
-                  <Badge :variant="TransState(content.state).color">
-                    {{ TransState(content.state).text }}
-                    <!-- { `bg-[${TransState(content.state).color}]` }}{ -->
-                  </Badge>
-                  <Dialog>
-                    <DialogTrigger as-child>
-                      <!-- 现在是审核按钮 -->
-                      <BookmarkCheck
-                        class="opacity-35 flex-initial w-5 text-right mt-1"
-                        :size="16"
-                        @click="() => {
-                          isPassExa = content.state === 'approved' ? true : false
-                          exa_idea = content.reviewNotes === null ? '' : content.reviewNotes
-                        }"
-                      />
-                    </DialogTrigger>
-                    <DialogContent class="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>审核意见</DialogTitle>
-                      </DialogHeader>
-                      <div class="grid gap-4 py-4">
-                        <!-- 布局父盒子 -->
-                        <div class="flex flex-col gap-2 py-2">
-                          <div class="w-[100%] flex gap-2 py-[0.5px]">
-                            <!-- 更新事件的方法失效, 改用ref -->
-                            <Checkbox
-                              ref="CheckBox"
-                              class="col-span-1 row-span-1 ml-[2vw] py--[0.5px] mt-2"
-                              :model-value="isPassExa"
-                              @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
-                            />
-                            <Label for="c-name" class="text-center col-span-2 row-span-1 py-2">
-                              是否过审
-                            </Label>
-                          </div>
-                          <div v-show="!isPassExa" class="flex flex-col gap-4">
-                            <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 py-2">
-                              修改意见
-                            </Label>
-                            <Textarea v-model="exa_idea" />
+                  </TableCell>
+                  <TableCell class="flex justify-left mt-2">
+                    <Badge :variant="TransState(content.state).color">
+                      {{ TransState(content.state).text }}
+                      <!-- { `bg-[${TransState(content.state).color}]` }}{ -->
+                    </Badge>
+                    <Dialog>
+                      <DialogTrigger as-child>
+                        <!-- 现在是审核按钮 -->
+                        <BookmarkCheck
+                          class="opacity-35 flex-initial w-5 text-right mt-1"
+                          :size="16"
+                          @click="() => {
+                            isPassExa = content.state === 'approved' ? true : false
+                            exa_idea = content.reviewNotes === null ? '' : content.reviewNotes
+                          }"
+                        />
+                      </DialogTrigger>
+                      <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>审核意见</DialogTitle>
+                        </DialogHeader>
+                        <div class="grid gap-4 py-4">
+                          <!-- 布局父盒子 -->
+                          <div class="flex flex-col gap-2 py-2">
+                            <div class="w-[100%] flex gap-2 py-[0.5px]">
+                              <!-- 更新事件的方法失效, 改用ref -->
+                              <Checkbox
+                                ref="CheckBox"
+                                class="col-span-1 row-span-1 ml-[2vw] py--[0.5px] mt-2"
+                                :model-value="isPassExa"
+                                @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
+                              />
+                              <Label for="c-name" class="text-center col-span-2 row-span-1 py-2">
+                                是否过审
+                              </Label>
+                            </div>
+                            <div v-show="!isPassExa" class="flex flex-col gap-4">
+                              <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 py-2">
+                                修改意见
+                              </Label>
+                              <Textarea v-model="exa_idea" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <DialogClose>
-                        <Button
-                          v-if="!isPending_Exa"
-                          type="submit"
-                          @click="() => {
-                            content.fileType
-                            editExaStateMutation({
-                              id: content.id,
-                              state: isPassExa ? 'approved' : 'rejected',
-                              // 很奇怪, 这里判断应该为null而不应为undefined, 是否为后端问题?
-                              reviewNotes: isPassExa ? undefined : exa_idea,
-                            })
-                          }"
-                        >
-                          确认
-                        </Button>
-                        <Button v-if="isPending_Exa" type="submit" disabled>
-                          <Loader2 v-if="isPending_Exa" class="w-4 h-4 mr-2 animate-spin" />
-                          请稍候……
-                        </Button>
-                        <Button
-                          type="submit"
-                          class="ml-6 bg-slate-50"
-                        >
-                          取消
-                        </Button>
-                      </DialogClose>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
+                        <DialogClose>
+                          <Button
+                            v-if="!isPending_Exa"
+                            type="submit"
+                            @click="() => {
+                              content.fileType
+                              editExaStateMutation({
+                                id: content.id,
+                                state: isPassExa ? 'approved' : 'rejected',
+                                // 很奇怪, 这里判断应该为null而不应为undefined, 是否为后端问题?
+                                reviewNotes: isPassExa ? undefined : exa_idea,
+                              })
+                            }"
+                          >
+                            确认
+                          </Button>
+                          <Button v-if="isPending_Exa" type="submit" disabled>
+                            <Loader2 v-if="isPending_Exa" class="w-4 h-4 mr-2 animate-spin" />
+                            请稍候……
+                          </Button>
+                          <Button
+                            type="submit"
+                            class="ml-6 bg-slate-50"
+                          >
+                            取消
+                          </Button>
+                        </DialogClose>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              </template>
             </TableBody>
           </Table>
         </CardContent>
@@ -415,6 +468,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 // 以下为前朝遗物
 const { $api } = useNuxtApp();
+const filter = ref('all');
 
 onMounted(() => {
   if (useUserStore().role === 'club') {
@@ -461,14 +515,23 @@ const { mutate: editPoolMutation, isPending: isPendingPoolEdit } = useMutation({
 });
 
 const edit_new_content_name = ref('');
+
 const { mutate: deleteContentMutation } = useMutation({
-  mutationFn: $api.content.delete.mutate,
+  mutationFn: async (contentId: number) => {
+    const fetchId = await $api.content.getInfo.query({ id: contentId });
+    if (!fetchId.S3FileId) {
+      throw new Error('该内容已被删除');
+    }
+    await $api.s3.deleteFile.mutate({ s3FileId: fetchId.S3FileId });
+    return $api.content.delete.mutate({ id: contentId });
+  },
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
     toast.success('内容删除成功');
   },
   onError: err => useErrorHandler(err),
 });
+
 const { mutate: editContentNameMutation, isPending: isPendingContentEdit } = useMutation({
   mutationFn: $api.content.edit.mutate,
   onSuccess: () => {
@@ -503,6 +566,14 @@ function TransState(state: string): { text: string; color:
     default:
       return { text: '未知状态', color: 'destructive' }; // 组件原生红色
   }
+}
+
+// filtState方法返回两个传入state参数是否一致
+function filtState(state: string, target: string): boolean {
+  if (target === "all")
+    return true;
+  else
+    return state === target;
 }
 
 // 以下为审核意见功能块
