@@ -71,6 +71,11 @@
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 
+definePageMeta({
+  layout: false,
+  middleware: 'dynamic-layout',
+});
+
 const { $api } = useNuxtApp();
 const filter = ref('all');
 const queryCilent = useQueryClient();

@@ -164,6 +164,11 @@ import { cn } from '@/lib/utils';
 const { $api } = useNuxtApp();
 const userStore = useUserStore();
 
+definePageMeta({
+  layout: false,
+  middleware: 'dynamic-layout',
+});
+
 const uId = useUserStore().userId; // userId 存储在 store 中
 if (!uId) {
   toast.error('用户ID未找到');

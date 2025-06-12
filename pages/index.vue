@@ -62,13 +62,14 @@ import { Bell, BellRing } from 'lucide-vue-next';
 const { $api } = useNuxtApp();
 
 const userStore = useUserStore();
-if (userStore.role === 'admin') {
-  setPageLayout('default');
-} else if (userStore.role === 'club') {
-  setPageLayout('club');
-}
+// if (userStore.role === 'admin') {
+//   setPageLayout('default');
+// } else if (userStore.role === 'club') {
+//   setPageLayout('club');
+// }
 definePageMeta({
   layout: false,
+  middleware: 'dynamic-layout',
 });
 
 const { data: allList, suspense: allSuspense } = useQuery({
