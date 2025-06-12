@@ -79,7 +79,7 @@ definePageMeta({
 const { $api } = useNuxtApp();
 const filter = ref('all');
 const queryCilent = useQueryClient();
-
+const userStore = useUserStore();
 const { mutate: markMutation, isPending: markIsPending } = useMutation({
   mutationFn: $api.notification.markRead.mutate,
   onSuccess: () => {
@@ -114,5 +114,13 @@ const fetchList = computed(() => {
     all: allList.value || [],
     unread: unreadList.value || [],
   }[filter.value];
+});
+if (userStore.role === 'admin') {
+  setPageLayout('default');
+} else if (userStore.role === 'club') {
+  setPageLayout('club');
+}
+definePageMeta({
+  layout: false,
 });
 </script>
