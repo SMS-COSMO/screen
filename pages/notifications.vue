@@ -92,10 +92,15 @@ import { ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewpor
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 
+definePageMeta({
+  layout: false,
+  middleware: 'dynamic-layout',
+});
+
 const { $api } = useNuxtApp();
 const filter = ref('all');
 const queryCilent = useQueryClient();
-
+const userStore = useUserStore();
 const { mutate: markMutation, isPending: markIsPending } = useMutation({
   mutationFn: $api.notification.markRead.mutate,
   onSuccess: () => {
@@ -131,7 +136,12 @@ const fetchList = computed(() => {
     unread: unreadList.value || [],
   }[filter.value];
 });
-// const tags = Array.from({ length: 50 }).map(
-//   (_, i, a) => `v1.2.0-beta.${a.length - i}`,
-// );
+if (userStore.role === 'admin') {
+  setPageLayout('default');
+} else if (userStore.role === 'club') {
+  setPageLayout('club');
+}
+definePageMeta({
+  layout: false,
+});
 </script>
