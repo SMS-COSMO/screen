@@ -1,5 +1,4 @@
 echo "Installing dependencies..."
-pnpm config set registry https://registry.npmmirror.com
 pnpm i
 
 echo "Building..."
