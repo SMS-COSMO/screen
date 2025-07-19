@@ -1,4 +1,4 @@
-# This script installs pnpm, node, pm2, MinIO and MinIO Client.
+# This script installs pm2, MinIO and MinIO Client.
 # IMPORTANT: You'll have to add MinIO Client to PATH manually.
 
 echo "Installing pnpm & Node.js..."
