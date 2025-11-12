@@ -8,6 +8,7 @@
       class="w-full h-full"
       :src="typeof url === 'string' ? url : undefined"
       :options="props.playerOptions"
+      @mounted="onPlayerReady"
     />
   </div>
 </template>
@@ -22,6 +23,7 @@ import 'video.js/dist/video-js.css';
 const props = defineProps<{
   videoKey: string;
   class?: HTMLAttributes['class'];
+  // 获取视频播放器的配置项
   playerOptions: object;
 }>();
 const { $api } = useNuxtApp();
@@ -33,5 +35,18 @@ const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
 // console.log('url=', url);
 // const data = fetch(url).then(res => res.json()).then(data => console.log('data=', data));
 // axios.get(url).then(res => console.log('res=', res));
-// 定义视频播放器的配置项
+
+// const playerInstance = ref(null);
+const emit = defineEmits(['updateInstance']);
+// 获取 player 实例并通过 updateInstance 事件传输至父组件
+const onPlayerReady = (player: any) => {
+  // playerInstance.value = player;
+  console.log("player ready:", player);
+  emit('updateInstance', markRaw(player)); // 使用了 markRaw 函数来避免 Proxy
+}
+/*
+  注：这里函数被传入的 player 实例的类型是
+  { player: Player2, state: Proxy({ playing: false, ... }), video: video#vjs_video_xxxx_html5_api.vjs-tech }
+  state 属性的 Proxy 是必要的, 因为这保证了响应式.
+*/
 </script>

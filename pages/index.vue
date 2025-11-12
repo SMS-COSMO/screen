@@ -15,9 +15,6 @@
         <div v-else class="text-2xl font-bold text-red-500">
           获取失败
         </div>
-        <p class="text-xs text-muted-foreground">
-          +20.1% from last month (???)
-        </p>
       </CardContent>
     </Card>
     <Card>
@@ -34,9 +31,6 @@
         <div v-else class="text-2xl font-bold text-red-500">
           获取失败
         </div>
-        <p class="text-xs text-muted-foreground">
-          +180.1% from last month (这个更是重量级)
-        </p>
       </CardContent>
     </Card>
   </div>

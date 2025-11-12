@@ -2,7 +2,7 @@
 <template>
   <div class="max-h-100% justify-center items-center">
     <ImageBox v-if="checkMediaType(props.filetype) === 'image'" :image-key="props.srcKey" :class="props.imageClass" />
-    <VideoBox v-else-if="checkMediaType(props.filetype) === 'video'" :video-key="props.srcKey" :class="props.videoClass" :player-options="props.videoPlayerOptions" />
+    <VideoBox v-else-if="checkMediaType(props.filetype) === 'video'" :video-key="props.srcKey" :class="props.videoClass" :player-options="props.videoPlayerOptions" @update-instance="onPlayerReady" />
     <span v-else>未知文件类型, 无法预览</span>
   </div>
 </template>
@@ -59,6 +59,13 @@ function checkMediaType(fileType: string) {
 //   console.log('props.srcKey', props.srcKey);
 //   console.log('checkMediaType', checkMediaType(props.srcKey));
 // })
+
+const emit = defineEmits(['updateInstance']);
+// 获取实例并通过 updateInstance 事件传输至父组件
+const onPlayerReady = (playerInstance: any) => {
+  console.log("player instance received:", playerInstance);
+  emit('updateInstance', playerInstance);
+}
 </script>
 
 <style scoped>
