@@ -135,6 +135,7 @@
                       <Pencil
                         class="opacity-35 flex-initial w-5 text-right"
                         :size="12"
+                        @click="edit_new_name = program.name"
                       />
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">
@@ -167,11 +168,41 @@
                       </DialogClose>
                     </DialogContent>
                   </Dialog>
-                  <Trash2
-                    class="opacity-35 flex-initial w-5 text-right"
-                    :size="12"
-                    @click="deleteMutation({ id: program.id })"
-                  />
+                  <!-- 刚刚不小心误删了一个节目，特此添加确认弹窗 -->
+                  <Dialog>
+                    <DialogTrigger as-child>
+                    <Trash2
+                      class="opacity-35 flex-initial w-5 text-right"
+                      :size="12"
+                    />
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>删除节目</DialogTitle>
+                        <DialogDescription>
+                          此操作是不可逆的，请再次确认
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div class="grid text-center items-center h-12">
+                        <Label class="font-bold">
+                          节目 "{{ program.name }}" 将被永久删除
+                        </Label>
+                      </div>
+                      <DialogClose>
+                        <Button
+                          v-if="!isPending"
+                          type="submit"
+                          @click="deleteMutation({ id: program.id })"
+                        >
+                          确认删除
+                        </Button>
+                        <Button v-if="isPending" type="submit" disabled>
+                          <Loader2 v-if="isPending" class="w-4 h-4 mr-2 animate-spin" />
+                          请稍候……
+                        </Button>
+                      </DialogClose>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </TableCell>
               <TableCell>{{ program.createdAt.toLocaleDateString() }}</TableCell>
@@ -310,7 +341,7 @@
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead class="w-8">
+                              <TableHead class="w-16">
                                 随机选取内容/单个内容
                               </TableHead>
                               <TableHead class="text-left">
