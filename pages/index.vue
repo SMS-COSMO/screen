@@ -35,7 +35,7 @@
     </Card>
   </div>
   <div class="grid md:grid-cols-1 gap-4 md:gap-8 lg:grid-cols-1">
-    <Card v-for="message in unreadList?.slice(0, 10)" :key="message.id" class="justify-center items-center grid-cols-2">
+    <Card v-for="message in unreadList?.slice(0, 5)" :key="message.id" class="justify-center items-center grid-cols-2">
       <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle class="text-sm font-medium">
           {{ message.createdAt.toLocaleString() }}

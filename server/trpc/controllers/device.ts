@@ -68,4 +68,20 @@ export class DeviceController {
     });
     return contentList;
   }
+  
+  async getContentsByDevice_(id: number, ctx: Context) {
+    // 魔改自上面的函数，但这次如果遇到 pool 会将整个 pool 里的内容的数组作为一个内容返回
+    const device = await this.getInfo(id);
+    const contentList: (TRawContent | TRawContent[])[] = [];
+    device.program?.sequence.forEach(async (item) => {
+      if (item.type === 'pool') {
+        const contents = await ctx.contentController.getListByCategoryTemp(item.id);
+        contentList.push(contents);
+      } else if (item.type === 'content') {
+        const content = await ctx.contentController.getContentById(item.id);
+        contentList.push(content);
+      }
+    });
+    return contentList;
+  }
 }

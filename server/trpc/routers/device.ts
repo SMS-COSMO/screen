@@ -52,4 +52,10 @@ export const deviceRouter = router({
     .query(async ({ ctx, input }) => {
       return await ctx.deviceController.getContentsByDevice(input.id, ctx);
     }),
+
+  contents_: publicProcedure
+    .input(z.object({ id: deviceIdZod }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.deviceController.getContentsByDevice_(input.id, ctx);
+    }),
 });
