@@ -6,7 +6,7 @@ export function useIsTRPCClientError(cause: unknown): cause is TRPCClientError<A
   return cause instanceof TRPCClientError;
 }
 
-export async function useErrorHandler(err: unknown): Promise<void> {
+export async function useErrorHandler(err: unknown, redirect?: string): Promise<void> {
   if (useIsTRPCClientError(err)) {
     if (err.data?.zodError) {
       for (const issue of err.data.zodError)
@@ -14,7 +14,9 @@ export async function useErrorHandler(err: unknown): Promise<void> {
     } else {
       toast.error(err.message);
       if (err.message === '用户未登录')
-        onNuxtReady(() => navigateTo('/login'));
+        if (redirect !== null && redirect !== undefined)
+          onNuxtReady(() => navigateTo(`/login?redirect=${redirect}`));
+        else onNuxtReady(() => navigateTo('/login'));
     }
   } else {
     // console.log(err);

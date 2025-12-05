@@ -16,20 +16,11 @@
             <div class="grid gap-4">
               <div class="grid gap-2">
                 <Label for="email">用户名</Label>
-                <Input
-                  id="username"
-                  v-model="form.username"
-                  required
-                />
+                <Input id="username" v-model="form.username" required />
               </div>
               <div class="grid gap-2">
                 <Label for="password">密码</Label>
-                <Input
-                  id="password"
-                  v-model="form.password"
-                  type="password"
-                  required
-                />
+                <Input id="password" v-model="form.password" type="password" required />
               </div>
               <Button v-if="!isPending" type="submit" class="w-full" @click="loginMutation(form)">
                 登录
@@ -40,7 +31,8 @@
               </Button>
             </div>
             <br>
-            <a href="/register" class="text-sm text-gray-500 hover:underline hover:text-gray-800 dark:hover:text-white">没有帐号？请注册</a>
+            <a href="/register"
+              class="text-sm text-gray-500 hover:underline hover:text-gray-800 dark:hover:text-white">没有帐号？请注册</a>
           </CardContent>
         </Card>
       </div>
@@ -56,6 +48,10 @@ import { onKeyPressed } from '@vueuse/core';
 const { $api } = useNuxtApp();
 const userStore = useUserStore();
 
+// 获取重定向路由
+const link = useRoute().query.redirect;
+const redirectLink = Array.isArray(link) ? link[0] : link;
+
 const form = reactive({
   username: '',
   password: '',
@@ -65,7 +61,9 @@ const { mutate: loginMutation, isPending } = useMutation({
   mutationFn: $api.user.login.mutate,
   onSuccess: (res) => {
     userStore.login(res);
-    navigateTo('/');
+    if (redirectLink !== undefined)
+      navigateTo(redirectLink);
+    else navigateTo('/');
     toast.success('登录成功');
   },
   onError: err => useErrorHandler(err),
