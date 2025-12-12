@@ -159,6 +159,7 @@ import { Progress } from '@/components/ui/progress';
 import { makeId } from '~/server/trpc/utils/shared';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
 
 const { $api } = useNuxtApp();
 const userStore = useUserStore();
@@ -173,7 +174,7 @@ const value = ref<DateValue>();
 // }
 definePageMeta({
   layout: false,
-  middleware: 'dynamic-layout',
+  middleware: [ guestBlocker, 'dynamic-layout'],
 });
 // 定义df为日期格式化工具，将 Date 对象转换为特定格式的字符串
 // 参数含义：full  2024年1月1日星期一

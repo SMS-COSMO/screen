@@ -111,6 +111,12 @@
 import { ArrowLeft, Loader2, RollerCoaster } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+
+definePageMeta({
+  layout: false,
+  middleware: [ guestBlocker, 'dynamic-layout' ],
+});
 
 const modifyBoardExpanded = ref(false);
 
@@ -155,14 +161,14 @@ const { mutate: modifyPasswordMutation, isPending: isPasswordPending } = useMuta
   },
 });
 
-if (userStore.role === 'admin') {
+/* if (userStore.role === 'admin') {
   setPageLayout('default');
 } else if (userStore.role === 'club') {
   setPageLayout('club');
 }
 definePageMeta({
   layout: false,
-});
+}); */
 
 function toggle_confirm() {
   try {

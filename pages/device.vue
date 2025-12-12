@@ -273,12 +273,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+import clubBlocker from '~/middleware/blockers/club-blocker';
 
-onMounted(() => {
+/* onMounted(() => {
   if (useUserStore().role === 'club') {
     useRouter().push('/'); // 跳转到首页
   }
+}); */
+
+definePageMeta({
+  middleware: [ guestBlocker, clubBlocker ],
 });
+
 const { $api } = useNuxtApp();
 
 const queryClient = useQueryClient();

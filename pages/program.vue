@@ -529,6 +529,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import TableCell from '~/components/ui/table/TableCell.vue';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+import clubBlocker from '~/middleware/blockers/club-blocker';
+
+definePageMeta({
+  layout: 'default',
+  middleware: [ guestBlocker, clubBlocker ],
+});
 
 const { $api } = useNuxtApp();
 

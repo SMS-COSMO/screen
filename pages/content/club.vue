@@ -235,17 +235,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 import { useUserStore } from '@/stores/user'; // 假设用户信息存储在 user store 中
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+import contentManageBlocker from '~/middleware/blockers/content-manage-blocker';
 
 const userId = useUserStore().userId; // userId 存储在 store 中
 const { $api } = useNuxtApp();
 const filter = ref('all');
 
 const queryClient = useQueryClient();
-onMounted(() => {
+/* onMounted(() => {
   if (useUserStore().role === 'admin') {
     useRouter().push('admin'); // 跳转到 admin 页面
   }
-});
+}); */
 function queryFn() {
   if (!userId) {
     throw new Error('用户ID未找到');
@@ -311,6 +313,7 @@ function TransState(state: string): { text: string; color:
 definePageMeta({
   layout: 'club',
   name: 'club',
+  middleware: [ guestBlocker, contentManageBlocker ],
 });
 
 // filtState方法返回两个传入state参数是否一致

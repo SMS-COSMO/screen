@@ -465,16 +465,18 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { HandleDisplay } from '@/components/ui/DisplayBox';
 import { Textarea } from '@/components/ui/textarea';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+import contentManageBlocker from '~/middleware/blockers/content-manage-blocker';
 
 // 以下为前朝遗物
 const { $api } = useNuxtApp();
 const filter = ref('all');
 
-onMounted(() => {
+/* onMounted(() => {
   if (useUserStore().role === 'club') {
     useRouter().push('club'); // 跳转到club页面
   }
-});
+}); */
 
 const queryClient = useQueryClient();
 const { data: contentList, suspense } = useQuery({
@@ -594,6 +596,7 @@ const { mutate: editExaStateMutation, isPending: isPending_Exa } = useMutation({
 definePageMeta({
   layout: 'default',
   name: 'admin',
+  middleware: [ guestBlocker, contentManageBlocker ],
 });
 
 // 测试函数

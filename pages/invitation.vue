@@ -107,16 +107,22 @@
 import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
+import clubBlocker from '~/middleware/blockers/club-blocker';
 
 const { $api } = useNuxtApp();
 const number = ref<number>(0);
 const filter = ref('all');
 
 const queryClient = useQueryClient();
-onMounted(() => {
+/* onMounted(() => {
   if (useUserStore().role === 'club') {
     useRouter().push('/'); // 跳转到首页
   }
+}); */
+
+definePageMeta({
+  middleware: [ guestBlocker, clubBlocker ],
 });
 
 interface Invitation { id: number; code: string; state: boolean; createdAt: Date }

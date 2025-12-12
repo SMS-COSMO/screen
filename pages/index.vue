@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { Bell, BellRing } from 'lucide-vue-next';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
 
 const { $api } = useNuxtApp();
 
@@ -63,7 +64,7 @@ const userStore = useUserStore();
 // }
 definePageMeta({
   layout: false,
-  middleware: 'dynamic-layout',
+  middleware: [ guestBlocker, 'dynamic-layout'],
 });
 
 const { data: allList, suspense: allSuspense } = useQuery({
@@ -71,12 +72,16 @@ const { data: allList, suspense: allSuspense } = useQuery({
   queryFn: () => $api.notification.getAllByOwner.query(),
 });
 await allSuspense();
-const countAll = allList.value === undefined ? -1 : allList.value.length;
+const countAll = computed(() => {
+  return allList.value === undefined ? -1 : allList.value.length;
+});
 
 const { data: unreadList, suspense: unreadSuspense } = useQuery({
   queryKey: ['notification', 'unread'],
   queryFn: () => $api.notification.getUnreadByOwner.query(),
 });
 await unreadSuspense();
-const countUnread = unreadList.value === undefined ? -1 : unreadList.value.length;
+const countUnread = computed(() => {
+  return unreadList.value === undefined ? -1 : unreadList.value.length;
+});
 </script>

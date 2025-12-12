@@ -91,10 +91,11 @@
 import { ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport } from 'reka-ui';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
+import guestBlocker from '~/middleware/blockers/guest-blocker';
 
 definePageMeta({
   layout: false,
-  middleware: 'dynamic-layout',
+  middleware: [ guestBlocker, 'dynamic-layout' ],
 });
 
 const { $api } = useNuxtApp();
@@ -136,12 +137,9 @@ const fetchList = computed(() => {
     unread: unreadList.value || [],
   }[filter.value];
 });
-if (userStore.role === 'admin') {
+/* if (userStore.role === 'admin') {
   setPageLayout('default');
 } else if (userStore.role === 'club') {
   setPageLayout('club');
-}
-definePageMeta({
-  layout: false,
-});
+} */
 </script>
