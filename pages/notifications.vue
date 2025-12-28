@@ -28,37 +28,72 @@
         <div
           v-for="noti in fetchList"
           :key="noti.id"
-          class="text-mauve12 text-xs leading-[18px] mt-2.5 pt-2.5 border-t border-t-mauve6"
+          class="text-mauve12 text-sm leading-[18px] mt-2.5 pt-2.5 border-t border-t-mauve6"
         >
           <Card>
             <CardHeader>
               <CardTitle>{{ noti.title }}</CardTitle>
+              <CardDescription> {{ noti.content }}</CardDescription>
             </CardHeader>
             <CardContent>
               <Dialog>
                 <DialogTrigger>
-                  <Button>
+                  <Button @click="updateTracedContentName(noti.content)">
                     查看
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>标题：{{ noti.title }}</DialogTitle>
+                    <DialogTitle>{{ noti.title }}</DialogTitle>
+                    <DialogDescription>追踪的内容 - "{{ tracedContentName }}"</DialogDescription>
                   </DialogHeader>
-                  <div>
-                    通知日期:{{ noti.createdAt.toDateString() }}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>
+                          内容名称
+                        </TableHead>
+                        <TableHead>
+                          标题
+                        </TableHead>
+                        <TableHead>
+                          时间
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow v-for="traceNoti in traceList" :class="(traceNoti.id === noti.id)?'font-semibold':''">
+                        <TableCell>
+                          {{ tracedContentName.slice(0, 15) }}
+                          <span v-if="tracedContentName.slice(15)">...</span>
+                        </TableCell>
+                        <TableCell>
+                          {{ traceNoti.title }}
+                        </TableCell>
+                        <TableCell>
+                          {{ traceNoti.createdAt.toLocaleDateString() }} {{ traceNoti.createdAt.toLocaleTimeString() }}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                  <!-- <div class="text-left">
+                    通知日期：{{ noti.createdAt.toDateString().split(' ')[2] }} {{ noti.createdAt.toDateString().split(' ')[1] }}. {{ noti.createdAt.toDateString().split(' ')[3] }} ( {{ noti.createdAt.toDateString().split(' ')[0] }} )
                   </div>
-                  {{ noti.content }}
-                  <DialogClose>
-                    <Button v-if="!markIsPending" @click="markMutation({ notificationId: noti.id })">
-                      确认已读
-                    </Button>
-                    <Button v-if="markIsPending">
-                      <Loader2 v-if="markIsPending">
-                        请稍候...
-                      </Loader2>
-                    </Button>
-                  </DialogClose>
+                  <div class="text-center font-semibold h-8">
+                    {{ noti.content }}
+                  </div> -->
+                  <div class="grid items-center justify-center">
+                    <DialogClose as-child>
+                      <Button v-if="!markIsPending" @click="markMutation({ notificationId: noti.id })" class="w-32">
+                        确认已读
+                      </Button>
+                      <Button v-if="markIsPending">
+                        <Loader2 v-if="markIsPending">
+                          请稍候...
+                        </Loader2>
+                      </Button>
+                    </DialogClose>
+                  </div>
                 </DialogContent>
               </Dialog>
             </CardContent>
@@ -142,4 +177,26 @@ const fetchList = computed(() => {
 } else if (userStore.role === 'club') {
   setPageLayout('club');
 } */
+
+function updateTracedContentName(content: string){
+  // console.log(content);
+  // console.log(content.split('\"')[1]);
+  tracedContentName.value = content.split('\"')[1];
+}
+
+const tracedContentName = ref("");
+const traceList = computed(() => {
+  const computedNotiList: ({
+    id: number;
+    title: string;
+    content: string;
+    createdAt: Date;
+  })[] = [];
+  allList.value?.forEach((Noti) => {
+    if(Noti.content.split('\"')[1] === tracedContentName.value)
+      computedNotiList.push(Noti);
+  })
+  return computedNotiList;
+})
+
 </script>
