@@ -1,6 +1,11 @@
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { eq } from 'drizzle-orm';
 import { env } from '../../env';
+import { db } from '../../db/db';
+import { contents } from '../../db/schema';
+import { Context } from '../context';
+import { TRPCError } from '@trpc/server';
 
 export class S3Controller {
   private s3: S3;
@@ -62,5 +67,17 @@ export class S3Controller {
     } catch {
       return false;
     }
+  }
+
+  async deleteFileAsClub(key: string, ctx: Context) {
+    const content = await db.query.contents.findFirst({ // 检查 所要删除的内容 是否属于 操作的用户
+      where: eq(contents.S3FileId, key),
+    });
+    if (!content)
+      throw new TRPCError({ code: 'BAD_REQUEST', message: '所选内容不存在' });
+    if (content.ownerId === ctx.user?.id)
+      return await this.deleteFile(key);
+    else
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: '禁止越权删除内容' });
   }
 }

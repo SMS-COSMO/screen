@@ -19,10 +19,17 @@ export const s3Router = router({
     }),
 
   deleteFile: protectedProcedure
-    .use(requireRoles(['admin', 'club']))
+    .use(requireRoles(['admin']))
     .input(z.object({ s3FileId: S3FileIdZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.s3Controller.deleteFile(input.s3FileId);
+    }),
+
+  deleteFileAsClub: protectedProcedure
+    .use(requireRoles(['admin', 'club']))
+    .input(z.object({ s3FileId: S3FileIdZod }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.s3Controller.deleteFileAsClub(input.s3FileId, ctx);
     }),
 
   getLnfUploadURL: publicProcedure

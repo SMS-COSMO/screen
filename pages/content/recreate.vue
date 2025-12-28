@@ -291,7 +291,7 @@ onChange((filelist: FileList | null) => {
 
 // 删除文件函数
 const { mutate: deleteMutation } = useMutation({
-  mutationFn: $api.s3.deleteFile.mutate,
+  mutationFn: $api.s3.deleteFileAsClub.mutate,
   onSuccess: () => {
     toast.success('内容删除成功');
   },
