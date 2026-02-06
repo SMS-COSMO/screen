@@ -6,13 +6,16 @@ import { db } from '../../db/db';
 import { contents } from '../../db/schema';
 import { Context } from '../context';
 import { TRPCError } from '@trpc/server';
-
+import { S3TestController } from './s3Test';
 export class S3Controller {
   private s3: S3;
   constructor() {
-    this.s3 = new S3({
-      endpoint: env.S3_SERVER_URL,
-      region: 'global',
+    if (env.ENABLE_S3_MOCK) {
+      this.s3 = new S3TestController('../../../mocks/local-s3') as unknown as S3;
+    } else {
+      this.s3 = new S3({
+        endpoint: env.S3_SERVER_URL,
+        region: 'global',
       credentials: {
         accessKeyId: env.S3_ACCESS_KEY_ID,
         secretAccessKey: env.S3_SECRET_ACCESS_KEY,
