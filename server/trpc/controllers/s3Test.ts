@@ -36,7 +36,8 @@ export class S3TestController {
    */
   async getStandardUploadPresignedUrl(key: string) {
     await this.ready;
-    return `${env.SERVER_URL}/api/local-s3/upload/${encodeURIComponent(key)}`;
+    const safeKey = this.toSafeKey(key);
+    return `${env.SERVER_URL}/api/local-s3/upload/${encodeURIComponent(safeKey)}`;
   }
 
   /**
@@ -46,7 +47,9 @@ export class S3TestController {
    */
   async getFileUrl(key: string) {
     await this.ready;
-    return `${env.SERVER_URL}/local-s3/${encodeURIComponent(key)}`;
+    const safeKey = this.toSafeKey(key);
+    console.warn(`本地S3访问地址: ${env.SERVER_URL}/local-s3/${encodeURIComponent(safeKey)}`);
+    return `${env.SERVER_URL}/local-s3/${encodeURIComponent(safeKey)}`;
   }
 
   async deleteFile(key: string) {
@@ -84,8 +87,13 @@ export class S3TestController {
   }
 
   private getFilePath(key: string) {
-    const safeKey = key.replace(/[\\/]/g, '_');
+    const safeKey = this.toSafeKey(key);
     return path.join(this.baseDir, safeKey);
+  }
+
+  private toSafeKey(key: string) {
+    const safe = key.replace(/[^a-z0-9]/gi, '');
+    return safe.length > 0 ? safe : 'file';
   }
 }
 

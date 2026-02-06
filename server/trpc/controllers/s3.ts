@@ -8,21 +8,17 @@ import { contents } from '../../db/schema';
 import type { Context } from '../context';
 import { S3TestController } from './s3Test';
 
-export class S3Controller {
+class S3ControllerBase {
   private s3: S3;
   constructor() {
-    if (env.ENABLE_S3_MOCK) {
-      this.s3 = new S3TestController('../../../mocks/local-s3') as unknown as S3;
-    } else {
-      this.s3 = new S3({
-        endpoint: env.S3_SERVER_URL,
-        region: 'global',
-        credentials: {
-          accessKeyId: env.S3_ACCESS_KEY_ID,
-          secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-        },
-      });
-    }
+    this.s3 = new S3({
+      endpoint: env.S3_SERVER_URL,
+      region: 'global',
+      credentials: {
+        accessKeyId: env.S3_ACCESS_KEY_ID,
+        secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+      },
+    });
   }
 
   /**
@@ -86,3 +82,7 @@ export class S3Controller {
       throw new TRPCError({ code: 'UNAUTHORIZED', message: '禁止越权删除内容' });
   }
 }
+
+const S3Controller = env.ENABLE_S3_MOCK ? S3TestController : S3ControllerBase;
+
+export { S3Controller };

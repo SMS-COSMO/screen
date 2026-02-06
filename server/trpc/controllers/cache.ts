@@ -227,4 +227,10 @@ class MemoryCacheController extends BaseCacheController {
   }
 }
 
+class DiskCacheController extends BaseCacheController {
+  async preload(method: any, ...args: any[]): Promise<any> {
+    
+  }
+}
+
 export { MemoryCacheController };
