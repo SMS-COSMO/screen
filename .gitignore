@@ -35,3 +35,4 @@ drizzle/
 
 # Personal(对自己的提示)
 .Personal/
+.public/local-s3/
