@@ -1,12 +1,13 @@
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { eq } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
 import { env } from '../../env';
 import { db } from '../../db/db';
 import { contents } from '../../db/schema';
-import { Context } from '../context';
-import { TRPCError } from '@trpc/server';
+import type { Context } from '../context';
 import { S3TestController } from './s3Test';
+
 export class S3Controller {
   private s3: S3;
   constructor() {
@@ -16,11 +17,12 @@ export class S3Controller {
       this.s3 = new S3({
         endpoint: env.S3_SERVER_URL,
         region: 'global',
-      credentials: {
-        accessKeyId: env.S3_ACCESS_KEY_ID,
-        secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-      },
-    });
+        credentials: {
+          accessKeyId: env.S3_ACCESS_KEY_ID,
+          secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+        },
+      });
+    }
   }
 
   /**
