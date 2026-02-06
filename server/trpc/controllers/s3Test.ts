@@ -23,6 +23,7 @@ export class S3TestController {
   constructor(baseDir: string = path.resolve(process.cwd(), 'public', 'local-s3')) {
     this.baseDir = baseDir;
     this.ready = mkdir(this.baseDir, { recursive: true }).then(() => undefined);
+    console.warn(`启用本地S3Mock, 存储路径: ${this.baseDir}`);
   }
 
   setDelayedUpload(ms: number) {

@@ -25,7 +25,10 @@ const envSchema = z.object({
   WEATHER_CITY_CODE: z.string(),
   LNF_USER_NAME: z.string(),
   LNF_POOL_NAME: z.string(),
-  ENABLE_S3_MOCK: z.coerce.boolean().optional().default(false),
+  ENABLE_S3_MOCK: z.enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform(v => v === 'true'),
 });
 
 const envParse = envSchema.safeParse(process.env);
