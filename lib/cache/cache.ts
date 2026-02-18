@@ -1,8 +1,10 @@
-import type { ICacheProvider, TCacheItem } from '../utils/cacheType';
-import { IdbMap } from '../utils/indexedDB';
-import { S3Controller } from './s3';
+import type { ICacheProvider, TCacheItem } from './cacheType';
+import { IdbMap } from './indexedDB';
 
 const MAXBYTES_MEMORY = 200 * 1024 * 1024; // 200 MB
+
+type GetFileUrl = (key: string) => Promise<string | false>;
+
 interface PreloadProgress {
   loaded: number; // 已缓存对象数
   total: number; // 总对象数
@@ -25,11 +27,11 @@ interface CacheStore {
 class BaseCacheController implements ICacheProvider {
   protected itemStore: Map<string, TCacheItem> = new Map();
   protected cacheStore: CacheStore = new Map();
-  protected s3Controller: InstanceType<typeof S3Controller>;
+  protected getFileUrl?: GetFileUrl;
   protected maxBytes: number;
-  constructor(maxBytes: number = MAXBYTES_MEMORY) {
+  constructor(maxBytes: number = MAXBYTES_MEMORY, getFileUrl?: GetFileUrl) {
     this.maxBytes = maxBytes;
-    this.s3Controller = new S3Controller();
+    this.getFileUrl = getFileUrl;
   }
 
   // eslint-disable-next-line unused-imports/no-unused-vars
@@ -48,7 +50,6 @@ class BaseCacheController implements ICacheProvider {
 
   async setItem(item: TCacheItem): Promise<void> {
     this.itemStore.set(item.id, item);
-    // Here we would also store the actual data incacheStore
   }
 
   async deleteItem(id: string): Promise<void> {
@@ -144,13 +145,25 @@ class BaseCacheController implements ICacheProvider {
     return currentUsage > this.maxBytes;
   }
 
+  protected async resolveUrl(item: TCacheItem): Promise<string | null> {
+    if (this.getFileUrl) {
+      const res = await this.getFileUrl(item.url);
+      return res || null;
+    }
+    return item.url || null;
+  }
+
   async invalidationCache(id: string): Promise<void> {
     await this.cacheStore.delete(id);
   }
 }
 
 class MemoryCacheController extends BaseCacheController {
-  async preload(
+  constructor(maxBytes: number = MAXBYTES_MEMORY, getFileUrl?: GetFileUrl) {
+    super(maxBytes, getFileUrl);
+  }
+
+  override async preload(
     method: string,
     progressCallback?: (progress: PreloadProgress) => void,
     option?: { sort: (map: Map<string, TCacheItem>) => Map<string, TCacheItem> },
@@ -186,13 +199,12 @@ class MemoryCacheController extends BaseCacheController {
         progressCallback?.({ ...progress, mode: 'full' });
         continue;
       }
-      // Simulate caching the item
-      const res = await this.s3Controller.getFileUrl(item.url);
-      if (!res) {
+      const resolvedUrl = await this.resolveUrl(item);
+      if (!resolvedUrl) {
         progress.message += `Failed to fetch item ${item.id}\n`;
         continue;
       }
-      const data = await this.fetchProgressive(res, progress, progressCallback);
+      const data = await this.fetchProgressive(resolvedUrl, progress, progressCallback);
       if (!data) {
         progress.message += `Failed to download item ${item.id}\n`;
         continue;
@@ -230,13 +242,13 @@ class MemoryCacheController extends BaseCacheController {
         progressCallback?.({ ...progress, mode: 'stream' });
         continue;
       }
-      const res = await this.s3Controller.getFileUrl(item.url);
-      if (!res) {
+      const resolvedUrl = await this.resolveUrl(item);
+      if (!resolvedUrl) {
         progress.message += `Failed to fetch item ${item.id}\n`;
         yield { ...progress, done: false };
         continue;
       }
-      const data = await this.fetchProgressive(res, progress, progressCallback);
+      const data = await this.fetchProgressive(resolvedUrl, progress, progressCallback);
       if (!data) {
         progress.message += `Failed to download item ${item.id}\n`;
         yield { ...progress, done: false };
@@ -255,12 +267,12 @@ class DiskCacheController extends BaseCacheController {
   // 采用indexedDB的方式实现文件存储
   protected override cacheStore: IdbMap;
 
-  constructor(maxBytes: number = MAXBYTES_MEMORY) {
-    super(maxBytes);
+  constructor(maxBytes: number = MAXBYTES_MEMORY, getFileUrl?: GetFileUrl) {
+    super(maxBytes, getFileUrl);
     this.cacheStore = new IdbMap({ dbName: 'cache', storeName: 'media' });
   }
 
-  async preload(
+  override async preload(
     method: string,
     progressCallback?: (progress: PreloadProgress) => void,
     option?: { sort: (map: Map<string, TCacheItem>) => Map<string, TCacheItem> },
@@ -296,13 +308,12 @@ class DiskCacheController extends BaseCacheController {
         progressCallback?.({ ...progress, mode: 'full' });
         continue;
       }
-      // Simulate caching the item
-      const res = await this.s3Controller.getFileUrl(item.url);
-      if (!res) {
+      const resolvedUrl = await this.resolveUrl(item);
+      if (!resolvedUrl) {
         progress.message += `Failed to fetch item ${item.id}\n`;
         continue;
       }
-      const data = await this.fetchProgressive(res, progress, progressCallback);
+      const data = await this.fetchProgressive(resolvedUrl, progress, progressCallback);
       if (!data) {
         progress.message += `Failed to download item ${item.id}\n`;
         continue;
@@ -340,13 +351,13 @@ class DiskCacheController extends BaseCacheController {
         progressCallback?.({ ...progress, mode: 'stream' });
         continue;
       }
-      const res = await this.s3Controller.getFileUrl(item.url);
-      if (!res) {
+      const resolvedUrl = await this.resolveUrl(item);
+      if (!resolvedUrl) {
         progress.message += `Failed to fetch item ${item.id}\n`;
         yield { ...progress, done: false };
         continue;
       }
-      const data = await this.fetchProgressive(res, progress, progressCallback);
+      const data = await this.fetchProgressive(resolvedUrl, progress, progressCallback);
       if (!data) {
         progress.message += `Failed to download item ${item.id}\n`;
         yield { ...progress, done: false };
@@ -362,3 +373,4 @@ class DiskCacheController extends BaseCacheController {
 }
 
 export { MemoryCacheController, DiskCacheController };
+export type { GetFileUrl, PreloadProgress };

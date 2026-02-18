@@ -12,7 +12,6 @@ import { S3Controller } from './controllers/s3';
 import { UserController } from './controllers/user';
 import { WeatherController } from './controllers/weather';
 import { CodeController } from './controllers/invitationCodeControl';
-import { DiskCacheController, MemoryCacheController } from './controllers/cache';
 
 const newGlobal = globalThis as unknown as {
   userController: UserController | undefined;
@@ -24,8 +23,6 @@ const newGlobal = globalThis as unknown as {
   weatherController: WeatherController | undefined;
   codeController: CodeController | undefined;
   notificationController: NotificationController | undefined;
-  memoryCacheController: MemoryCacheController | undefined;
-  diskCacheController: DiskCacheController | undefined;
 };
 
 const userController = newGlobal.userController ?? new UserController();
@@ -37,10 +34,6 @@ const s3Controller = newGlobal.s3Controller ?? new S3Controller();
 const weatherController = newGlobal.weatherController ?? new WeatherController();
 const codeController = newGlobal.codeController ?? new CodeController();
 const notificationController = newGlobal.notificationController ?? new NotificationController();
-const memoryCacheController
-  = newGlobal.memoryCacheController ?? new MemoryCacheController();
-const diskCacheController
-  = newGlobal.diskCacheController ?? new DiskCacheController();
 
 if (process.env.NODE_ENV !== 'production') {
   newGlobal.userController = userController;
@@ -52,8 +45,6 @@ if (process.env.NODE_ENV !== 'production') {
   newGlobal.weatherController = weatherController;
   newGlobal.codeController = codeController;
   newGlobal.notificationController = notificationController;
-  newGlobal.memoryCacheController = memoryCacheController;
-  newGlobal.diskCacheController = diskCacheController;
 }
 
 interface CreateContextOptions {
@@ -78,8 +69,6 @@ export function createInnerContext(opts: CreateContextOptions) {
     weatherController,
     codeController,
     notificationController,
-    memoryCacheController,
-    diskCacheController,
   };
 }
 
@@ -93,8 +82,6 @@ export const ctl = {
   wc: weatherController,
   icc: codeController,
   nc: notificationController,
-  mcc: memoryCacheController,
-  dcc: diskCacheController,
 };
 
 /**
