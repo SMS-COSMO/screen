@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import type { TPlayerInstance } from '~/lib/video-player/playerInstanceType';
 import type { TRawContent } from '~/server/db/db';
 
 const { params } = useRoute();
@@ -73,8 +74,8 @@ type videoInstance = {
 };
 /* const videoInstances: Ref<{ [key: number]: videoInstance }[]> = ref([]); */
 /* const videoInstances: Ref<{ key: number, instance: videoInstance }[]> = ref([]); */
-const videoInstances = reactive(new Map());
-const getVideoInstances = (id: number, instance: any) => {
+const videoInstances = reactive(new Map<number, TPlayerInstance>());
+const getVideoInstances = (id: number, instance: TPlayerInstance) => {
   console.log("player instance of swiper %d is mapped:", id, instance.player.play());
   /* videoInstances.value.push({id, instance}); */
   /* videoInstances.value.push({ id: instance });

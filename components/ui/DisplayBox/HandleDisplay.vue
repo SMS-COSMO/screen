@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+import type { TPlayerInstance } from '~/lib/video-player/playerInstanceType';
 import ImageBox from './ImageBox.vue';
 import VideoBox from './VideoBox.vue';
 // 定义 props, 传输展示地址
@@ -62,7 +63,7 @@ function checkMediaType(fileType: string) {
 
 const emit = defineEmits(['updateInstance']);
 // 获取实例并通过 updateInstance 事件传输至父组件
-const onPlayerReady = (playerInstance: any) => {
+const onPlayerReady = (playerInstance: TPlayerInstance) => {
   console.log("player instance received:", playerInstance);
   emit('updateInstance', playerInstance);
 }
