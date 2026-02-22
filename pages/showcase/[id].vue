@@ -4,7 +4,7 @@
   <!-- 这是那一条竖线 -->
   <div class="flex left-[22vw] h-[100vh] w-[78vw] bg-gray-800 dark:bg-gray-200 fixed justify-center items-center">
     <ClientOnly>
-      <swiper-container ref="swiperRef" :loop="true" class="max-w-[78vw]">
+      <swiper-container ref="swiperRef" :loop="computedContentList.length - 1 ? true : false" class="max-w-[78vw]">
         <!-- 根据经验, 这里必须限定 max-w, 否则整个 swiper 会飞起来 -->
         <swiper-slide v-for="content in computedContentList" :key="content.id" class="flex">
           <div v-if="content.state === 'approved'"
@@ -17,6 +17,11 @@
       </swiper-container>
     </ClientOnly>
     <!-- <Button class="debug" @click="toPlay"></Button> -->
+  </div>
+  <div v-if="!isPageInteracted" id="force-interact" class="fixed z-50 top-0 left-0 w-full h-full bg-black opacity-75"
+    @click="isPageInteracted = true">
+    <p class="text-white text-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">Click to enable video
+      playback</p>
   </div>
 </template>
 
@@ -67,6 +72,8 @@ const playerOptions = {
   notSupportedMessage: '此视频暂无法播放，请稍后再试',
 };
 
+const isPageInteracted = ref(false);
+
 type videoInstance = {
   player: any,
   state: any,
@@ -74,9 +81,9 @@ type videoInstance = {
 };
 /* const videoInstances: Ref<{ [key: number]: videoInstance }[]> = ref([]); */
 /* const videoInstances: Ref<{ key: number, instance: videoInstance }[]> = ref([]); */
-const videoInstances = reactive(new Map<number, TPlayerInstance>());
+const videoInstances = reactive(new Map<number, TPlayerInstance>()); // 键是 content.id
 const getVideoInstances = (id: number, instance: TPlayerInstance) => {
-  console.log("player instance of swiper %d is mapped:", id, instance.player.play());
+  // console.log("player instance of swiper %d is mapped:", id, instance.player.play());
   /* videoInstances.value.push({id, instance}); */
   /* videoInstances.value.push({ id: instance });
   console.log("instance in map:", videoInstances.value[id]); */
@@ -93,9 +100,9 @@ const getVideoInstances = (id: number, instance: TPlayerInstance) => {
 const updater = ref(true);
 
 const computedContentList: Ref<(TRawContent)[]> = computed(() => {
-  if (updater && !updater)
-    return []; // 这一步是为了让 updater 在形式上加入计算，这样之后变动 updater 就可以重置这里的随机数
+  const _ = updater.value; // 这一步是为了让 updater 在形式上加入计算，这样之后变动 updater 就可以重置这里的随机数
   const list: (TRawContent)[] = [];
+  console.log("constructing content list...");
   contentList.value?.forEach((item) => {
     if (Array.isArray(item)) {
       const randomKey = Math.floor(Math.random() * item.length);
@@ -112,6 +119,44 @@ const computedContentList: Ref<(TRawContent)[]> = computed(() => {
 });
 
 const timer = ref(0);
+
+const activeIndex = ref(0); // 表示目前正在显示的 swiper 的下标。在 loop 模式下，从 swiper 实例中获取的 activeIndex 始终是最后一个元素的 index，所以不能从那里读取
+
+async function mainLoop() {
+  const index = activeIndex.value;
+  // console.log("active index:", index);
+  
+  // console.log("start content:", index);
+
+  const content = computedContentList.value[index];
+  const fileType = content.fileType.split('/')[0];
+  const videoInstance = (fileType === 'video')? videoInstances.get(content.id) : undefined;
+
+  if (fileType === 'video') { // 如果当前内容是视频
+    videoInstance?.player.currentTime(0); // 从头开始播放
+    await videoInstance?.player.play();
+  }
+  // setTimeout(mainLoop, computedContentList.value[index].duration * 1000);
+
+  setTimeout(() => {
+    if (fileType === 'video') { // 如果当前内容是视频
+      videoInstance?.player.pause(); // 暂停视频播放
+    }
+
+    // console.log("active index now (before next):", activeIndex.value);
+    activeIndex.value = (activeIndex.value + 1); // 更新 activeIndex
+
+    if (activeIndex.value === computedContentList.value.length) { // 如果已经播完一轮，重置内容列表
+      updater.value = !updater.value; // 重置 computedContentList
+      activeIndex.value = 0; // 重置 activeIndex
+    }
+
+    swiper.next();
+
+    mainLoop(); //
+  }, content.duration * 1000);
+
+}
 
 /* onMounted(() => {
   //setInterval(() => { timer.value += 0.1; }, 100);
@@ -131,4 +176,24 @@ const timer = ref(0);
     content.duration;
   })
 }, 100)) */
+
+//localStorage.setItem(s3fileId, cached_content);
+
+/* function testLoop() { //
+  swiper.next();
+  console.log("active index:", swiper.instance.value?.activeIndex);
+  setTimeout(testLoop, 1000);
+} */
+
+watch(isPageInteracted, mainLoop); // 只有在用户点击了页面之后才开始循环播放内容，以确保视频能够正常播放
+/* console.log("swiper:", swiper);
+onMounted(() => {
+  console.log("swiper-instance:", swiper.instance.value);
+}); */
+
+/* while(process.client){
+  updater.value = !updater.value; 
+  console.log(computedContentList.value[2]);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 5 秒
+} */
 </script>
