@@ -371,6 +371,8 @@ class DiskCacheController extends BaseCacheController {
     }
   }
 }
+const diskCacheController = new DiskCacheController(MAXBYTES_MEMORY);
 
 export { MemoryCacheController, DiskCacheController };
+export { diskCacheController };
 export type { GetFileUrl, PreloadProgress };
