@@ -18,6 +18,7 @@ import type { HTMLAttributes } from 'vue';
 import { VideoPlayer } from '@videojs-player/vue';
 import { cn } from '@/lib/utils';
 import 'video.js/dist/video-js.css';
+import type { TPlayerInstance } from '~/lib/video-player/playerInstanceType';
 
 // 定义 props, 传输视频地址
 const props = defineProps<{
@@ -39,7 +40,7 @@ const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
 // const playerInstance = ref(null);
 const emit = defineEmits(['updateInstance']);
 // 获取 player 实例并通过 updateInstance 事件传输至父组件
-const onPlayerReady = (player: any) => {
+const onPlayerReady = (player: TPlayerInstance) => {
   // playerInstance.value = player;
   console.log("player ready:", player);
   emit('updateInstance', markRaw(player)); // 使用了 markRaw 函数来避免 Proxy
