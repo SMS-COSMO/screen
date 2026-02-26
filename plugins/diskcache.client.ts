@@ -15,3 +15,11 @@ export default defineNuxtPlugin(() => {
     },
   };
 });
+
+// 如果导入失败了，可以试试以下代码：
+
+/* declare module '#app' {
+  interface NuxtApp {
+    $DiskCache: DiskCacheController;
+  }
+} */
