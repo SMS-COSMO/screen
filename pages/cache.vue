@@ -2,7 +2,7 @@
   <Title>
     媒体缓存
   </Title>
-  <Button @click="cacheContent()">
+  <Button @click="cacheContent('memory'); cacheContent('disk')">
     缓存
   </Button>
   <Table>
@@ -32,7 +32,7 @@ import type { GetFileUrl, PreloadProgress } from '~/lib/cache/cache';
 import type { TRawContent } from '~/server/db/db';
 
 const userStore = useUserStore();
-const { $api } = useNuxtApp();
+const { $api, $DiskCache } = useNuxtApp();
 const isCaching = ref(false);
 const process = ref();
 
@@ -83,7 +83,7 @@ watchEffect(async (onInvalidate) => {
     memory_cached: (await memoryCacheController.getItem(item.id))?.storeRef,
     disk_cached: (await diskCacheController.getItem(item.id))?.storeRef, */
     memory_cached: await (await memoryCacheController.getCache(item.id))?.bytes(),
-    // disk_cached: await (await diskCacheController.getCache(item.id))?.bytes(),
+    disk_cached: await (await $DiskCache?.getCache(item.id))?.bytes(),
   })));
 
   if (!cancelled) cacheList.value = res;
@@ -119,10 +119,12 @@ console.log('ItemsToCache', ItemsToCache.value);
   console.log('缓存操作结束');
 } */
 
-async function cacheContent() {
+async function cacheContent(store: 'memory' | 'disk' = 'memory') {
   try {
+    const cacheController = store === 'memory' ? memoryCacheController : $DiskCache;
+
     for (const item of ItemsToCache.value) {
-      await memoryCacheController.setItem(item);
+      await cacheController?.setItem(item);
       // console.log('Cached item', item);
     }
     let result = await memoryCacheController.preload('stream', (progress) => {
