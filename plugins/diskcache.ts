@@ -1,4 +1,4 @@
-import { DiskCacheController } from '~/lib/cache/cache'
+import { DiskCacheController } from '~/lib/cache/cache';
 
 const MAXBYTES_MEMORY = 200 * 1024 * 1024;// 200 MB
 
@@ -14,4 +14,4 @@ export default defineNuxtPlugin(() => {
       DiskCache,
     },
   };
-})
+});

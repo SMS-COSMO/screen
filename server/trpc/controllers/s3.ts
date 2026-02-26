@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
@@ -70,6 +70,22 @@ class S3ControllerBase {
     }
   }
 
+  async getFileSize(key: string) {
+    try {
+      const headObjectCommand = new HeadObjectCommand({
+        Bucket: env.BUCKET_NAME,
+        Key: key,
+      });
+      const fileBytes = (await this.s3.send(headObjectCommand)).ContentLength;
+      if (!fileBytes)
+        return undefined;
+      const toMB = (fileBytes / 1024 / 1024).toFixed(2); // 单位 MB
+      return toMB;
+    } catch {
+      return undefined;
+    }
+  }
+
   async deleteFileAsClub(key: string, ctx: Context) {
     const content = await db.query.contents.findFirst({ // 检查 所要删除的内容 是否属于 操作的用户
       where: eq(contents.S3FileId, key),
@@ -84,5 +100,6 @@ class S3ControllerBase {
 }
 
 const S3Controller = env.ENABLE_S3_MOCK ? S3TestController : S3ControllerBase;
+// const S3Controller = S3ControllerBase;
 
 export { S3Controller };
