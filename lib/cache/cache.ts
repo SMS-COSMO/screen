@@ -371,7 +371,7 @@ class DiskCacheController extends BaseCacheController {
     }
   }
 }
-const diskCacheController = new DiskCacheController(MAXBYTES_MEMORY);
+const diskCacheController = new DiskCacheController(MAXBYTES_MEMORY, (key: string) => useNuxtApp().$api.s3.getViewURL.query({ s3FileId: key }));
 
 export { MemoryCacheController, DiskCacheController };
 export { diskCacheController };
