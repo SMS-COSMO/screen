@@ -29,7 +29,7 @@ export const s3Router = router({
   getFileSize: protectedProcedure
     .use(requireRoles(['admin']))
     .input(z.object({ S3FileId: S3FileIdZod }))
-    .mutation(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       return await ctx.s3Controller.getFileSize(input.S3FileId);
     }),
 

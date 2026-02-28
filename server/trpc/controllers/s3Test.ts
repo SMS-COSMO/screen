@@ -4,8 +4,9 @@
 import path from 'node:path';
 import process from 'node:process';
 import { Buffer } from 'node:buffer';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, statfs, unlink, writeFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
+import { stat } from 'node:fs';
 import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { env } from '../../env';
@@ -60,6 +61,17 @@ export class S3TestController {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  async getFileSize(key: string) {
+    try {
+      await this.ready;
+      const stats = await statfs(this.getFilePath(key));
+      const toMB = (stats.bsize / 1024 / 1024).toFixed(2);
+      return toMB;
+    } catch {
+      return undefined;
     }
   }
 
