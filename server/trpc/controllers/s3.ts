@@ -79,7 +79,7 @@ class S3ControllerBase {
       const fileBytes = (await this.s3.send(headObjectCommand)).ContentLength;
       if (!fileBytes)
         return undefined;
-      const toMB = (fileBytes / 1024 / 1024).toFixed(2); // 单位 MB
+      const toMB = Number.parseFloat((fileBytes / 1024 / 1024).toFixed(2)); // 单位 MB
       return toMB;
     } catch {
       return undefined;
