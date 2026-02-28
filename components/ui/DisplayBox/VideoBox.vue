@@ -9,7 +9,11 @@
       :src="typeof url === 'string' ? url : undefined"
       :options="props.playerOptions"
       @mounted="onPlayerReady"
+      @error="onPlayerError"
+      v-if="!mediaError"
     />
+    <!-- 错误信息显示，实现方法是直接替换掉原来的组件（其实这有点奇怪） -->
+    <ErrorDisplayBox v-else :error="mediaError" />
   </div>
 </template>
 
@@ -37,11 +41,13 @@ const url = await $api.s3.getViewURL.query({ s3FileId: props.videoKey });
 // const data = fetch(url).then(res => res.json()).then(data => console.log('data=', data));
 // axios.get(url).then(res => console.log('res=', res));
 
-// const playerInstance = ref(null);
+const playerInstance = ref<TPlayerInstance | null>(null);
+const mediaError = ref<MediaError | null>(null);
+
 const emit = defineEmits(['updateInstance']);
 // 获取 player 实例并通过 updateInstance 事件传输至父组件
 const onPlayerReady = (player: TPlayerInstance) => {
-  // playerInstance.value = player;
+  playerInstance.value = player;
   console.log("player ready:", player);
   emit('updateInstance', markRaw(player)); // 使用了 markRaw 函数来避免 Proxy
 }
@@ -50,4 +56,9 @@ const onPlayerReady = (player: TPlayerInstance) => {
   { player: Player2, state: Proxy({ playing: false, ... }), video: video#vjs_video_xxxx_html5_api.vjs-tech }
   state 属性的 Proxy 是必要的, 因为这保证了响应式.
 */
+
+const onPlayerError = () => {
+  mediaError.value = playerInstance.value?.player.error() || null;
+};
+
 </script>
