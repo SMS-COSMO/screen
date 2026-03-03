@@ -85,6 +85,7 @@
               </TableCell>
               <TableCell>
                 {{ invitation.code }}
+                <CopyLink :text="invitation.code" />
               </TableCell>
               <TableCell>
                 <Badge :variant="invitation.state ? 'c_created' : 'c_approved'">
@@ -107,6 +108,7 @@
 import { Loader2 } from 'lucide-vue-next';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
+import { CopyLink } from '~/components/ui/CopyLink';
 
 const { $api } = useNuxtApp();
 const number = ref<number>(0);
