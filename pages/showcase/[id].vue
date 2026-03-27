@@ -152,6 +152,11 @@ async function mainLoop() {
       videoInstance?.player.pause(); // 暂停视频播放
     }
 
+    if(activeIndex.value === -1){ // 如果已经切换页面，停止循环
+      // console.log("loop has automatically stopped.");
+      return;
+    }
+
     // console.log("active index now (before next):", activeIndex.value);
     activeIndex.value = (activeIndex.value + 1); // 更新 activeIndex
 
@@ -205,4 +210,14 @@ onMounted(() => {
   console.log(computedContentList.value[2]);
   await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 5 秒
 } */
+
+onErrorCaptured((err) => {
+  useErrorHandler(err);
+});
+
+onBeforeUnmount(() => {
+  activeIndex.value = -1; // 标记循环停止
+  // console.log("active index is set to", activeIndex.value)
+});
+
 </script>
