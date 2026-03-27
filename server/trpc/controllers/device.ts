@@ -75,7 +75,9 @@ export class DeviceController {
     const contentList: (TRawContent | TRawContent[])[] = [];
     device.program?.sequence.forEach(async (item) => {
       if (item.type === 'pool') {
-        const contents = await ctx.contentController.getListByCategoryTemp(item.id);
+        const contents = (await ctx.contentController.getListByCategoryTemp(item.id)).filter((content) => {
+          return content.state === 'approved';
+        }); // 打个补丁
         contentList.push(contents);
       } else if (item.type === 'content') {
         const content = await ctx.contentController.getContentById(item.id);
