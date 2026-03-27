@@ -6,12 +6,12 @@
     <ClientOnly>
       <swiper-container ref="swiperRef" :loop="computedContentList.length - 1 ? true : false" class="max-w-[78vw]">
         <!-- 根据经验, 这里必须限定 max-w, 否则整个 swiper 会飞起来 -->
-        <swiper-slide v-for="content in computedContentList" :key="content.id" class="flex">
+        <swiper-slide v-for="(content, index) in computedContentList" :key="content.id" class="flex">
           <div v-if="content.state === 'approved'"
             class="flex h-[100vh] w-[78vw] justify-center items-center text-white dark:text-black">
             <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType"
               image-class="h-[100vh] w-auto object-contain" video-class="h-auto w-[78vw] object-contain"
-              :video-player-options="playerOptions" @update-instance="getVideoInstances(content.id, $event)" />
+              :video-player-options="playerOptions" @update-instance="getVideoInstances(index, $event)" />
           </div>
         </swiper-slide>
       </swiper-container>
@@ -81,7 +81,7 @@ type videoInstance = {
 };
 /* const videoInstances: Ref<{ [key: number]: videoInstance }[]> = ref([]); */
 /* const videoInstances: Ref<{ key: number, instance: videoInstance }[]> = ref([]); */
-const videoInstances = reactive(new Map<number, TPlayerInstance>()); // 键是 content.id
+const videoInstances = reactive(new Map<number, TPlayerInstance>()); // 由于之前的代码会导致 相同 id 的播放器实例 相互覆盖掉，所以改用在 computedContentList 里的 index 当键了
 const getVideoInstances = (id: number, instance: TPlayerInstance) => {
   // console.log("player instance of swiper %d is mapped:", id, instance.player.play());
   /* videoInstances.value.push({id, instance}); */
@@ -130,7 +130,7 @@ async function mainLoop() {
 
   const content = computedContentList.value[index];
   const fileType = content.fileType.split('/')[0];
-  const videoInstance = (fileType === 'video')? videoInstances.get(content.id) : undefined;
+  const videoInstance = (fileType === 'video')? videoInstances.get(index) : undefined;
 
   if (fileType === 'video') { // 如果当前内容是视频
     videoInstance?.player.currentTime(0); // 从头开始播放
