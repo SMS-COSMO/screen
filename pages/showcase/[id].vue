@@ -99,13 +99,22 @@ const getVideoInstances = (id: number, instance: TPlayerInstance) => {
 
 const updater = ref(true);
 
+const lastRandomIndexes = new Map<number, number>(); // 键是 pool 的 id，值是上一次 pool 被选到的随机内容的下标
+// 这个貌似不能套 reactive
+
 const computedContentList: Ref<(TRawContent)[]> = computed(() => {
   const _ = updater.value; // 这一步是为了让 updater 在形式上加入计算，这样之后变动 updater 就可以重置这里的随机数
   const list: (TRawContent)[] = [];
   console.log("constructing content list...");
   contentList.value?.forEach((item) => {
     if (Array.isArray(item)) {
-      const randomKey = Math.floor(Math.random() * item.length);
+      const categoryId = item[0].categoryId ?? -1;
+      const lastRandomIndex = lastRandomIndexes.get(categoryId);
+      let randomKey = Math.floor(Math.random() * item.length);
+      if(randomKey === lastRandomIndex)
+        randomKey = (randomKey + 1) % item.length; // 自动向右移一位，另外这样做的话遇到长度为 1 的数组也不会出现问题
+      lastRandomIndexes.set(categoryId, randomKey);
+
       item.forEach((content) => {
         if (item.indexOf(content) === randomKey)
           list.push(content); // push a random content into the list
