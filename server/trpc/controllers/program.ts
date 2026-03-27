@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import type { TNewProgram, TSequenceUnit } from '../../db/db';
 import { db } from '../../db/db';
-import { programs, programsToContents } from '../../db/schema';
+import { contents, programs, programsToContents } from '../../db/schema';
 import type { Context } from '../context';
 
 export class ProgramController {
@@ -50,18 +50,32 @@ export class ProgramController {
 
   async setSequence(id: number, sequence: TSequenceUnit[], ctx: Context) {
     const programsAll = await db.query.programs.findMany();
-    programsAll.forEach(async (pgm) => {
-      pgm.sequence.forEach(async (seq) => {
+
+    for (const pgm of programsAll) { // 这里应该是自动整理数据库中的 programsToContents 表，那为什么还要 throw new TRPCError 
+      for (const seq of pgm.sequence) {
         if (seq.type === 'content') {
           await db.update(programsToContents)
             .set({ contentId: seq.id })
             .where(eq(programsToContents.programId, pgm.id));
-          const usedContent = await ctx.contentController.getContentById(seq.id);
-          if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
-            throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
+          // const usedContent = await ctx.contentController.getContentById(seq.id);
+          // if (usedContent.state === 'created' || usedContent.state === 'rejected' || usedContent.state === 'outdated')
+          //   throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
         }
-      });
-    });
+      };
+    };
+
+    for (const seq of sequence) { // 检查当前上传的 sequence 是否有不可用内容
+      if (seq.type === 'content') {
+        const cnt = await db.query.contents.findFirst({
+          where: eq(contents.id, seq.id),
+        })
+        if (!cnt)
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '选定了不存在的内容' });
+        if (['created', 'rejected', 'outdated'].includes(cnt.state))
+          throw new TRPCError({ code: 'BAD_REQUEST', message: '内容不可用' });
+      }
+    }
+
     await db.update(programs)
       .set({ sequence })
       .where(eq(programs.id, id));

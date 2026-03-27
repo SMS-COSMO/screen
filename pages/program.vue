@@ -590,9 +590,13 @@ function appendContent() {
       id: chooseRandomContent.value ? checkedCategory.id : selectedContentId.value,
     }]),
   });
-  if (seqEditSuccess)
-    toast.success('添加内容成功');
-  queryClient.invalidateQueries({ queryKey: ['program'] });
+  // if (seqEditSuccess)
+  //  toast.success('添加内容成功'); // 但是 Mutation 是异步的，不能这么处理
+  watch(seqEditPending, () => {
+    if(seqEditSuccess.value)
+      toast.success('添加内容成功');
+    queryClient.invalidateQueries({ queryKey: ['program'] });
+  }, { once: true });
 }
 function deleteContent(index: number) {
   if (sequence.value === undefined)
@@ -601,9 +605,13 @@ function deleteContent(index: number) {
     id: idInEdit.value,
     sequence: sequence.value.toSpliced(index, 1),
   });
-  if (seqEditSuccess)
-    toast.success('删除内容成功');
-  queryClient.invalidateQueries({ queryKey: ['program'] });
+  // if (seqEditSuccess)
+  //  toast.success('删除内容成功');
+  watch(seqEditPending, () => {
+    if(seqEditSuccess.value)
+      toast.success('删除内容成功');
+    queryClient.invalidateQueries({ queryKey: ['program'] });
+  }, { once: true });
 }
 function replaceContent(index: number) {
   if (sequence.value === undefined)
@@ -619,9 +627,13 @@ function replaceContent(index: number) {
       },
     ),
   });
-  if (seqEditSuccess)
-    toast.success('修改内容成功');
-  queryClient.invalidateQueries({ queryKey: ['program'] });
+  // if (seqEditSuccess)
+  //  toast.success('修改内容成功');
+  watch(seqEditPending, () => {
+    if(seqEditSuccess.value)
+      toast.success('修改内容成功');
+    queryClient.invalidateQueries({ queryKey: ['program'] });
+  }, { once: true });
 }
 
 const name = ref('');
