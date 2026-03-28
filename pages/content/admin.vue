@@ -399,12 +399,57 @@
                           <Trash2
                             class="opacity-35 flex-initial w-5 text-right"
                             :size="12"
+                            @click="selected_pool_id = pool.id"
                           />
                         </DialogTrigger>
-                        <DialogContent class="sm:max-w-[425px]">
+                        <!-- <DialogContent class="sm:max-w-[425px]"> -->
+                        <DialogContent class="sm:max-w-[625px]">
                           <DialogHeader>
                             <DialogTitle>确认删除内容类型？</DialogTitle>
+                            <DialogDescription v-if="(selected_pool_contents ?? []).length !== 0">这将同时删除以下 {{ selected_pool_contents?.length || 0 }} 个内容：</DialogDescription>
                           </DialogHeader>
+                          <Table v-if="(selected_pool_contents ?? []).length !== 0">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>
+                                  内容id
+                                </TableHead>
+                                <TableHead>
+                                  内容名称
+                                </TableHead>
+                                <TableHead>
+                                  创建者
+                                </TableHead>
+                                <TableHead>
+                                  创建时间
+                                </TableHead>
+                                <TableHead>
+                                  审核状态
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow v-for="content in selected_pool_contents">
+                                <TableCell>
+                                  {{ content.id }}
+                                </TableCell>
+                                <TableCell class="truncate">
+                                  {{ content.name }}
+                                </TableCell>
+                                <TableCell class="truncate">
+                                  {{ content.owner }}
+                                </TableCell>
+                                <TableCell>
+                                  {{ content.createdAt.toLocaleDateString() }}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge :variant="TransState(content.state).color">
+                                    {{ TransState(content.state).text }}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
                           <DialogClose>
                             <div class="flex gap-7 justify-center">
                               <Button
@@ -489,6 +534,12 @@ await suspense();
 
 const name = ref('');
 const edit_new_category_name = name; // 这里改为默认为name，因为用户可能只是想改所需权限，如果还要输入一遍类型名太糖了
+const selected_pool_id = ref(-1);
+const selected_pool_contents = computed(() => {
+  return contentList.value?.filter((content) => {
+    return content.categoryId === selected_pool_id.value;
+  })
+})
 const { mutate: createPoolMutation, isPending: isPendingPoolCreate } = useMutation({
   mutationFn: $api.pool.create.mutate,
   onSuccess: () => {
