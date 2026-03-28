@@ -1,8 +1,8 @@
 import { TRPCError } from '@trpc/server';
-import { eq } from 'drizzle-orm';
+import { and, eq, not } from 'drizzle-orm';
 import type { TLnfUploadForm, TNewContent, TRawContent, TRawUser } from '../../db/db';
 import { db } from '../../db/db';
-import { contents, programsToContents, uploadLimits, users } from '../../db/schema';
+import { contents, programs, programsToContents, uploadLimits, users } from '../../db/schema';
 import type { Context } from '../context';
 import { UserController } from './user';
 
@@ -303,5 +303,72 @@ export class ContentController {
     }
 
     return '内容更新成功';
+  }
+
+  private async syncInuseContents() { // 检查数据库中的所有内容 是否直接或间接地绑定在某个设备上。updateInfo 太难用了，先写个新的
+    const contentsInuse = new Set<number>(); // 所有正在使用的内容的 id
+
+    const deviceList = await db.query.devices.findMany(); // 如果我们最终能接入显示屏的话，这里可以改成真正的 “正在使用的设备列表”
+
+    for (const device of deviceList) {
+      const program = await db.query.programs.findFirst({ // 这是所有正在使用的节目
+        where: eq(programs.id, device.programId ?? -1),
+      });
+      if (!program) // 设备未绑定节目说是
+        continue;
+      for (const sequence of program.sequence)
+        if (sequence.type === 'content') {
+          contentsInuse.add(sequence.id);
+          await db.update(contents)
+            .set({ state: 'inuse' })
+            .where(eq(contents.id, sequence.id));
+        }
+        else if (sequence.type = 'pool') {
+          const contentList = await db.query.contents.findMany({ // 出于性能考虑，只检查 还没过期的内容
+            where: and(
+              eq(contents.categoryId, sequence.id),
+              not(eq(contents.state, 'outdated'))
+            ),
+          });
+          for (const content of contentList)
+            if (['approved', 'inuse'].includes(content.state)) { // 需要做一下状态检验
+              contentsInuse.add(content.id);
+              await db.update(contents)
+                .set({ state: 'inuse' })
+                .where(eq(contents.id, content.id));
+            }
+        }
+    }
+
+    const contentsMarkedInuse = await db.query.contents.findMany({
+      where: eq(contents.state, 'inuse'),
+    });
+
+    for (const content of contentsMarkedInuse)
+      if (!contentsInuse.has(content.id)) // 也就是说 这个内容实际上已经停止使用
+        await db.update(contents)
+          .set({ state: 'approved' }) // 回退到 已通过状态
+          .where(eq(contents.id, content.id));
+
+    return true;
+  }
+
+  private async syncOutdatedContents() {
+    const now = new Date();
+    const contentList = await db.query.contents.findMany({ // 出于性能考虑，只检查 还没过期的内容
+      where: not(eq(contents.state, 'outdated')),
+    });
+    for (const content of contentList)
+      if (content.expireDate <= now) // 未过审的也一律标记过期算了 ()
+        await db.update(contents)
+          .set({ state: 'outdated' })
+          .where(eq(contents.id, content.id));
+    return true;
+  }
+
+  async syncContentStatus() {
+    await this.syncInuseContents();
+    await this.syncOutdatedContents();
+    return true;
   }
 }

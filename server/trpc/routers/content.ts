@@ -107,6 +107,7 @@ export const contentRouter = router({
       const uploadForm = { fingerprint, date };
       return await ctx.contentController.createLostnfound(uploadForm, contentInput, ctx, fingerprint);
     }),
+
   updateContent: protectedProcedure
     .use(requireRoles(['admin', 'club']))
     .input(z.object({
@@ -132,5 +133,10 @@ export const contentRouter = router({
         reviewNotes: input.newContent.reviewNotes ?? null,
       };
       return await ctx.contentController.updateContentById(newContent, input.accessToken);
+    }),
+
+  syncContentStatus: publicProcedure // 给前端留个接口
+    .mutation(async ({ ctx }) => {
+      return await ctx.contentController.syncContentStatus();
     }),
 });
