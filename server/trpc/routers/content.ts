@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router, withSyncStatus } from '../trpc';
 
 const nameZod = z.string()
   .max(30, { message: '内容名不能超过30个字符' });
@@ -78,6 +78,7 @@ export const contentRouter = router({
 
   updateReviewStatus: protectedProcedure
     .use(requireRoles(['admin']))
+    .use(withSyncStatus)
     .input(z.object({ id: idZod, state: stateEnumZod, reviewNotes: reviewNotesZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.contentController.updateReviewStatus(input.id, input.state, input.reviewNotes, ctx);

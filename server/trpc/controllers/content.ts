@@ -318,10 +318,17 @@ export class ContentController {
         continue;
       for (const sequence of program.sequence)
         if (sequence.type === 'content') {
-          contentsInuse.add(sequence.id);
-          await db.update(contents)
-            .set({ state: 'inuse' })
-            .where(eq(contents.id, sequence.id));
+          const content = await db.query.contents.findFirst({
+            where: eq(contents.id, sequence.id),
+          });
+          if (!content)
+            continue;
+          if (['approved', 'inuse'].includes(content.state)) { // 还是要做一个判断，这是因为如果 作为“单个节目”的 inuse 的内容 被 rejected 了，我们要确保不能给它又改成 inuse
+            contentsInuse.add(sequence.id);
+            await db.update(contents)
+              .set({ state: 'inuse' })
+              .where(eq(contents.id, sequence.id));
+          }
         }
         else if (sequence.type = 'pool') {
           const contentList = await db.query.contents.findMany({ // 出于性能考虑，只检查 还没过期的内容
