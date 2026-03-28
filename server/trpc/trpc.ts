@@ -62,5 +62,11 @@ export function requireRoles(roles: string[]) {
   });
 }
 
+export const withSyncStatus = t.middleware(async ({ ctx, next }) => {
+  const result = await next(); // 先执行实际操作
+  await ctx.contentController.syncContentStatus();
+  return result;
+});
+
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);

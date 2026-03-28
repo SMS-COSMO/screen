@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router, withSyncStatus } from '../trpc';
 
 const locationZod = z.string()
   .max(20, { message: '设备名不能超过20个字符' });
@@ -16,6 +16,7 @@ export const deviceRouter = router({
 
   delete: protectedProcedure
     .use(requireRoles(['admin']))
+    .use(withSyncStatus)
     .input(z.object({ id: deviceIdZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.deviceController.delete(input.id);
@@ -30,6 +31,7 @@ export const deviceRouter = router({
 
   bindProgram: protectedProcedure
     .use(requireRoles(['admin']))
+    .use(withSyncStatus)
     .input(z.object({ id: deviceIdZod, programId: programIdZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.deviceController.bindProgram(input.id, input.programId);

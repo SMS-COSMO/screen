@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { protectedProcedure, publicProcedure, requireRoles, router } from '../trpc';
+import { protectedProcedure, publicProcedure, requireRoles, router, withSyncStatus } from '../trpc';
 
 const nameZod = z.string()
   .max(30, { message: '节目名不能超过30个字符' });
@@ -51,6 +51,7 @@ export const programRouter = router({
 
   setSequence: protectedProcedure
     .use(requireRoles(['admin']))
+    .use(withSyncStatus)
     .input(z.object({ id: idZod, sequence: sequenceZod }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.programController.setSequence(input.id, input.sequence, ctx);
