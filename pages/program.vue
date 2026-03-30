@@ -341,7 +341,7 @@
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead class="w-16">
+                              <TableHead class="min-w-16">
                                 随机选取内容/单个内容
                               </TableHead>
                               <TableHead class="text-left">

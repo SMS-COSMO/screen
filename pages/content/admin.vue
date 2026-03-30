@@ -193,14 +193,14 @@
                         <DialogHeader>
                           <DialogTitle>审核意见</DialogTitle>
                         </DialogHeader>
-                        <div class="grid gap-4 py-4">
+                          <div class="grid gap-4 py-1.5">
                           <!-- 布局父盒子 -->
-                          <div class="flex flex-col gap-2 py-2">
+                          <div class="grid gap-2.5 pt-2">
                             <div class="w-[100%] flex gap-2 py-[0.5px]">
                               <!-- 更新事件的方法失效, 改用ref -->
                               <Checkbox
                                 ref="CheckBox"
-                                class="col-span-1 row-span-1 ml-[2vw] py--[0.5px] mt-2"
+                                class="col-span-1 row-span-1 --ml-[2vw] py--[0.5px] mt-2"
                                 :model-value="isPassExa"
                                 @update:model-value="(e) => { isPassExa = typeof e === 'boolean' ? e : false }"
                               />
@@ -208,11 +208,11 @@
                                 是否过审
                               </Label>
                             </div>
-                            <div v-show="!isPassExa" class="flex flex-col gap-4">
-                              <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left ml-4 py-2">
+                            <div v-show="!isPassExa" class="flex flex-col gap-1">
+                              <Label v-show="!isPassExa" for="c-name" class="row-span-1 col-span-4 text-left --ml-4 py-2">
                                 修改意见
                               </Label>
-                              <Textarea v-model="exa_idea" />
+                              <Textarea v-model="exa_idea" class="min-h-20" />
                             </div>
                           </div>
                         </div>
@@ -238,7 +238,8 @@
                           </Button>
                           <Button
                             type="submit"
-                            class="ml-6 bg-slate-50"
+                            variant="outline"
+                            class="ml-6 --bg-slate-50"
                           >
                             取消
                           </Button>

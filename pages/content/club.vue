@@ -46,13 +46,13 @@
             <TableHead class="min-w-32 max-w-64">
               内容名称
             </TableHead>
-            <TableHead>
+            <TableHead class="min-w-24">
               创建者
             </TableHead>
             <TableHead>
               创建时间
             </TableHead>
-            <TableHead>
+            <TableHead class="min-w-48">
               源文件
             </TableHead>
             <TableHead class="min-w-24">
@@ -142,7 +142,7 @@
                 </Button>
                 <Dialog>
                   <DialogTrigger as-child>
-                    <Button variant="outline">
+                    <Button variant="outline" class="ml-1">
                       查看
                     </Button>
                   </DialogTrigger>
@@ -177,9 +177,9 @@
                     <DialogHeader>
                       <DialogTitle>审核意见</DialogTitle>
                     </DialogHeader>
-                    <div class="grid gap-4 py-4">
+                    <div class="grid gap-4 py-1.5">
                       <!-- 仅显示审核状态 -->
-                      <div class="flex flex-col gap-2 py-2">
+                      <div class="grid gap-2.5 pt-2">
                         <div class="w-[100%] flex gap-2 py-[0.5px]">
                           <Label class="text-center col-span-2 row-span-1 py-2">
                             审核状态
@@ -188,11 +188,11 @@
                               {{ TransState(content.state).text }}
                           </Badge>
                         </div>
-                        <div v-if="content.reviewNotes" class="flex flex-col gap-4">
-                          <Label class="row-span-1 col-span-4 text-left ml-4 py-2">
+                        <div v-if="content.reviewNotes" class="flex flex-col gap-1">
+                          <Label class="row-span-1 col-span-4 text-left --ml-4 py-2">
                             修改意见
                           </Label>
-                          <Textarea :model-value="content.reviewNotes" class="row-span-4 col-span-4 ml-2 py-2" readonly />
+                          <Textarea :model-value="content.reviewNotes" class="row-span-4 col-span-4 --ml-2 py-2 min-h-20" readonly />
                         </div>
                       </div>
                     </div>
