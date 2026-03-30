@@ -40,10 +40,10 @@
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>
+            <TableHead class="min-w-16">
               内容id
             </TableHead>
-            <TableHead class="w-64">
+            <TableHead class="min-w-32 max-w-64">
               内容名称
             </TableHead>
             <TableHead>
@@ -55,7 +55,7 @@
             <TableHead>
               源文件
             </TableHead>
-            <TableHead>
+            <TableHead class="min-w-24">
               审核状态
             </TableHead>
           </TableRow>

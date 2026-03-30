@@ -83,11 +83,11 @@
               <TableCell class="text-gray-500">
                 {{ invitation.id }}
               </TableCell>
-              <TableCell>
+              <TableCell class="min-w-96">
                 {{ invitation.code }}
                 <CopyLink :text="invitation.code" />
               </TableCell>
-              <TableCell>
+              <TableCell class="min-w-24">
                 <Badge :variant="invitation.state ? 'c_created' : 'c_approved'">
                   <!-- 此处没有专门的variant于是暂时选了颜色合适的 -->
                   {{ invitation.state ? '已使用' : '未使用' }}
