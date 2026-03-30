@@ -1,9 +1,24 @@
 <template>
   <Card class="border-0 shadow-none bg-transparent">
     <CardContent class="flex flex-col items-center justify-center py-2">
-      <div v-if="info !== undefined && info.status" class="text-2xl text-center flex items-center justify-center">
-        {{ info.weather }} / {{ info.temperature }}°C / {{ info.humidity }}%
-        <Icon :name="getIconName(info.weather)" class="h-6 w-6 ml-2" />
+      <div v-if="info !== undefined && info.status" class="text-2xl w-full px-3">
+        <div class="w-full flex justify-start items-center gap-2">
+          <div class="flex">
+            <span class="text-left">
+              {{ info.weather }} / {{ info.temperature }}°C
+            </span>
+          </div>
+          <Separator class="flex-1" orientation="horizontal" />
+        </div>
+        <div class="w-full flex justify-end items-center gap-2">
+          <Separator class="flex-1" orientation="horizontal" />
+          <div class="flex">
+            <span class="text-right">
+              {{ info.humidity }}% /
+            </span>
+            <Icon :name="getIconName(info.weather)" class="h-7 w-7 ml-2" />
+          </div>
+        </div>
       </div>
       <div v-if="info === undefined || !info.status" class="text-2xl text-center table-cell text-red-500">
         网络错误
