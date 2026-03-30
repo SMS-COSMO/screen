@@ -407,6 +407,7 @@
                           <DialogHeader>
                             <DialogTitle>确认删除内容类型？</DialogTitle>
                             <DialogDescription v-if="(selected_pool_contents ?? []).length !== 0">这将同时删除以下 {{ selected_pool_contents?.length || 0 }} 个内容：</DialogDescription>
+                            <DialogDescription v-else>此类型下暂时没有内容。</DialogDescription>
                           </DialogHeader>
                           <Table v-if="(selected_pool_contents ?? []).length !== 0">
                             <TableHeader>
@@ -552,6 +553,7 @@ const { mutate: deletePoolMutation } = useMutation({
   mutationFn: $api.pool.delete.mutate,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ['pool', 'list'] });
+    queryClient.invalidateQueries({ queryKey: ['content', 'list'] });
     toast.success('内容类型删除成功');
   },
   onError: err => useErrorHandler(err),

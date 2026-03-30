@@ -68,7 +68,7 @@ export const contents = sqliteTable('contents', {
   S3FileId: text('s3_file_id').notNull(),
   expireDate: integer('expireDate', { mode: 'timestamp' }).notNull(),
   state: text('state', { enum: stateEnum }).notNull().default('created'),
-  categoryId: integer('category_id').references(() => pools.id, setNull),
+  categoryId: integer('category_id').references(() => pools.id, cascade).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   reviewNotes: text('reviewNotes'),
 });
@@ -150,8 +150,8 @@ export const uploadLimits = sqliteTable('upload_limits', {
 // 通知表
 export const notifications = sqliteTable('notifications', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  senderId: integer('sender_id').notNull().references(() => users.id, setNull),
-  receiverId: integer('receiver_id').notNull().references(() => users.id, setNull),
+  senderId: integer('sender_id').references(() => users.id, setNull),
+  receiverId: integer('receiver_id').references(() => users.id, setNull),
   title: text('title').notNull(),
   content: text('content').notNull(),
   unread: integer('unread', { mode: 'boolean' }).notNull().default(true),
