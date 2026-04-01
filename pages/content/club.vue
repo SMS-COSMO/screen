@@ -77,6 +77,7 @@
                       <Pencil
                         class="opacity-35 flex-initial w-5 text-right"
                         :size="12"
+                        @click="edit_new_content_name = content.name"
                       />
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">

@@ -135,6 +135,7 @@
                       <Pencil
                         class="opacity-35 flex-initial w-5 text-right"
                         :size="12"
+                        @click="edit_new_location = device.location"
                       />
                     </DialogTrigger>
                     <DialogContent class="sm:max-w-[425px]">

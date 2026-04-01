@@ -91,6 +91,7 @@
                             class="opacity-35 flex-initial w-5 text-right
                             "
                             :size="12"
+                            @click="edit_new_content_name = content.name"
                           />
                         </DialogTrigger>
                         <DialogContent class="sm:max-w-[425px]">
@@ -184,7 +185,7 @@
                           class="opacity-35 flex-initial w-5 text-right mt-1"
                           :size="16"
                           @click="() => {
-                            isPassExa = content.state === 'approved' ? true : false
+                            isPassExa = content.state === 'approved' || content.state === 'inuse' ? true : false
                             exa_idea = content.reviewNotes === null ? '' : content.reviewNotes
                           }"
                         />
@@ -345,6 +346,7 @@
                           <Pencil
                             class="opacity-35 flex-initial w-5 text-right"
                             :size="12"
+                            @click="edit_new_category_name = pool.category; edit_new_roleRequire = pool.roleRequirement as 'club' | 'admin'"
                           />
                         </DialogTrigger>
                         <DialogContent class="sm:max-w-[425px]">

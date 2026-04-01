@@ -6,7 +6,10 @@
           {{ time }}
         </div>
         <div class="text-2xl mt-2 text-center">
-          {{ date }}
+          {{ date.split(' ')[0] }}
+        </div>
+        <div class="text-2xl text-center">
+          {{ date.split(' ')[1] }}
         </div>
       </CardContent>
     </div>
