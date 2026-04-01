@@ -76,7 +76,7 @@ export class DeviceController {
     device.program?.sequence.forEach(async (item) => {
       if (item.type === 'pool') {
         const contents = (await ctx.contentController.getListByCategoryTemp(item.id)).filter((content) => {
-          return content.state === 'approved';
+          return content.state === 'approved' || content.state === 'inuse';
         }); // 打个补丁
         contentList.push(contents);
       } else if (item.type === 'content') {
