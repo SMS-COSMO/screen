@@ -262,7 +262,7 @@
             <CardTitle>内容类型管理</CardTitle>
             <Dialog>
               <DialogTrigger as-child>
-                <Button variant="outline" class="ml-auto">
+                <Button variant="outline" class="ml-auto" @click="edit_new_category_name = ''; edit_new_roleRequire = 'club' as 'club' | 'admin'">
                   创建内容类型
                 </Button>
               </DialogTrigger>

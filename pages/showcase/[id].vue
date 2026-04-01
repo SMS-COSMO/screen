@@ -108,7 +108,7 @@ const computedContentList: Ref<(TRawContent)[]> = computed(() => {
   console.log("constructing content list...");
   contentList.value?.forEach((item) => {
     if (Array.isArray(item)) {
-      const categoryId = item[0].categoryId ?? -1;
+      const categoryId = item[0]?.categoryId ?? -1;
       const lastRandomIndex = lastRandomIndexes.get(categoryId);
       let randomKey = Math.floor(Math.random() * item.length);
       if(randomKey === lastRandomIndex)
