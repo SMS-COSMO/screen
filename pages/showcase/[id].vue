@@ -7,7 +7,7 @@
       <swiper-container ref="swiperRef" :loop="computedContentList.length - 1 ? true : false" class="max-w-[78vw]">
         <!-- 根据经验, 这里必须限定 max-w, 否则整个 swiper 会飞起来 -->
         <swiper-slide v-for="(content, index) in computedContentList" :key="content.id" class="flex">
-          <div v-if="content.state === 'approved'"
+          <div v-if="content.state === 'approved' || content.state === 'inuse'"
             class="flex h-[100vh] w-[78vw] justify-center items-center text-white dark:text-black">
             <HandleDisplay :src-key="content.S3FileId" :filetype="content.fileType"
               image-class="h-[100vh] w-auto object-contain" video-class="h-auto w-[78vw] object-contain"
