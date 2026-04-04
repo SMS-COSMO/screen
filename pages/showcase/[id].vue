@@ -54,7 +54,9 @@ if (error.value !== null)
   else useErrorHandler(error.value);
 
 const swiperRef = ref(null);
-const swiper = useSwiper(swiperRef);
+const swiper = useSwiper(swiperRef, {
+  speed: 750, // default: 300
+});
 
 const { ArrowLeft, ArrowRight } = useMagicKeys();
 watch([ArrowLeft, ArrowRight], (v) => {
