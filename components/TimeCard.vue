@@ -1,7 +1,7 @@
 <template>
   <Card class="border-0 shadow-none">
     <div>
-    <CardContent class="--flex items-center justify-center py-4 bg-green-500">
+    <CardContent class="--flex items-center justify-center py-4 --bg-green-500">
         <span class="text-2xl text-center">
           {{ date.split(' ')[0] }}
         </span>

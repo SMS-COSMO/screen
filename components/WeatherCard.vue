@@ -1,7 +1,7 @@
 <template>
   <Card class="border-0 shadow-none bg-transparent">
     <div>
-    <CardContent class="--flex items-center justify-center py-4 bg-red-500">
+    <CardContent class="--flex items-center justify-center py-4 --bg-red-500">
       <div v-if="info !== undefined && info.status" class="text-2xl w-full px-3">
         <div class="w-full flex justify-end items-center gap-2">
           <div class="flex">
