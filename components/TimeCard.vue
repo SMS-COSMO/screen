@@ -1,16 +1,16 @@
 <template>
   <Card class="border-0 shadow-none">
     <div>
-      <CardContent class="flex flex-col items-center justify-center py-4">
-        <div class="text-6xl font-bold text-center tracking-widest">
-          {{ time }}
-        </div>
-        <div class="text-2xl mt-2 text-center">
+    <CardContent class="--flex items-center justify-center py-4 bg-green-500">
+        <span class="text-2xl text-center">
           {{ date.split(' ')[0] }}
-        </div>
-        <div class="text-2xl text-center">
+        </span>
+        <span class="ml-2 text-2xl text-center">
           {{ date.split(' ')[1] }}
-        </div>
+        </span>
+        <span class="ml-2 text-2xl font-bold tracking-widest">
+          {{ time }}
+        </span>
       </CardContent>
     </div>
   </Card>

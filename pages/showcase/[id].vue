@@ -1,8 +1,6 @@
 <template>
   <Title>内容展示</Title>
-  <div class="left-[21.5vw] w-[0.5vw] h-[100vh] bg-gray-400 fixed" />
-  <!-- 这是那一条竖线 -->
-  <div class="flex left-[22vw] h-[100vh] w-[78vw] bg-gray-800 dark:bg-gray-200 fixed justify-center items-center">
+  <div class="flex h-[100vh] w-[100vw] bg-gray-800 dark:bg-gray-200 fixed justify-center items-center">
     <ClientOnly>
       <swiper-container ref="swiperRef" :loop="computedContentList.length - 1 ? true : false" class="max-w-[78vw]">
         <!-- 根据经验, 这里必须限定 max-w, 否则整个 swiper 会飞起来 -->

@@ -1,21 +1,11 @@
 <template>
   <Card class="border-0 shadow-none bg-transparent">
-    <CardContent class="flex flex-col items-center justify-center py-2">
+    <div>
+    <CardContent class="--flex items-center justify-center py-4 bg-red-500">
       <div v-if="info !== undefined && info.status" class="text-2xl w-full px-3">
-        <div class="w-full flex justify-start items-center gap-2">
-          <div class="flex">
-            <span class="text-left">
-              {{ info.weather }} / {{ info.temperature }}°C
-            </span>
-          </div>
-          <Separator class="flex-1" orientation="horizontal" />
-        </div>
         <div class="w-full flex justify-end items-center gap-2">
-          <Separator class="flex-1" orientation="horizontal" />
           <div class="flex">
-            <span class="text-right">
-              {{ info.humidity }}% /
-            </span>
+            {{ info.weather }} / {{ info.temperature }}°C
             <Icon :name="getIconName(info.weather)" class="h-7 w-7 ml-2" />
           </div>
         </div>
@@ -25,6 +15,7 @@
         <Icon name="lucide:circle-x" class="h-6 w-6 ml-2 inline" />
       </div>
     </CardContent>
+    </div>
   </Card>
 </template>
 
